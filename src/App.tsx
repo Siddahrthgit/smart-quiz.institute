@@ -586,7 +586,7 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 text-slate-500 text-xs py-6">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <p>© 2026 Smart Quiz AI. Powered by Gemini 2.5 Flash & Google Workspace Integration.</p>
+          <p>© 2026 Smart Quiz AI.</p>
           <div className="flex items-center space-x-4">
             <span className="text-indigo-400 font-mono text-[10px] px-2 py-0.5 rounded bg-indigo-950 border border-indigo-900">
               Phase 1–8 Roadmap Fully Integrated
