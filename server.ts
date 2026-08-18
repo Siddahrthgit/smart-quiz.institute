@@ -32,6 +32,7 @@ import paymentRoutes from './routes/payment';
 import featuresQaRoutes from './routes/features-qa';
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = 3000;
 
 app.use(express.json({ limit: '50mb' }));
