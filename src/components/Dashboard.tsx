@@ -618,7 +618,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* FOOTER TAGLINE BANNER */}
       <div className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 rounded-2xl p-4 text-center text-white text-xs font-bold shadow-xl">
-        Smart Quiz AI – Your AI Study Companion for Smarter Learning & Better Results.
+        Smart Exam Preparation – Your AI Study Companion for Smarter Learning & Better Results.
       </div>
     </div>
   );

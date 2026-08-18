@@ -57,7 +57,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     {
       id: 'm1',
       sender: 'ai',
-      text: 'Hello! I am your Smart Quiz AI Study Tutor. Select a document and ask me any question about your study material!',
+      text: 'Hello! I am your Smart Exam Preparation Study Tutor. Select a document and ask me any question about your study material!',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);

@@ -1,5 +1,5 @@
 {
-  "name": "Smart Quiz AI",
+  "name": "Smart Exam Preparation",
   "description": "AI-powered learning and quiz platform with intelligent study engines, document analysis, analytics, and Google Drive integration.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

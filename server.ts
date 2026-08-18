@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import multer from 'multer';
@@ -24,12 +25,20 @@ async function parsePdfBuffer(buffer: Buffer): Promise<string> {
 
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
+import { connectDB } from './db/connect';
+import authRoutes from './routes/auth';
+import { authLimiter, paymentLimiter } from './middleware/rateLimit';
+import paymentRoutes from './routes/payment';
+import featuresQaRoutes from './routes/features-qa';
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/payment', paymentLimiter, paymentRoutes);
+app.use('/api/features-qa', featuresQaRoutes);
 
 // Setup multer memory storage for file uploads
 const upload = multer({
@@ -272,7 +281,7 @@ app.post('/api/generate-quiz', async (req, res) => {
 
     const truncatedContext = studyContext.slice(0, 40000);
 
-    const prompt = `You are Smart Quiz AI, an expert educational assessment generator.
+    const prompt = `You are Smart Exam Preparation, an expert educational assessment generator.
 Generate a high-quality quiz based on the following material:
 
 Material:
@@ -561,7 +570,7 @@ app.post('/api/generate-notes', async (req, res) => {
 
     const truncated = textToAnalyze.slice(0, 12000);
 
-    const prompt = `You are Smart Quiz AI. Generate structured, high-yield study notes from the following text.
+    const prompt = `You are Smart Exam Preparation. Generate structured, high-yield study notes from the following text.
 IMPORTANT: Return strict valid JSON. Do NOT output unescaped backslashes in JSON string values. For backslashes or formulas, use proper JSON double backslashes (e.g. \\\\n or \\\\frac).
 
 Material:
@@ -651,7 +660,7 @@ app.post('/api/doc-chat', async (req, res) => {
       docContext = documentStore.get(documentId)!.content.slice(0, 10000);
     }
 
-    const prompt = `You are Smart Quiz AI Tutor assistant.
+    const prompt = `You are Smart Exam Preparation Tutor assistant.
 Context material:
 """
 ${docContext || 'General academic assistance'}
@@ -737,6 +746,7 @@ app.get('/api/drive/files', async (req, res) => {
 
 // Start express server with Vite middleware in dev mode
 async function main() {
+  await connectDB();
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -752,7 +762,7 @@ async function main() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Smart Quiz AI server listening on http://0.0.0.0:${PORT}`);
+    console.log(`Smart Exam Preparation server listening on http://0.0.0.0:${PORT}`);
   });
 }
 
