@@ -111,70 +111,64 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="space-y-4 pt-2 border-t border-slate-800">
+          <div className="flex overflow-x-auto gap-2 pt-2 border-t border-slate-800 pb-1">
             {/* Feature 1 */}
-            <div className="flex items-start space-x-3 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col items-center text-center space-y-1 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors flex-shrink-0 w-20">
               <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <BrainCircuit className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
                 <h3 className="text-xs font-bold text-slate-100">AI Powered</h3>
-                <p className="text-[11px] text-slate-400 leading-snug">Generates questions from your PDF/TXT using AI.</p>
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div className="flex items-start space-x-3 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col items-center text-center space-y-1 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors flex-shrink-0 w-20">
               <div className="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <HelpCircle className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
                 <h3 className="text-xs font-bold text-slate-100">Smart Quiz</h3>
-                <p className="text-[11px] text-slate-400 leading-snug">Take quizzes one question at a time with real-time feedback.</p>
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div className="flex items-start space-x-3 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col items-center text-center space-y-1 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors flex-shrink-0 w-20">
               <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
                 <h3 className="text-xs font-bold text-slate-100">Track & Improve</h3>
-                <p className="text-[11px] text-slate-400 leading-snug">Tracks right, wrong & less confident answers for better learning.</p>
               </div>
             </div>
 
             {/* Feature 4 */}
-            <div className="flex items-start space-x-3 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col items-center text-center space-y-1 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors flex-shrink-0 w-20">
               <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <RotateCcw className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
                 <h3 className="text-xs font-bold text-slate-100">Smart Revision</h3>
-                <p className="text-[11px] text-slate-400 leading-snug">Practice wrong & less confident questions separately.</p>
               </div>
             </div>
 
             {/* Feature 5 */}
-            <div className="flex items-start space-x-3 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col items-center text-center space-y-1 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors flex-shrink-0 w-20">
               <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Award className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
                 <h3 className="text-xs font-bold text-slate-100">Confidence Check</h3>
-                <p className="text-[11px] text-slate-400 leading-snug">Rate your confidence for each answer to focus on weak topics.</p>
               </div>
             </div>
 
             {/* Feature 6 */}
-            <div className="flex items-start space-x-3 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col items-center text-center space-y-1 p-2 rounded-2xl hover:bg-slate-800/50 transition-colors flex-shrink-0 w-20">
               <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <FileText className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
                 <h3 className="text-xs font-bold text-slate-100">Multi-Format Support</h3>
-                <p className="text-[11px] text-slate-400 leading-snug">Upload PDF or TXT files easily and extract knowledge.</p>
               </div>
             </div>
           </div>
