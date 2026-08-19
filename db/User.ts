@@ -6,6 +6,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   passwordHash: string;
+  resetPasswordToken?: string;
   subscription: {
     status: 'free' | 'premium';
     plan?: 'monthly' | 'annual';
@@ -20,7 +21,8 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true },
     username: { type: String, required: true, unique: true, lowercase: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
     subscription: {
       status: { type: String, enum: ['free', 'premium'], default: 'free' },
       plan: { type: String, enum: ['monthly', 'annual'] },

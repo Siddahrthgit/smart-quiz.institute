@@ -15,6 +15,7 @@ import { PracticeRoom } from './components/PracticeRoom';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
+import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { FriendsModal } from './components/FriendsModal';
 
 import { 
@@ -464,6 +465,10 @@ export default function App() {
       return { ...prev, bookmarks: newBookmarks };
     });
   };
+
+  if (window.location.pathname === '/reset-password') {
+    return <ResetPasswordPage />;
+  }
 
   if (showLanding) {
     return <LandingPage onGetStarted={() => { setShowLanding(false); setIsAuthOpen(true); }} />;

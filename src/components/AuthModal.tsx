@@ -15,7 +15,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   profile,
   onSaveProfile,
 }) => {
-  const [mode, setMode] = useState<'login' | 'register'>('register');
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('register');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -30,6 +30,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    if (mode === 'forgot') {
+      try {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || 'Something went wrong');
+        } else {
+          setMessage(data.message || 'If that email exists, a reset link has been sent.');
+        }
+      } catch {
+        setError('Could not reach the server. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
       const body =
@@ -80,30 +102,36 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <h2 className="text-lg font-bold text-white">
-              {mode === 'login' ? 'Welcome Back' : 'Create Your Account'}
+              {mode === 'login' ? 'Welcome Back' : mode === 'forgot' ? 'Reset Password' : 'Create Your Account'}
             </h2>
           </div>
           <p className="text-xs text-slate-400">
-            {mode === 'login' ? 'Log in to continue your studying.' : 'Sign up to start generating quizzes from your material.'}
+            {mode === 'login'
+              ? 'Log in to continue your studying.'
+              : mode === 'forgot'
+              ? "Enter your email and we'll send you a reset link."
+              : 'Sign up to start generating quizzes from your material.'}
           </p>
         </div>
 
-        <div className="flex bg-slate-800 rounded-xl p-1 text-xs font-medium">
-          <button
-            type="button"
-            onClick={() => { setMode('register'); setError(null); }}
-            className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
-          >
-            Sign Up
-          </button>
-          <button
-            type="button"
-            onClick={() => { setMode('login'); setError(null); }}
-            className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
-          >
-            Log In
-          </button>
-        </div>
+        {mode !== 'forgot' && (
+          <div className="flex bg-slate-800 rounded-xl p-1 text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => { setMode('register'); setError(null); }}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+            >
+              Sign Up
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(null); }}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+            >
+              Log In
+            </button>
+          </div>
+        )}
 
         {message && (
           <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-800 text-xs text-emerald-300 flex items-center space-x-2">
@@ -167,28 +195,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-slate-300 font-medium">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
+          {mode !== 'forgot' && (
+            <div className="space-y-1">
+              <label className="text-slate-300 font-medium">Password</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              </div>
             </div>
-          </div>
+          )}
+
+          {mode === 'login' && (
+            <button
+              type="button"
+              onClick={() => { setMode('forgot'); setError(null); setMessage(null); }}
+              className="text-indigo-400 hover:text-indigo-300 text-xs"
+            >
+              Forgot password?
+            </button>
+          )}
 
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors shadow"
           >
-            {loading ? 'Please wait...' : mode === 'login' ? 'Log In' : 'Create Account'}
+            {loading
+              ? 'Please wait...'
+              : mode === 'login'
+              ? 'Log In'
+              : mode === 'forgot'
+              ? 'Send Reset Link'
+              : 'Create Account'}
           </button>
+
+          {mode === 'forgot' && (
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(null); setMessage(null); }}
+              className="w-full text-slate-400 hover:text-slate-300 text-xs text-center"
+            >
+              Back to Log In
+            </button>
+          )}
         </form>
       </div>
     </div>
