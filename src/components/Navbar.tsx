@@ -22,6 +22,7 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onQuickGenerate: () => void;
   onOpenFriends: () => void;
+  onOpenPremium: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -31,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuth,
   onQuickGenerate,
   onOpenFriends,
+  onOpenPremium,
 }) => {
   const nextLevelXp = profile.level * 200;
   const xpPercent = Math.min(100, Math.round((profile.xp / nextLevelXp) * 100));
@@ -88,6 +90,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* User Profile & XP Stats */}
           <div className="flex items-center space-x-3 sm:space-x-4">
+            <button
+              onClick={onOpenPremium}
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all shadow-sm"
+              title="Upgrade to Premium"
+            >
+              <span className="hidden sm:inline">✨ Upgrade</span>
+              <span className="sm:hidden">✨</span>
+            </button>
+
             {/* Friends Quick Access Button */}
             <button
               onClick={onOpenFriends}
