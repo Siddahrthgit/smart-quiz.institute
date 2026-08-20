@@ -84,7 +84,6 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [isFriendsOpen, setIsFriendsOpen] = useState(false);
-  const [isPremiumOpen, setIsPremiumOpen] = useState(false);
   const [friendsList, setFriendsList] = useState<FriendUser[]>([
     {
       id: 'f_alex',
@@ -485,7 +484,6 @@ export default function App() {
         onOpenAuth={() => setIsAuthOpen(true)}
         onQuickGenerate={() => setActiveTab('quiz-gen')}
         onOpenFriends={() => setIsFriendsOpen(true)}
-        onOpenPremium={() => setIsPremiumOpen(true)}
       />
 
       {/* Main Container */}
@@ -623,9 +621,6 @@ export default function App() {
         friendsList={friendsList}
         onToggleFriend={handleToggleFriend}
       />
-
-      {/* Premium Modal */}
-      <PremiumModal isOpen={isPremiumOpen} onClose={() => setIsPremiumOpen(false)} />
     </div>
   );
 }
