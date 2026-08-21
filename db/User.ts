@@ -21,6 +21,7 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true },
     username: { type: String, required: true, unique: true, lowercase: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash: { type: String, required: true },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     subscription: {
