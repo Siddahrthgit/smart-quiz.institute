@@ -58,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div>
               <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                Smart Quiz <span className="text-indigo-400 font-mono text-xs px-1.5 py-0.5 rounded bg-indigo-950 border border-indigo-800">AI</span>
+                Study Planner <span className="text-indigo-400 font-mono text-xs px-1.5 py-0.5 rounded bg-indigo-950 border border-indigo-800">AI</span>
               </span>
               <p className="text-[11px] text-slate-400 -mt-0.5">Intelligent Study Platform</p>
             </div>

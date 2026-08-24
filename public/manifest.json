@@ -1,6 +1,6 @@
 {
-  "name": "Smart Quiz AI",
-  "short_name": "Smart Quiz",
+  "name": "Study Planner",
+  "short_name": "Study Planner",
   "description": "AI-powered quiz and exam prep platform for NEC Loksewa civil engineering candidates",
   "start_url": "/",
   "scope": "/",

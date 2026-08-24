@@ -102,7 +102,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-1.5">
-                <span>Smart Quiz</span>
+                <span>Study Planner</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">AI</span>
               </h1>
               <p className="text-[11px] font-semibold text-slate-400 leading-tight">
@@ -128,7 +128,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <HelpCircle className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
-                <h3 className="text-xs font-bold text-slate-100">Smart Quiz</h3>
+                <h3 className="text-xs font-bold text-slate-100">Study Planner</h3>
               </div>
             </div>
 

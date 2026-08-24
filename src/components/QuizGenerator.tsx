@@ -477,7 +477,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
           ) : (
             <>
               <Sparkles className="w-5 h-5" />
-              <span>Generate Smart Quiz Now</span>
+              <span>Generate Study Planner Now</span>
             </>
           )}
         </button>
