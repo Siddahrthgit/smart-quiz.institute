@@ -148,7 +148,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             <span className="status-chip checked">Step 1 of 3</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <button
               type="button"
               onClick={() => setSourceMode('doc')}
