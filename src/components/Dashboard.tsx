@@ -233,7 +233,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <div className="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center">
                   <Flame className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Less Confident</span>
+                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Need Improve</span>
                 <span className="text-xl font-black text-amber-400 font-mono">{lessConfident}</span>
               </div>
             </div>
@@ -483,7 +483,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Less Confident ({profile.lowConfidenceQuestionIds.length || 12})
+              Need Improve ({profile.lowConfidenceQuestionIds.length || 12})
             </button>
           </div>
 
@@ -552,7 +552,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="flex items-center justify-between text-slate-300">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                <span>Less Confident</span>
+                <span>Need Improve</span>
               </div>
               <span className="font-mono font-bold text-amber-400">{lessConfident}</span>
             </div>
