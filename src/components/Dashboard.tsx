@@ -67,6 +67,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const correctAnswers = attempts.reduce((acc, curr) => acc + curr.correctCount, 0) || 192;
   const wrongAnswers = profile.wrongQuestionIds.length > 0 ? profile.wrongQuestionIds.length : 48;
   const lessConfident = profile.lowConfidenceQuestionIds.length > 0 ? profile.lowConfidenceQuestionIds.length : 36;
+  const confident = Math.max(correctAnswers - lessConfident, 0);
   const overallAccuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 80;
 
   // Recent Quizzes display (with fallbacks if empty)
@@ -200,7 +201,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* 4 Primary Stats Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6">
               {/* Stat 1: Total Quizzes */}
               <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 text-center space-y-1">
                 <div className="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 mx-auto flex items-center justify-center">
@@ -235,6 +236,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Need Improve</span>
                 <span className="text-xl font-black text-amber-400 font-mono">{lessConfident}</span>
+              </div>
+
+              {/* Stat 5: Confident */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 text-center space-y-1">
+                <div className="w-7 h-7 rounded-xl bg-sky-500/20 text-sky-400 mx-auto flex items-center justify-center">
+                  <Smile className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Confident</span>
+                <span className="text-xl font-black text-sky-400 font-mono">{confident}</span>
               </div>
             </div>
           </div>
