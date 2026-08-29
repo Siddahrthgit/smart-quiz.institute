@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import multer from 'multer';
 import * as pdfParseModule from 'pdf-parse';
+import questionsRoute from "./questionsRoute";
 
 async function parsePdfBuffer(buffer: Buffer): Promise<string> {
   try {
@@ -30,6 +31,8 @@ import authRoutes from './routes/auth';
 import { authLimiter, paymentLimiter } from './middleware/rateLimit';
 import paymentRoutes from './routes/payment';
 import featuresQaRoutes from './routes/features-qa';
+import materialsRoutes from './routes/materials';
+import questionsRoute from './questionsRoute';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -40,6 +43,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/payment', paymentLimiter, paymentRoutes);
 app.use('/api/features-qa', featuresQaRoutes);
+app.use('/api/questions', questionsRoute);
+app.use('/api/materials', materialsRoutes);
 
 // Setup multer memory storage for file uploads
 const upload = multer({

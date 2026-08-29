@@ -38,6 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart2 },
     { id: 'quiz-gen', label: 'Quiz AI', icon: Sparkles },
+    { id: 'ai-quiz-flow', label: 'AI Quiz (Beta)', icon: Sparkles },
     { id: 'documents', label: 'Materials & Drive', icon: BookOpen },
     { id: 'notes-cards', label: 'Notes & Flashcards', icon: FileText },
     { id: 'practice', label: 'Speaking & Writing', icon: Mic },
