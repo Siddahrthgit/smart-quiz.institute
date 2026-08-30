@@ -464,19 +464,21 @@ export default function App() {
 
   // Toggle bookmark
   const handleToggleBookmark = (questionId: string) => {
-// Request notification permission
-  const handleRequestNotifications = async () => {
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'default') {
-      await Notification.requestPermission();
-    }
-  };    setProfile((prev) => {
+    setProfile((prev) => {
       const isBookmarked = prev.bookmarks.includes(questionId);
       const newBookmarks = isBookmarked
         ? prev.bookmarks.filter((id) => id !== questionId)
         : [...prev.bookmarks, questionId];
       return { ...prev, bookmarks: newBookmarks };
     });
+  };
+
+  // Request notification permission
+  const handleRequestNotifications = async () => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
   };
 
   if (window.location.pathname === '/reset-password') {
