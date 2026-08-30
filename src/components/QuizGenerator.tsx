@@ -15,7 +15,8 @@ import {
   Upload,
   FileUp,
   CheckCircle2,
-  Trash2
+  Trash2,
+  TrendingUp
 } from 'lucide-react';
 import { DocumentItem, Difficulty, QuestionType, QuizConfig } from '../types';
 

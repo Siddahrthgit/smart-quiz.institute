@@ -15,6 +15,7 @@ import { PracticeRoom } from './components/PracticeRoom';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
+import { AiQuizFlow } from './components/AiQuizFlow';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { FriendsModal } from './components/FriendsModal';
 
@@ -523,6 +524,8 @@ export default function App() {
             }}
           />
         )}
+
+        {activeTab === 'ai-quiz-flow' && <AiQuizFlow />}
 
         {activeTab === 'quiz-gen' && (
           <QuizGenerator
