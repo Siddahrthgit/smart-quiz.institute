@@ -20,6 +20,8 @@ import {
 import { DocumentItem, Difficulty, QuestionType, QuizConfig } from '../types';
 
 interface QuizGeneratorProps {
+  profile?: { xp: number; streakDays: number };
+  attempts?: { totalQuestions: number; correctCount: number }[];
   documents: DocumentItem[];
   onGenerateQuiz: (config: QuizConfig) => Promise<void>;
   onUploadFile?: (file: File) => Promise<void>;
@@ -30,6 +32,8 @@ interface QuizGeneratorProps {
 }
 
 export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
+  profile,
+  attempts = [],
   documents,
   onGenerateQuiz,
   onUploadFile,
@@ -76,6 +80,10 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
+
+  const totalQ = attempts.reduce((acc, a) => acc + a.totalQuestions, 0);
+  const correctQ = attempts.reduce((acc, a) => acc + a.correctCount, 0);
+  const previewAccuracy = totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0;
 
   const toggleType = (type: QuestionType) => {
     if (selectedTypes.includes(type)) {
@@ -309,6 +317,18 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                 placeholder="e.g. Organic Chemistry Functional Groups, World War II History, Python Async Architecture..."
                 className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
+              {totalQ > 0 && (
+                <div className="mt-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Your recent performance</span>
+                  </div>
+                  <div className="flex items-center gap-3 font-mono">
+                    <span className="text-slate-300">{attempts.length} quizzes</span>
+                    <span className="text-emerald-400 font-bold">{previewAccuracy}% accuracy</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

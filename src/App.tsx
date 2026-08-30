@@ -525,6 +525,7 @@ export default function App() {
         {activeTab === 'quiz-gen' && (
           <QuizGenerator
             documents={documents}
+            attempts={attempts}
             onGenerateQuiz={handleGenerateQuiz}
             onUploadFile={handleUploadFile}
             onDeleteDocument={handleDeleteDocument}
