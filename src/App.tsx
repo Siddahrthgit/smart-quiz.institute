@@ -134,7 +134,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('smart_quiz_profile', JSON.stringify(profile));
   }, [profile]);
-
+// Register service worker for notifications
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) =>
+        console.warn('Service worker registration failed:', err)
+      );
+    }
+  }, []);
   // Fetch initial documents from backend
   useEffect(() => {
     fetch('/api/documents')
@@ -457,7 +464,13 @@ export default function App() {
 
   // Toggle bookmark
   const handleToggleBookmark = (questionId: string) => {
-    setProfile((prev) => {
+// Request notification permission
+  const handleRequestNotifications = async () => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+  };    setProfile((prev) => {
       const isBookmarked = prev.bookmarks.includes(questionId);
       const newBookmarks = isBookmarked
         ? prev.bookmarks.filter((id) => id !== questionId)
@@ -484,6 +497,7 @@ export default function App() {
         onOpenAuth={() => setIsAuthOpen(true)}
         onQuickGenerate={() => setActiveTab('quiz-gen')}
         onOpenFriends={() => setIsFriendsOpen(true)}
+        onRequestNotifications={handleRequestNotifications}
       />
 
       {/* Main Container */}

@@ -11,7 +11,8 @@ import {
   Mic, 
   User,
   Plus,
-  Users
+  Users,
+  Bell
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -22,6 +23,7 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onQuickGenerate: () => void;
   onOpenFriends: () => void;
+  onRequestNotifications: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -31,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuth,
   onQuickGenerate,
   onOpenFriends,
+  onRequestNotifications,
 }) => {
   const nextLevelXp = profile.level * 200;
   const xpPercent = Math.min(100, Math.round((profile.xp / nextLevelXp) * 100));
@@ -118,7 +121,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 />
               </div>
             </div>
-
+{/* Notification Bell */}
+            <button
+              onClick={onRequestNotifications}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700"
+              title="Enable Notifications"
+            >
+              <Bell className="w-4 h-4" />
+            </button>
             {/* Account Icon */}
             <button
               onClick={onOpenAuth}
