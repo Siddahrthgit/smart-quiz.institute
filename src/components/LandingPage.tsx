@@ -15,6 +15,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <span>AI-powered exam preparation</span>
         </div>
 
+        <p className="text-emerald-400 text-sm md:text-base font-semibold uppercase tracking-wide">
+          Make Your Own Mock Test
+        </p>
+
         <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
           Turn your study material into quizzes, and turn weak topics into strengths.
         </h1>
