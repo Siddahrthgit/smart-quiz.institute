@@ -41,7 +41,7 @@ import {
 } from './data/sampleData';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('analytics');
 
   // Profile state
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -506,7 +506,7 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tab Router */}
-        {activeTab === 'dashboard' && (
+        {activeTab === 'analytics' && (
           <Dashboard
             profile={profile}
             attempts={attempts}
@@ -549,7 +549,7 @@ export default function App() {
             bookmarkedIds={profile.bookmarks}
             onToggleBookmark={handleToggleBookmark}
             onFinishQuiz={handleFinishQuiz}
-            onExit={() => setActiveTab('dashboard')}
+            onExit={() => setActiveTab('analytics')}
           />
         )}
 
@@ -563,7 +563,7 @@ export default function App() {
               setActiveTab('practice');
             }}
             onOpenAnalytics={() => setActiveTab('analytics')}
-            onReturnDashboard={() => setActiveTab('dashboard')}
+            onReturnDashboard={() => setActiveTab('analytics')}
           />
         )}
 
@@ -606,12 +606,14 @@ export default function App() {
           />
         )}
 
+
         {activeTab === 'analytics' && (
           <AnalyticsDashboard
             profile={profile}
             attempts={attempts}
             badges={badges}
           />
+
         )}
       </main>
 
