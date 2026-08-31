@@ -22,7 +22,7 @@ interface AnswerResult {
   confidence: 'low' | 'high';
 }
 
-export function AiQuizFlow() {
+export function AiQuizFlow({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const [phase, setPhase] = useState<Phase>('landing');
   const [topic, setTopic] = useState('');
 
@@ -141,11 +141,11 @@ export function AiQuizFlow() {
         </p>
         <LandingForm onStart={handleStartFromLanding} />
         <div className="flex gap-3 mt-6 text-xs text-slate-400">
-          <button className="underline">Upload document</button>
+          <button onClick={() => onNavigate && onNavigate("documents")} className="underline">Upload document</button>
           <span>·</span>
-          <button className="underline">Materials & Drive</button>
+          <button onClick={() => onNavigate && onNavigate("documents")} className="underline">Materials & Drive</button>
           <span>·</span>
-          <button className="underline">Notes & Flashcards</button>
+          <button onClick={() => onNavigate && onNavigate("notes-cards")} className="underline">Notes & Flashcards</button>
         </div>
       </div>
     );

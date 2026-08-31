@@ -525,7 +525,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'ai-quiz-flow' && <AiQuizFlow />}
+        {activeTab === "ai-quiz-flow" && <AiQuizFlow onNavigate={setActiveTab} />}
 
         {activeTab === 'quiz-gen' && (
           <QuizGenerator
