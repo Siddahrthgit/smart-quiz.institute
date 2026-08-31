@@ -487,7 +487,7 @@ export default function App() {
   }
 
   if (showLanding) {
-    return <LandingPage onGetStarted={() => { setShowLanding(false); setIsAuthOpen(true); }} />;
+    return <AiQuizFlow onNavigate={() => { setShowLanding(false); setIsAuthOpen(true); }} />;
   }
 
   return (
