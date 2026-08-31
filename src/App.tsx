@@ -65,11 +65,11 @@ export default function App() {
   });
 
   // Documents state
-  const [documents, setDocuments] = useState<DocumentItem[]>(SAMPLE_DOCUMENTS);
-  const [attempts, setAttempts] = useState<QuizAttempt[]>(SAMPLE_ATTEMPTS);
-  const [flashcards, setFlashcards] = useState<Flashcard[]>(SAMPLE_FLASHCARDS);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [notes, setNotes] = useState<StudyNote[]>([]);
-  const [badges, setBadges] = useState<Badge[]>(SAMPLE_BADGES);
+  const [badges, setBadges] = useState<Badge[]>([]);
 
   // Active Quiz taking state
   const [activeQuiz, setActiveQuiz] = useState<{

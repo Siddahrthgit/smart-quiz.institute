@@ -62,13 +62,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [selectedConfidence, setSelectedConfidence] = useState<'low' | 'medium' | 'high'>('medium');
 
   // Aggregated Stats
-  const totalQuizzes = attempts.length > 0 ? attempts.length : 24;
-  const totalQuestions = attempts.reduce((acc, curr) => acc + curr.totalQuestions, 0) || 240;
-  const correctAnswers = attempts.reduce((acc, curr) => acc + curr.correctCount, 0) || 192;
-  const wrongAnswers = profile.wrongQuestionIds.length > 0 ? profile.wrongQuestionIds.length : 48;
-  const lessConfident = profile.lowConfidenceQuestionIds.length > 0 ? profile.lowConfidenceQuestionIds.length : 36;
+  const totalQuizzes = attempts.length;
+  const totalQuestions = attempts.reduce((acc, curr) => acc + curr.totalQuestions, 0);
+  const correctAnswers = attempts.reduce((acc, curr) => acc + curr.correctCount, 0);
+  const wrongAnswers = profile.wrongQuestionIds.length;
+  const lessConfident = profile.lowConfidenceQuestionIds.length;
   const confident = Math.max(correctAnswers - lessConfident, 0);
-  const overallAccuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 80;
+  const overallAccuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
 
   // Recent Quizzes display (with fallbacks if empty)
   const defaultRecentQuizzes = [
