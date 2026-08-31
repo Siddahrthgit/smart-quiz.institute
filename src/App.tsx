@@ -85,36 +85,7 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [isFriendsOpen, setIsFriendsOpen] = useState(false);
-  const [friendsList, setFriendsList] = useState<FriendUser[]>([
-    {
-      id: 'f_alex',
-      name: 'Alex Chen',
-      username: 'alex_chen',
-      email: 'alex.chen@gmail.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-      streakDays: 14,
-      xp: 2850,
-      accuracyPercentage: 88,
-      examImprovementPercentage: 22,
-      lastExamTitle: 'Machine Learning Master Quiz',
-      lastExamScore: 92,
-      isAdded: true,
-    },
-    {
-      id: 'f_sarah',
-      name: 'Sarah Jenkins',
-      username: 'sarah_j',
-      email: 'sarah.jenkins@gmail.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-      streakDays: 9,
-      xp: 1940,
-      accuracyPercentage: 82,
-      examImprovementPercentage: 15,
-      lastExamTitle: 'Data Structures Exam',
-      lastExamScore: 85,
-      isAdded: true,
-    },
-  ]);
+  const [friendsList, setFriendsList] = useState<FriendUser[]>([]);
 
   const handleToggleFriend = (user: FriendUser) => {
     setFriendsList((prev) => {

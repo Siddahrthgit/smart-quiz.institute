@@ -481,64 +481,7 @@ Return ONLY a valid JSON matching this schema:
 });
 
 // Search & Friends API
-const mockUsersDatabase = [
-  {
-    id: 'f_alex',
-    name: 'Alex Chen',
-    username: 'alex_chen',
-    email: 'alex.chen@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    streakDays: 14,
-    xp: 2850,
-    accuracyPercentage: 88,
-    examImprovementPercentage: 22,
-    lastExamTitle: 'Machine Learning Master Quiz',
-    lastExamScore: 92,
-    isAdded: true,
-  },
-  {
-    id: 'f_sarah',
-    name: 'Sarah Jenkins',
-    username: 'sarah_j',
-    email: 'sarah.jenkins@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    streakDays: 9,
-    xp: 1940,
-    accuracyPercentage: 82,
-    examImprovementPercentage: 15,
-    lastExamTitle: 'Data Structures Exam',
-    lastExamScore: 85,
-    isAdded: true,
-  },
-  {
-    id: 'f_rahul',
-    name: 'Rahul Sharma',
-    username: 'rahul_ai',
-    email: 'rahul.sharma@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    streakDays: 21,
-    xp: 4120,
-    accuracyPercentage: 94,
-    examImprovementPercentage: 30,
-    lastExamTitle: 'Neural Networks & Deep Learning',
-    lastExamScore: 96,
-    isAdded: false,
-  },
-  {
-    id: 'f_emily',
-    name: 'Emily Watson',
-    username: 'emily_w',
-    email: 'emily.watson@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80',
-    streakDays: 5,
-    xp: 1210,
-    accuracyPercentage: 76,
-    examImprovementPercentage: 12,
-    lastExamTitle: 'Python Basics & Logic',
-    lastExamScore: 80,
-    isAdded: false,
-  },
-];
+const mockUsersDatabase: any[] = [];
 
 app.get('/api/friends', (req, res) => {
   const query = (req.query.q as string || '').toLowerCase().trim();
