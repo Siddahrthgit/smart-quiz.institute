@@ -41,7 +41,7 @@ import {
 } from './data/sampleData';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('analytics');
+  const [activeTab, setActiveTab] = useState<string>('ai-quiz-flow');
 
   // Profile state
   const [profile, setProfile] = useState<UserProfile>(() => {

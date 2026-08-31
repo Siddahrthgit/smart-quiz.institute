@@ -39,8 +39,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const xpPercent = Math.min(100, Math.round((profile.xp / nextLevelXp) * 100));
 
   const navItems = [
-    { id: 'quiz-gen', label: 'Quiz AI', icon: Sparkles },
-    { id: 'ai-quiz-flow', label: 'AI Quiz (Beta)', icon: Sparkles },
     { id: 'documents', label: 'Materials & Drive', icon: BookOpen },
     { id: 'notes-cards', label: 'Notes & Flashcards', icon: FileText },
     { id: 'practice', label: 'Speaking & Writing', icon: Mic },
@@ -54,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand Logo */}
           <div 
             className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => setActiveTab('analytics')}
+            onClick={() => setActiveTab('ai-quiz-flow')}
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5" />
