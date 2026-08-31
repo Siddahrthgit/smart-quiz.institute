@@ -377,7 +377,7 @@ function LandingForm({ onStart }: { onStart: (topic: string) => void }) {
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
         placeholder="e.g. Concrete Technology, NEC Loksewa..."
-        className="w-full rounded-xl bg-slate-900 border border-slate-800 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+        className="w-full rounded-xl bg-white text-slate-900 placeholder-slate-400 border border-slate-300 px-4 py-3 text-sm outline-none focus:border-indigo-500"
       />
       <button
         type="submit"
