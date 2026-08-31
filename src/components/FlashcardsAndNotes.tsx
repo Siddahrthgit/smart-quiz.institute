@@ -11,7 +11,8 @@ import {
   BookOpen, 
   Check, 
   HelpCircle,
-  Copy
+  Copy,
+  Upload
 } from 'lucide-react';
 import { Flashcard, StudyNote, DocumentItem } from '../types';
 
@@ -21,6 +22,7 @@ interface FlashcardsAndNotesProps {
   documents: DocumentItem[];
   onGenerateFlashcards: (docId?: string) => Promise<void>;
   onGenerateNotes: (docId?: string) => Promise<void>;
+  onUploadFile: (file: File) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -30,9 +32,11 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
   documents,
   onGenerateFlashcards,
   onGenerateNotes,
+  onUploadFile,
   isLoading,
 }) => {
-  const [activeTab, setActiveTab] = useState<'flashcards' | 'notes'>('flashcards');
+  const [activeTab, setActiveTab] = useState<'flashcards' | 'notes' | 'upload'>('flashcards');
+  const [isDragging, setIsDragging] = useState(false);
 
   // Flashcards state
   const [cardIndex, setCardIndex] = useState(0);
@@ -84,6 +88,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
           >
             Study Notes ({notes.length})
           </button>
+          <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'upload' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>Upload Material</button>
         </div>
       </div>
 
@@ -295,6 +300,50 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
                       </div>
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'upload' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Upload Material</h3>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setIsDragging(false); const file = e.dataTransfer.files?.[0]; if (file) onUploadFile(file); }}
+            onClick={() => document.getElementById('upload-material-input')?.click()}
+            className={`border-2 border-dashed rounded-2xl p-8 text-center space-y-3 transition-all cursor-pointer group ${isDragging ? 'border-indigo-400 bg-indigo-950/30' : 'border-indigo-500/40 hover:border-indigo-400 bg-indigo-950/20 hover:bg-indigo-950/30'}`}
+          >
+            <input id="upload-material-input" type="file" accept=".pdf,.txt" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) onUploadFile(file); }} />
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Upload className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-bold text-slate-200">Drag & drop your PDF or TXT file here</p>
+              <p className="text-[10px] text-indigo-400 font-semibold underline">or click to browse</p>
+              <p className="text-[10px] text-slate-400">Supports PDF, TXT up to 20MB</p>
+            </div>
+            <button onClick={(e) => { e.stopPropagation(); document.getElementById('upload-material-input')?.click(); }} disabled={isLoading} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow disabled:opacity-50">
+              {isLoading ? 'Uploading...' : 'Choose File'}
+            </button>
+          </div>
+          {documents.length > 0 && (
+            <div className="space-y-2">
+              {documents.map((doc) => (
+                <div key={doc.id} className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-2.5 overflow-hidden">
+                    <FileText className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                    <div className="truncate">
+                      <span className="font-bold text-slate-200 block truncate">{doc.name}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{doc.sizeFormatted}</span>
+                    </div>
+                  </div>
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3" />
+                  </div>
                 </div>
               ))}
             </div>

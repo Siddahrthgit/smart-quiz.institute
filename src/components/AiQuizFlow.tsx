@@ -140,6 +140,13 @@ export function AiQuizFlow() {
           Type any exam name or subject and we'll generate a custom quiz for you.
         </p>
         <LandingForm onStart={handleStartFromLanding} />
+        <div className="flex gap-3 mt-6 text-xs text-slate-400">
+          <button className="underline">Upload document</button>
+          <span>·</span>
+          <button className="underline">Materials & Drive</button>
+          <span>·</span>
+          <button className="underline">Notes & Flashcards</button>
+        </div>
       </div>
     );
   }

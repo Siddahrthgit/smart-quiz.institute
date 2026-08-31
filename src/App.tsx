@@ -587,6 +587,7 @@ export default function App() {
             documents={documents}
             onGenerateFlashcards={handleGenerateFlashcards}
             onGenerateNotes={handleGenerateNotes}
+            onUploadFile={handleUploadFile}
             isLoading={isLoading}
           />
         )}
