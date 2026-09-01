@@ -221,10 +221,14 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         <button
           onClick={handleGenerateQuestions}
           disabled={loading}
-          className="w-full rounded-xl bg-indigo-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold py-3 text-sm"
+          className="w-full rounded-xl bg-indigo-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold py-3 text-sm flex items-center justify-center gap-2"
         >
-          {loading ? 'Generating questions...' : 'Start Quiz'}
+          {loading && <div className="w-4 h-4 border-2 border-slate-500 border-t-white rounded-full animate-spin" />}
+          {loading ? "Generating questions..." : "Start Quiz"}
         </button>
+        {loading && (
+          <p className="text-center text-xs text-slate-500">This can take up to 30 seconds for larger question counts.</p>
+        )}
       </div>
     );
   }
