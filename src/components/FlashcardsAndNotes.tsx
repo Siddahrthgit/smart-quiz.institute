@@ -20,10 +20,11 @@ interface FlashcardsAndNotesProps {
   flashcards: Flashcard[];
   notes: StudyNote[];
   documents: DocumentItem[];
-  onGenerateFlashcards: (docId?: string) => Promise<void>;
+  onGenerateFlashcards: (docId?: string, count?: number) => Promise<void>;
   onGenerateNotes: (docId?: string) => Promise<void>;
   onUploadFile: (file: File) => Promise<void>;
   isLoading: boolean;
+  error?: string | null;
 }
 
 export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
@@ -34,9 +35,11 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
   onGenerateNotes,
   onUploadFile,
   isLoading,
+  error,
 }) => {
   const [activeTab, setActiveTab] = useState<'flashcards' | 'notes' | 'upload'>('flashcards');
   const [isDragging, setIsDragging] = useState(false);
+  const [flashcardCount, setFlashcardCount] = useState(6);
 
   // Flashcards state
   const [cardIndex, setCardIndex] = useState(0);
@@ -111,9 +114,21 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
                 ))}
               </select>
             </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 font-medium">Count: {flashcardCount}</span>
+              <input
+                type="range"
+                min={5}
+                max={100}
+                step={5}
+                value={flashcardCount}
+                onChange={(e) => setFlashcardCount(Number(e.target.value))}
+                className="w-32 accent-indigo-500"
+              />
+            </div>
 
             <button
-              onClick={() => onGenerateFlashcards(selectedDocId)}
+              onClick={() => onGenerateFlashcards(selectedDocId, flashcardCount)}
               disabled={isLoading}
               className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow flex items-center justify-center space-x-2 disabled:opacity-50"
             >
@@ -131,12 +146,13 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
             </button>
           </div>
 
+          {error && <p className="text-red-400 text-xs px-1">{error}</p>}
           {flashcards.length === 0 ? (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-400 text-xs space-y-3">
               <Layers className="w-8 h-8 text-indigo-400 mx-auto" />
               <p>No flashcards generated yet.</p>
               <button
-                onClick={() => onGenerateFlashcards(selectedDocId)}
+                onClick={() => onGenerateFlashcards(selectedDocId, flashcardCount)}
                 className="text-indigo-400 hover:underline font-semibold"
               >
                 Click here to generate flashcards from your study material →
@@ -324,7 +340,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
             <div className="space-y-1">
               <p className="text-xs font-bold text-slate-200">Drag & drop your PDF or TXT file here</p>
               <p className="text-[10px] text-indigo-400 font-semibold underline">or click to browse</p>
-              <p className="text-[10px] text-slate-400">Supports PDF, TXT up to 20MB</p>
+              <p className="text-[10px] text-slate-400">Supports PDF, TXT up to 40MB</p>
             </div>
             <button onClick={(e) => { e.stopPropagation(); document.getElementById('upload-material-input')?.click(); }} disabled={isLoading} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow disabled:opacity-50">
               {isLoading ? 'Uploading...' : 'Choose File'}

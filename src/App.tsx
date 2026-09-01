@@ -379,20 +379,26 @@ export default function App() {
   };
 
   // Generate Flashcards handler
-  const handleGenerateFlashcards = async (docId?: string) => {
+  const handleGenerateFlashcards = async (docId?: string, count: number = 6) => {
     setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/generate-flashcards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ documentId: docId || documents[0]?.id, count: 6 }),
+        body: JSON.stringify({ documentId: docId || documents[0]?.id, count }),
       });
 
       const data = await res.json();
+      if (!res.ok || data.error) {
+        setError(data.error || 'Failed to generate flashcards');
+        return;
+      }
       if (data.success && data.flashcards) {
         setFlashcards(data.flashcards);
       }
     } catch (err) {
+      setError('Could not reach the server. Please try again.');
       console.error('Flashcard error:', err);
     } finally {
       setIsLoading(false);
@@ -560,6 +566,7 @@ export default function App() {
             onGenerateNotes={handleGenerateNotes}
             onUploadFile={handleUploadFile}
             isLoading={isLoading}
+            error={error}
           />
         )}
 

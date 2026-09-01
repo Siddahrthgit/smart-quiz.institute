@@ -49,7 +49,7 @@ app.use('/api/materials', materialsRoutes);
 // Setup multer memory storage for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB max file size
+  limits: { fileSize: 40 * 1024 * 1024 }, // 40 MB max file size
 });
 
 // Lazy load Gemini API client
@@ -564,6 +564,7 @@ app.post('/api/generate-flashcards', async (req, res) => {
       context = documentStore.get(documentId)!.content;
     }
 
+    if (context.trim().length === 0) { return res.status(400).json({ error: 'Please select or upload a document, or provide a topic, before generating flashcards.' }); }
     const truncated = context.slice(0, 10000);
 
     const prompt = `Generate ${count} high-yield educational flashcards based on the material below:

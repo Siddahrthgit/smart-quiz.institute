@@ -252,7 +252,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-200">Click to Upload or Drag & Drop</p>
-                <p className="text-[11px] text-slate-400 mt-1">Supports PDF, TXT, and MD files (Up to 20MB)</p>
+                <p className="text-[11px] text-slate-400 mt-1">Supports PDF, TXT, and MD files (Up to 40MB)</p>
               </div>
 
               {isLoading && (
