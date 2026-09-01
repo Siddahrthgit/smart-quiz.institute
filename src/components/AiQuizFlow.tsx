@@ -131,7 +131,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'landing') {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center text-center px-4">
         <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4">
           <span className="text-2xl">✨</span>
         </div>
@@ -154,7 +154,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'session-setup') {
     return (
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="min-h-screen bg-slate-950 text-white max-w-lg mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-xl font-bold">{topic}</h1>
           <p className="text-slate-400 text-sm">Set up your practice session</p>
@@ -231,7 +231,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'session-quiz' && question) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="min-h-screen bg-slate-950 text-white max-w-lg mx-auto px-4 py-6 space-y-6">
         <div>
           <div className="flex justify-between text-sm text-slate-400 mb-2">
             <span>
@@ -285,7 +285,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
   const needImproveResults = results.filter((r) => !r.correct || r.confidence === 'low');
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-slate-950 text-white max-w-lg mx-auto px-4 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">{topic}</h1>
         <p className="text-slate-400 text-sm">Your results and next steps</p>
