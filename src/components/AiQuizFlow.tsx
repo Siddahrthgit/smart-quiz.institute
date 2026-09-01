@@ -22,7 +22,7 @@ interface AnswerResult {
   confidence: 'low' | 'high';
 }
 
-export function AiQuizFlow({ onNavigate }: { onNavigate?: (tab: string) => void }) {
+export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: string) => void; onAuthSuccess?: (user: { name: string; email: string }) => void }) {
   const [phase, setPhase] = useState<Phase>('landing');
   const [topic, setTopic] = useState('');
 
@@ -147,6 +147,7 @@ export function AiQuizFlow({ onNavigate }: { onNavigate?: (tab: string) => void 
           <span>·</span>
           <button onClick={() => onNavigate && onNavigate("notes-cards")} className="underline">Notes & Flashcards</button>
         </div>
+        {onAuthSuccess && <AuthForm onSuccess={onAuthSuccess} />}
       </div>
     );
   }
@@ -387,5 +388,95 @@ function LandingForm({ onStart }: { onStart: (topic: string) => void }) {
         Start Practicing
       </button>
     </form>
+  );
+}
+
+function AuthForm({ onSuccess }: { onSuccess: (user: { name: string; email: string }) => void }) {
+  const [mode, setMode] = useState<'login' | 'register'>('register');
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const body = mode === 'login' ? { emailOrUsername: email, password } : { name, username, email, password };
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong');
+        setLoading(false);
+        return;
+      }
+      localStorage.setItem('authToken', data.token);
+      onSuccess({ name: data.user.name, email: data.user.email });
+    } catch {
+      setError('Could not reach the server. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-sm mt-10 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-left">
+      <div className="flex items-center gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700 mb-5">
+        <button
+          type="button"
+          onClick={() => setMode('register')}
+          className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+        >
+          Sign Up
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('login')}
+          className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+        >
+          Log In
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {mode === 'register' && (
+          <>
+            <div>
+              <label className="text-xs text-slate-400 mb-1 block">Full Name</label>
+              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 mb-1 block">Username</label>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+            </div>
+          </>
+        )}
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">{mode === 'login' ? 'Email or Username' : 'Email Address'}</label>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">Password</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+        </div>
+
+        {error && <p className="text-red-400 text-xs">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-lg bg-indigo-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold py-2.5 text-sm text-white"
+        >
+          {loading ? 'Please wait...' : mode === 'login' ? 'Log In' : 'Create Account'}
+        </button>
+      </form>
+    </div>
   );
 }
