@@ -21,6 +21,7 @@ interface DocumentManagerProps {
   documents: DocumentItem[];
   onUploadFile: (file: File) => Promise<void>;
   onImportDriveText: (title: string, content: string) => Promise<void>;
+  onImportDriveLink: (url: string, title?: string) => Promise<void>;
   onSelectDocForQuiz: (doc: DocumentItem) => void;
   onDeleteDocument?: (docId: string) => void;
   isLoading: boolean;
@@ -30,11 +31,16 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   documents,
   onUploadFile,
   onImportDriveText,
+  onImportDriveLink,
   onSelectDocForQuiz,
   onDeleteDocument,
   isLoading,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'materials' | 'drive' | 'chatbot'>('materials');
+  const [driveLink, setDriveLink] = useState('');
+  const [driveTitle, setDriveTitle] = useState('');
+  const [driveImportError, setDriveImportError] = useState<string | null>(null);
+  const [isImportingDrive, setIsImportingDrive] = useState(false);
   const [selectedDocId, setSelectedDocId] = useState<string>(documents[0]?.id || '');
   
   // File upload state
@@ -378,80 +384,70 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         </div>
       )}
 
-      {/* SubTab 2: Google Drive Integration */}
+
+      {/* SubTab 2: Google Drive Import (share-link based) */}
       {activeSubTab === 'drive' && (
         <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Cloud className="w-5 h-5 text-indigo-400" />
-                <span>Google Drive Integration</span>
-              </h2>
-              <p className="text-xs text-slate-400">
-                Directly connect your Google Drive account to import study notes, lecture PDFs, and slide decks.
-              </p>
-            </div>
-            <span className="status-chip active">OAuth Ready</span>
+          <div className="space-y-1">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <Cloud className="w-5 h-5 text-indigo-400" />
+              <span>Import from Google Drive</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              Paste a Google Drive share link (set sharing to "Anyone with the link"). Works with PDFs, TXT files, and Google Docs.
+            </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-4">
+          <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-3">
             <div className="space-y-2">
-              <label className="text-xs text-slate-300 font-semibold block">Google OAuth Access Token:</label>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  placeholder="Paste Google OAuth Access Token or connect via AI Studio..."
-                  value={driveToken}
-                  onChange={(e) => setDriveToken(e.target.value)}
-                  className="flex-1 bg-slate-900 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                />
-                <button
-                  onClick={handleFetchDriveFiles}
-                  disabled={isFetchingDrive}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50"
-                >
-                  {isFetchingDrive ? 'Fetching...' : 'Fetch Drive Files'}
-                </button>
-              </div>
+              <label className="text-xs text-slate-300 font-semibold block">Google Drive Share Link:</label>
+              <input
+                type="text"
+                placeholder="https://drive.google.com/file/d/..."
+                value={driveLink}
+                onChange={(e) => setDriveLink(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-slate-300 font-semibold block">Title (optional):</label>
+              <input
+                type="text"
+                placeholder="e.g. Lecture Notes Chapter 4"
+                value={driveTitle}
+                onChange={(e) => setDriveTitle(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
             </div>
 
-            {driveError && (
+            <button
+              onClick={async () => {
+                setDriveImportError(null);
+                setIsImportingDrive(true);
+                try {
+                  await onImportDriveLink(driveLink, driveTitle || undefined);
+                  setDriveLink('');
+                  setDriveTitle('');
+                  setActiveSubTab('materials');
+                } catch (err: any) {
+                  setDriveImportError(err.message || 'Failed to import from Google Drive');
+                } finally {
+                  setIsImportingDrive(false);
+                }
+              }}
+              disabled={isImportingDrive || !driveLink.trim()}
+              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors w-full"
+            >
+              {isImportingDrive ? 'Importing...' : 'Import from Drive'}
+            </button>
+
+            {driveImportError && (
               <div className="text-xs text-amber-400 bg-amber-950/40 border border-amber-800/40 p-3 rounded-lg flex items-center space-x-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{driveError}</span>
+                <span>{driveImportError}</span>
               </div>
             )}
           </div>
-
-          {driveFiles.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Drive Files Found ({driveFiles.length})
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {driveFiles.map((file) => (
-                  <div
-                    key={file.id}
-                    className="p-4 rounded-xl bg-slate-800/40 border border-slate-700 flex items-center justify-between"
-                  >
-                    <div className="overflow-hidden space-y-1">
-                      <p className="text-xs font-bold text-slate-200 truncate">{file.name}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">{file.mimeType}</p>
-                    </div>
-                    <button
-                      onClick={async () => {
-                        await onImportDriveText(file.name, `Content from Drive file: ${file.name}`);
-                        setActiveSubTab('materials');
-                      }}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[11px] px-3 py-1.5 rounded-lg"
-                    >
-                      Import
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 

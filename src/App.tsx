@@ -153,6 +153,28 @@ export default function App() {
     }
   };
 
+  const handleDriveLinkImport = async (url: string, title?: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/drive/import-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, title }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to import from Google Drive');
+      }
+      setDocuments((prev) => [data.document, ...prev]);
+    } catch (err: any) {
+      setError(err.message || 'Google Drive import failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Delete document handler
   const handleDeleteDocument = async (docId: string) => {
     try {
@@ -549,6 +571,7 @@ export default function App() {
             documents={documents}
             onUploadFile={handleUploadFile}
             onImportDriveText={handleImportDriveText}
+            onImportDriveLink={handleDriveLinkImport}
             onDeleteDocument={handleDeleteDocument}
             onSelectDocForQuiz={(doc) => {
               setActiveTab('quiz-gen');

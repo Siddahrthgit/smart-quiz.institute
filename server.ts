@@ -211,6 +211,82 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     console.error('Upload handler error:', err);
     return res.status(500).json({ error: err.message || 'Failed to process file upload' });
   }
+  });
+
+app.post('/api/drive/import-link', async (req, res) => {
+  try {
+    const { url, title: providedTitle } = req.body;
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: 'Please provide a Google Drive share link' });
+    }
+
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    const fileId = match ? match[1] : null;
+    if (!fileId) {
+      return res.status(400).json({ error: 'Could not find a file ID in that link. Make sure it is a Google Drive share link.' });
+    }
+
+    let extractedText = '';
+
+    try {
+      const docRes = await fetch(`https://docs.google.com/document/d/${fileId}/export?format=txt`);
+      if (docRes.ok) {
+        const text = await docRes.text();
+        const trimmed = text.trim();
+        if (trimmed && !trimmed.startsWith('<!DOCTYPE') && !trimmed.startsWith('<html')) {
+          extractedText = text;
+        }
+      }
+    } catch (e) {
+      console.warn('Drive doc export attempt failed:', e);
+    }
+
+    if (!extractedText) {
+      const fileRes = await fetch(`https://drive.google.com/uc?export=download&id=${fileId}`);
+      if (!fileRes.ok) {
+        return res.status(400).json({ error: 'Could not access this file. Make sure sharing is set to "Anyone with the link".' });
+      }
+      const contentType = fileRes.headers.get('content-type') || '';
+      const buffer = Buffer.from(await fileRes.arrayBuffer());
+
+      if (contentType.includes('pdf') || buffer.slice(0, 4).toString() === '%PDF') {
+        try {
+          extractedText = await parsePdfBuffer(buffer);
+        } catch (pdfErr) {
+          console.error('Drive PDF parsing error:', pdfErr);
+        }
+      } else if (contentType.includes('text') || contentType.includes('plain')) {
+        extractedText = buffer.toString('utf-8');
+      } else {
+        return res.status(400).json({ error: 'Unsupported file type. Only PDF, TXT, and Google Docs are supported.' });
+      }
+    }
+
+    if (!extractedText || !extractedText.trim()) {
+      return res.status(400).json({ error: 'Could not extract any text from this file.' });
+    }
+
+    const wordCount = extractedText.trim().split(/\s+/).length;
+    const docId = 'drive_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+    const newDoc: StoredDoc = {
+      id: docId,
+      name: providedTitle || 'Imported from Google Drive',
+      type: 'drive',
+      uploadDate: new Date().toISOString().split('T')[0],
+      sizeFormatted: formatBytes(Buffer.byteLength(extractedText, 'utf-8')),
+      content: extractedText,
+      summary: '',
+      wordCount,
+    };
+
+    documentStore.set(docId, newDoc);
+
+    return res.json({ success: true, document: newDoc });
+  } catch (err: any) {
+    console.error('Drive import error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to import from Google Drive' });
+  }
 });
 
 // Import text content directly (e.g., Google Drive or pasted text)
