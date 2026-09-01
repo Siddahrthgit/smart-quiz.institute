@@ -141,11 +141,11 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </p>
         <LandingForm onStart={handleStartFromLanding} />
         <div className="flex gap-3 mt-6 text-xs text-slate-400">
-          <button onClick={() => { if (!onAuthSuccess) onNavigate && onNavigate("documents"); }} disabled={!!onAuthSuccess} className={onAuthSuccess ? "text-slate-600 cursor-not-allowed" : "underline"}>Upload document</button>
+          <button onClick={() => onAuthSuccess ? document.getElementById("signup-section")?.scrollIntoView({ behavior: "smooth" }) : onNavigate && onNavigate("documents")} className="underline text-slate-300 hover:text-white">Upload document</button>
           <span>·</span>
-          <button onClick={() => { if (!onAuthSuccess) onNavigate && onNavigate("documents"); }} disabled={!!onAuthSuccess} className={onAuthSuccess ? "text-slate-600 cursor-not-allowed" : "underline"}>Materials & Drive</button>
+          <button onClick={() => onAuthSuccess ? document.getElementById("signup-section")?.scrollIntoView({ behavior: "smooth" }) : onNavigate && onNavigate("documents")} className="underline text-slate-300 hover:text-white">Materials & Drive</button>
           <span>·</span>
-          <button onClick={() => { if (!onAuthSuccess) onNavigate && onNavigate("notes-cards"); }} disabled={!!onAuthSuccess} className={onAuthSuccess ? "text-slate-600 cursor-not-allowed" : "underline"}>Notes & Flashcards</button>
+          <button onClick={() => onAuthSuccess ? document.getElementById("signup-section")?.scrollIntoView({ behavior: "smooth" }) : onNavigate && onNavigate("notes-cards")} className="underline text-slate-300 hover:text-white">Notes & Flashcards</button>
         </div>
         {onAuthSuccess && <div id="signup-section"><AuthForm onSuccess={onAuthSuccess} /></div>}
       </div>
