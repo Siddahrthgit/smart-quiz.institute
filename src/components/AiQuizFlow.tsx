@@ -141,13 +141,13 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </p>
         <LandingForm onStart={handleStartFromLanding} />
         <div className="flex gap-3 mt-6 text-xs text-slate-400">
-          <button onClick={() => onNavigate && onNavigate("documents")} className="underline">Upload document</button>
+          <button onClick={() => onAuthSuccess ? document.getElementById("signup-section")?.scrollIntoView({ behavior: "smooth" }) : onNavigate && onNavigate("documents")} className="underline">Upload document</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("documents")} className="underline">Materials & Drive</button>
+          <button onClick={() => onAuthSuccess ? document.getElementById("signup-section")?.scrollIntoView({ behavior: "smooth" }) : onNavigate && onNavigate("documents")} className="underline">Materials & Drive</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("notes-cards")} className="underline">Notes & Flashcards</button>
+          <button onClick={() => onAuthSuccess ? document.getElementById("signup-section")?.scrollIntoView({ behavior: "smooth" }) : onNavigate && onNavigate("notes-cards")} className="underline">Notes & Flashcards</button>
         </div>
-        {onAuthSuccess && <AuthForm onSuccess={onAuthSuccess} />}
+        {onAuthSuccess && <div id="signup-section"><AuthForm onSuccess={onAuthSuccess} /></div>}
       </div>
     );
   }
