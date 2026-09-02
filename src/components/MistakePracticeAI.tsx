@@ -92,16 +92,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
     });
   });
 
-  // Fallback to sample items if no wrong attempts exist yet
-  const displayItems: WrongItem[] = allWrongItems.length > 0 
-    ? allWrongItems 
-    : FALLBACK_WRONG_QUESTIONS.map((q) => ({
-        id: `sample_${q.id}`,
-        question: q,
-        userAnswer: 'Incorrect Choice',
-        quizTitle: 'Sample Assessment Diagnostic',
-        date: new Date().toISOString().split('T')[0],
-      }));
+  const displayItems: WrongItem[] = allWrongItems;
 
   // Unique topics
   const topics = Array.from(new Set(displayItems.map((item) => item.question.topic || 'General')));
@@ -278,8 +269,8 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
             {displayItems.length} Misconceptions
           </span>
           {allWrongItems.length === 0 && (
-            <span className="text-[11px] text-amber-400 italic">
-              (Showing sample mistake questions — take quizzes to record your own!)
+            <span className="text-[11px] text-slate-500 italic">
+              No mistakes logged yet — take a quiz to start tracking them here.
             </span>
           )}
         </div>
@@ -314,6 +305,11 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
 
       {/* Mistake Cards List */}
       <div className="space-y-4">
+        {filteredItems.length === 0 && (
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-12 text-center text-slate-400 text-sm">
+            No mistakes to review yet. Take a quiz and any wrong answers will show up here for targeted practice.
+          </div>
+        )}
         {filteredItems.map((item, idx) => (
           <div
             key={item.id}
