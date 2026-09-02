@@ -486,7 +486,7 @@ export default function App() {
   }
 
   if (showLanding) {
-    return <AiQuizFlow onNavigate={() => { setShowLanding(false); setIsAuthOpen(true); }} onAuthSuccess={(user) => { onSaveProfile({ name: user.name, email: user.email }); setShowLanding(false); }} />;
+    return <AiQuizFlow onNavigate={(tab) => { setShowLanding(false); setActiveTab(tab); }} onAuthSuccess={(user) => { onSaveProfile({ name: user.name, email: user.email }); setShowLanding(false); }} />;
   }
 
   return (

@@ -1,4 +1,4 @@
-const CACHE_NAME = "smart-quiz-cache-v2";
+const CACHE_NAME = "smart-quiz-cache-v3";
 const APP_SHELL = ["/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
