@@ -58,7 +58,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
   const isBookmarked = currentQ ? bookmarkedIds.includes(currentQ.id) : false;
 
   const [currentSelection, setCurrentSelection] = useState<string | Record<string, string>>('');
-  const [confidence, setConfidence] = useState<'high' | 'medium' | 'low'>('high');
+  const [confidence, setConfidence] = useState<'high' | 'low'>('high');
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
   const [aiEvaluation, setAiEvaluation] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
@@ -119,7 +119,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
     }
 
     // Auto-rate confidence according to accuracy
-    const autoConfidence: 'high' | 'medium' | 'low' = isCorrect ? 'high' : 'low';
+    const autoConfidence: 'high' | 'low' = isCorrect ? 'high' : 'low';
     setConfidence(autoConfidence);
 
     const newAnswer: UserAnswer = {
@@ -157,7 +157,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
 
         // Rate confidence according to accuracy score
         const score = evalObj.scorePercentage ?? (evalObj.isCorrect ? 100 : 0);
-        const autoConfidence: 'high' | 'medium' | 'low' =
+        const autoConfidence: 'high' | 'low' =
           score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low';
         
         setConfidence(autoConfidence);
@@ -431,7 +431,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
             </span>
           </div>
 
-          {answers[currentQ.id] && (
+          {!config.isExamMode && answers[currentQ.id] && (
             <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between text-xs">
               <span className="text-slate-400">Question Accuracy Status:</span>
               <span className={`font-bold flex items-center gap-1 ${
@@ -453,7 +453,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
           )}
 
           <div className="flex items-center space-x-2">
-            {(['high', 'medium', 'low'] as const).map((lvl) => (
+            {(['high', 'low'] as const).map((lvl) => (
               <button
                 key={lvl}
                 onClick={() => {
@@ -469,13 +469,11 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                   confidence === lvl
                     ? lvl === 'high'
                       ? 'bg-emerald-950 border-emerald-500 text-emerald-300 shadow-sm shadow-emerald-950'
-                      : lvl === 'medium'
-                      ? 'bg-amber-950 border-amber-500 text-amber-300 shadow-sm shadow-amber-950'
                       : 'bg-red-950 border-red-500 text-red-300 shadow-sm shadow-red-950'
                     : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                {lvl === 'high' ? '🟢 High Confidence' : lvl === 'medium' ? '🟡 Medium' : '🔴 Low / Guess'}
+                {lvl === 'high' ? '🟢 Confident' : '🔴 Need Improve'}
               </button>
             ))}
           </div>
