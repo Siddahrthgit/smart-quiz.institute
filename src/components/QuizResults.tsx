@@ -58,12 +58,6 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
     return score >= 80 || ans.confidence === 'high';
   }).length;
 
-  const mediumConfidenceCount = attempt.questions.filter((q) => {
-    const ans = attempt.answers[q.id];
-    if (!ans) return false;
-    const score = ans.scorePercentage;
-    return score !== undefined && score >= 50 && score < 80;
-  }).length;
 
   const lowConfidenceCount = attempt.questions.filter((q) => {
     const ans = attempt.answers[q.id];
@@ -133,6 +127,15 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
               <span>1. Re-Exam Wrong ({wrongQuestionsCount} Set)</span>
             </button>
           )}
+          {lowConfidenceCount > 0 && (
+            <button
+              onClick={onRetryLowConfidence}
+              className="flex items-center space-x-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-amber-600/30"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Retry Low Confidence ({lowConfidenceCount} Set)</span>
+            </button>
+          )}
 
           <button
             onClick={onGenerateFlashcards}
@@ -188,7 +191,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           Confidence levels are automatically rated based on your accuracy for every question to help you pinpoint areas for revision.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-between">
             <div>
               <span className="text-[11px] text-emerald-400 font-semibold block">High Confidence</span>
@@ -196,16 +199,6 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             </div>
             <span className="text-xl font-extrabold text-emerald-300 font-mono">
               {highConfidenceCount}
-            </span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-amber-950/40 border border-amber-800/60 flex items-center justify-between">
-            <div>
-              <span className="text-[11px] text-amber-400 font-semibold block">Medium Confidence</span>
-              <span className="text-xs text-slate-300">Partial Accuracy (50-79%)</span>
-            </div>
-            <span className="text-xl font-extrabold text-amber-300 font-mono">
-              {mediumConfidenceCount}
             </span>
           </div>
 
