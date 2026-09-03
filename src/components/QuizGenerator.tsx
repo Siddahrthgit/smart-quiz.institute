@@ -112,9 +112,6 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
 
   const availableTypes: { id: QuestionType; label: string; desc: string }[] = [
     { id: 'mcq', label: 'Multiple Choice (MCQ)', desc: 'Standard 4-option questions with explanations' },
-    { id: 'true_false', label: 'True / False', desc: 'Fast concept verification questions' },
-    { id: 'fill_blank', label: 'Fill in the Blanks', desc: 'Identify key terminology and concepts' },
-    { id: 'match', label: 'Match the Following', desc: 'Connect terms with correct definitions' },
     { id: 'short_answer', label: 'Short Answer', desc: 'Brief written answers evaluated by AI' },
     { id: 'long_answer', label: 'Long Answer / Essay', desc: 'Detailed explanations graded with AI rubrics' },
   ];
@@ -172,22 +169,6 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                 {sourceMode === 'doc' && <Zap className="w-3.5 h-3.5 text-indigo-400" />}
               </div>
               <p className="text-[11px] opacity-80">Use text from PDF, TXT, or Google Drive notes</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSourceMode('topic')}
-              className={`p-4 rounded-xl border text-left transition-all ${
-                sourceMode === 'topic'
-                  ? 'bg-indigo-950/40 border-indigo-500 text-white'
-                  : 'bg-slate-800/50 border-slate-700/60 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <div className="font-semibold text-xs mb-1 flex items-center justify-between">
-                <span>Custom Topic Prompt</span>
-                {sourceMode === 'topic' && <Zap className="w-3.5 h-3.5 text-indigo-400" />}
-              </div>
-              <p className="text-[11px] opacity-80">Enter any academic subject or exam topic</p>
             </button>
           </div>
 
@@ -349,7 +330,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             <div className="space-y-2">
               <label className="text-xs text-slate-400 font-medium">Difficulty Level:</label>
               <div className="grid grid-cols-2 gap-2">
-                {(['easy', 'medium', 'hard', 'adaptive'] as Difficulty[]).map((d) => (
+                {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
                   <button
                     key={d}
                     type="button"
@@ -375,7 +356,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
               <input
                 type="range"
                 min={3}
-                max={20}
+                max={100}
                 value={numQuestions}
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
                 className="w-full accent-indigo-500 bg-slate-800 h-2 rounded-lg cursor-pointer"
@@ -383,8 +364,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
               <div className="flex justify-between text-[10px] text-slate-400 font-mono">
                 <span>3 Quick</span>
                 <span>10 Standard</span>
-                <span>20 Full Test</span>
-              </div>
+                <span>100 Full Test</span>
             </div>
           </div>
         </div>
@@ -435,7 +415,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-5 h-5 text-amber-400" />
               <div>
-                <h2 className="text-sm font-bold text-white">Phase 6 - Exam Mode</h2>
+                <h2 className="text-sm font-bold text-white">Exam Mode</h2>
                 <p className="text-[11px] text-slate-400">Strict countdown timer, negative marking, and no instant answer reveals</p>
               </div>
             </div>
