@@ -27,6 +27,7 @@ async function parsePdfBuffer(buffer: Buffer): Promise<string> {
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 import { connectDB } from './db/connect';
+import Material from './db/Material';
 import authRoutes from './routes/auth';
 import { authLimiter, paymentLimiter } from './middleware/rateLimit';
 import paymentRoutes from './routes/payment';
@@ -130,6 +131,52 @@ interface StoredDoc {
 
 const documentStore: Map<string, StoredDoc> = new Map();
 
+// Persist a document to MongoDB so it survives server restarts.
+// userId is optional since the app supports guest (no-login) usage.
+async function persistDocument(doc: StoredDoc, userId?: string) {
+  try {
+    await Material.findOneAndUpdate(
+      { docId: doc.id },
+      {
+        docId: doc.id,
+        userId: userId || undefined,
+        title: doc.name,
+        extractedText: doc.content,
+        fileType: doc.type,
+        sizeFormatted: doc.sizeFormatted,
+        wordCount: doc.wordCount,
+        summary: doc.summary,
+      },
+      { upsert: true, new: true }
+    );
+  } catch (err) {
+    console.error('Failed to persist document to MongoDB:', err);
+  }
+}
+
+// Load all previously saved documents from MongoDB back into the
+// in-memory documentStore cache on server startup.
+async function hydrateDocumentStore() {
+  try {
+    const materials = await Material.find({});
+    for (const m of materials) {
+      documentStore.set(m.docId, {
+        id: m.docId,
+        name: m.title,
+        type: m.fileType || 'txt',
+        uploadDate: m.createdAt.toISOString().split('T')[0],
+        sizeFormatted: m.sizeFormatted || '',
+        content: m.extractedText,
+        summary: m.summary,
+        wordCount: m.wordCount || 0,
+      });
+    }
+    console.log(`Hydrated ${materials.length} document(s) from MongoDB`);
+  } catch (err) {
+    console.error('Failed to hydrate documents from MongoDB:', err);
+  }
+}
+
 // Helper to calculate word count and format size
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
@@ -202,6 +249,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     };
 
     documentStore.set(docId, newDoc);
+    persistDocument(newDoc);
 
     return res.json({
       success: true,
@@ -281,6 +329,7 @@ app.post('/api/drive/import-link', async (req, res) => {
     };
 
     documentStore.set(docId, newDoc);
+    persistDocument(newDoc);
 
     return res.json({ success: true, document: newDoc });
   } catch (err: any) {
@@ -312,6 +361,7 @@ app.post('/api/documents/import-text', (req, res) => {
     };
 
     documentStore.set(docId, newDoc);
+    persistDocument(newDoc);
     return res.json({ success: true, document: newDoc });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
@@ -338,6 +388,7 @@ app.delete('/api/documents/:id', (req, res) => {
   const docId = req.params.id;
   if (documentStore.has(docId)) {
     documentStore.delete(docId);
+    Material.deleteOne({ docId }).catch((err) => console.error("Failed to delete document from MongoDB:", err));
     return res.json({ success: true, message: 'Document deleted successfully', id: docId });
   }
   return res.json({ success: true, message: 'Document removed from session', id: docId });
@@ -773,6 +824,7 @@ app.get('/api/drive/files', async (req, res) => {
 // Start express server with Vite middleware in dev mode
 async function main() {
   await connectDB();
+  await hydrateDocumentStore();
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
