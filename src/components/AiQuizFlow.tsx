@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 type QuestionType = 'mcq' | 'true_false' | 'short' | 'long';
@@ -24,6 +24,14 @@ interface AnswerResult {
 
 export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: string) => void; onAuthSuccess?: (user: { name: string; email: string }) => void }) {
   const [phase, setPhase] = useState<Phase>('landing');
+  const [activeStats, setActiveStats] = useState<{ totalUsers: number; activeToday: number } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats/active-users")
+      .then((res) => res.json())
+      .then((data) => { if (!data.error) setActiveStats(data); })
+      .catch(() => {});
+  }, []);
   const [topic, setTopic] = useState('');
 
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
@@ -136,6 +144,12 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
           <span className="text-2xl">✨</span>
         </div>
         <h1 className="text-2xl font-bold mb-1">Smart AI question practicing</h1>
+        {activeStats && (
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+            <span>{activeStats.activeToday} active today · {activeStats.totalUsers} total users</span>
+          </div>
+        )}
         <p className="text-slate-400 text-sm mb-8 max-w-xs">
           Type any exam name or subject and we'll generate a custom quiz for you.
         </p>

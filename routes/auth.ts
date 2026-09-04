@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, username, email, passwordHash });
+    const user = await User.create({ name, username, email, passwordHash, lastActiveAt: new Date() });
 
     const token = signToken(user.id);
     return res.json({
@@ -62,6 +62,8 @@ router.post('/login', async (req, res) => {
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    user.lastActiveAt = new Date();
+    await user.save();
 
     const token = signToken(user.id);
     return res.json({

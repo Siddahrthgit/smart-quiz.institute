@@ -28,6 +28,7 @@ import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 import { connectDB } from './db/connect';
 import Material from './db/Material';
+import { User } from './db/User';
 import authRoutes from './routes/auth';
 import { authLimiter, paymentLimiter } from './middleware/rateLimit';
 import paymentRoutes from './routes/payment';
@@ -42,6 +43,21 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api/auth', authLimiter, authRoutes);
+
+// Public stats: active user counts, shown on the landing page (no auth required)
+app.get('/api/stats/active-users', async (req, res) => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const [totalUsers, activeToday] = await Promise.all([
+      User.countDocuments({}),
+      User.countDocuments({ lastActiveAt: { $gte: oneDayAgo } }),
+    ]);
+    return res.json({ totalUsers, activeToday });
+  } catch (err) {
+    console.error('Failed to fetch active user stats:', err);
+    return res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
 app.use('/api/payment', paymentLimiter, paymentRoutes);
 app.use('/api/features-qa', featuresQaRoutes);
 app.use('/api/questions', questionsRoute);
