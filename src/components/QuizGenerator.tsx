@@ -368,6 +368,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             </div>
           </div>
         </div>
+        </div>
 
         {/* Question Types */}
         <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
