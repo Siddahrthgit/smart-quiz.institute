@@ -191,7 +191,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
             }`}
           >
             <Mic className="w-4 h-4" />
-            <span>Speaking</span>
+            <span>Speaking Exam</span>
           </button>
 
           <button
@@ -201,7 +201,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
             }`}
           >
             <Edit3 className="w-4 h-4" />
-            <span>Writing</span>
+            <span>Writing Exam</span>
           </button>
         </div>
       </div>
@@ -215,12 +215,12 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
         />
       )}
 
-      {/* Speaking Practice */}
+      {/* Speaking Exam */}
       {activeTab === 'speaking' && (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
           <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block font-mono">
-              Target Speaking Passage:
+              Speaking Exam Passage:
             </span>
             <p className="text-sm font-semibold text-white leading-relaxed">"{targetPrompt}"</p>
           </div>
@@ -287,12 +287,12 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
         </div>
       )}
 
-      {/* Writing Practice */}
+      {/* Writing Exam */}
       {activeTab === 'writing' && (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
           <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block font-mono">
-              Essay / Short Answer Prompt:
+              Writing Exam Prompt:
             </span>
             <p className="text-sm font-semibold text-white leading-relaxed">{writingPrompt}</p>
           </div>
