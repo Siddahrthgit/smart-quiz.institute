@@ -29,6 +29,7 @@ import { createServer as createViteServer } from 'vite';
 import { connectDB } from './db/connect';
 import Material from './db/Material';
 import { User } from './db/User';
+import { Resend } from 'resend';
 import authRoutes from './routes/auth';
 import { authLimiter, paymentLimiter } from './middleware/rateLimit';
 import paymentRoutes from './routes/payment';
@@ -56,6 +57,44 @@ app.get('/api/stats/active-users', async (req, res) => {
   } catch (err) {
     console.error('Failed to fetch active user stats:', err);
     return res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+// Reusable admin tool: send an announcement email to all registered users.
+// Protected by ADMIN_SECRET (set this env var on Render) instead of a full
+// admin auth system, since it's only ever triggered manually by the owner.
+app.post('/api/admin/broadcast-email', async (req, res) => {
+  try {
+    const { secret, subject, message } = req.body;
+
+    if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
+      return res.status(403).json({ error: 'Invalid admin secret' });
+    }
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'subject and message are required' });
+    }
+
+    const users = await User.find({}).select('name email');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const results = await Promise.allSettled(
+      users.map((u) =>
+        resend.emails.send({
+          from: 'onboarding@resend.dev',
+          to: u.email,
+          subject,
+          html: `<p>Hi ${u.name},</p><p>${message}</p>`,
+        })
+      )
+    );
+
+    const sent = results.filter((r) => r.status === 'fulfilled').length;
+    const failed = results.length - sent;
+
+    return res.json({ success: true, total: users.length, sent, failed });
+  } catch (err: any) {
+    console.error('Broadcast email error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to send broadcast email' });
   }
 });
 app.use('/api/payment', paymentLimiter, paymentRoutes);
