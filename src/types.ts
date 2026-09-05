@@ -51,6 +51,7 @@ export interface QuizAttempt {
   answers: Record<string, UserAnswer>;
   questions: Question[];
   xpEarned: number;
+  source?: 'practice';
 }
 
 export interface DocumentItem {

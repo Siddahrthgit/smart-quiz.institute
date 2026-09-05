@@ -9,7 +9,6 @@ import { Dashboard } from './components/Dashboard';
 import { QuizGenerator } from './components/QuizGenerator';
 import { QuizRunner } from './components/QuizRunner';
 import { QuizResults } from './components/QuizResults';
-import { QuizCompleted } from './components/QuizCompleted';
 import { DocumentManager } from './components/DocumentManager';
 import { FlashcardsAndNotes } from './components/FlashcardsAndNotes';
 import { PracticeRoom } from './components/PracticeRoom';
@@ -290,6 +289,7 @@ export default function App() {
       answers,
       questions,
       xpEarned,
+      source: activeQuiz.source,
     };
 
     setAttempts((prev) => [newAttempt, ...prev]);
@@ -313,9 +313,8 @@ export default function App() {
       };
     });
 
-    const cameFromPractice = activeQuiz.source === 'practice';
     setActiveQuiz(null);
-    setActiveTab(cameFromPractice ? 'quiz-completed' : 'quiz-results');
+    setActiveTab('quiz-results');
   };
 
   // Retry wrong questions handler
@@ -517,7 +516,6 @@ export default function App() {
             onOpenDocuments={() => setActiveTab('documents')}
             onOpenNotesAndCards={() => setActiveTab('notes-cards')}
             onOpenPractice={() => setActiveTab('practice')}
-            onOpenAnalytics={() => setActiveTab('analytics')}
             onRetryWrongQuestions={handleRetryWrongQuestions}
             onRetryLowConfidence={handleRetryLowConfidence}
             onOpenAttemptDetail={(att) => {
@@ -564,16 +562,7 @@ export default function App() {
             onOpenPractice={(type) => {
               setActiveTab('practice');
             }}
-            onOpenAnalytics={() => setActiveTab('analytics')}
             onReturnDashboard={() => setActiveTab('analytics')}
-          />
-        )}
-
-        {activeTab === 'quiz-completed' && lastAttempt && (
-          <QuizCompleted
-            attempt={lastAttempt}
-            onBackToPractice={() => setActiveTab('practice')}
-            onRetryWrong={handleRetryWrongQuestions}
           />
         )}
 
