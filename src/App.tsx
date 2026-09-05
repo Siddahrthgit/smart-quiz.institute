@@ -9,6 +9,7 @@ import { Dashboard } from './components/Dashboard';
 import { QuizGenerator } from './components/QuizGenerator';
 import { QuizRunner } from './components/QuizRunner';
 import { QuizResults } from './components/QuizResults';
+import { QuizCompleted } from './components/QuizCompleted';
 import { DocumentManager } from './components/DocumentManager';
 import { FlashcardsAndNotes } from './components/FlashcardsAndNotes';
 import { PracticeRoom } from './components/PracticeRoom';
@@ -77,6 +78,7 @@ export default function App() {
     docName?: string;
     questions: Question[];
     config: QuizConfig;
+    source?: 'practice';
   } | null>(null);
 
   const [lastAttempt, setLastAttempt] = useState<QuizAttempt | null>(attempts[0] || null);
@@ -311,8 +313,9 @@ export default function App() {
       };
     });
 
+    const cameFromPractice = activeQuiz.source === 'practice';
     setActiveQuiz(null);
-    setActiveTab('quiz-results');
+    setActiveTab(cameFromPractice ? 'quiz-completed' : 'quiz-results');
   };
 
   // Retry wrong questions handler
@@ -566,6 +569,14 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'quiz-completed' && lastAttempt && (
+          <QuizCompleted
+            attempt={lastAttempt}
+            onBackToPractice={() => setActiveTab('practice')}
+            onRetryWrong={handleRetryWrongQuestions}
+          />
+        )}
+
         {activeTab === 'documents' && (
           <DocumentManager
             documents={documents}
@@ -601,6 +612,7 @@ export default function App() {
                 title,
                 questions,
                 config,
+                source: 'practice',
               });
               setActiveTab('quiz-runner');
             }}
