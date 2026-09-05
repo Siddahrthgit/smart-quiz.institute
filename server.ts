@@ -60,9 +60,11 @@ app.get('/api/stats/active-users', async (req, res) => {
   }
 });
 
-// Reusable admin tool: send an announcement email to all registered users.
-// Protected by ADMIN_SECRET (set this env var on Render) instead of a full
-// admin auth system, since it's only ever triggered manually by the owner.
+// Reusable admin tool: send a daily re-engagement email to all registered
+// users (how to use the app, benefits, and exam-prep tips), or a custom
+// announcement if subject/message are provided. Protected by ADMIN_SECRET
+// (set this env var on Render) instead of a full admin auth system, since
+// it's only ever triggered by the owner or a scheduled external ping.
 app.post('/api/admin/broadcast-email', async (req, res) => {
   try {
     const { secret, subject, message } = req.body;
@@ -70,9 +72,27 @@ app.post('/api/admin/broadcast-email', async (req, res) => {
     if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
       return res.status(403).json({ error: 'Invalid admin secret' });
     }
-    if (!subject || !message) {
-      return res.status(400).json({ error: 'subject and message are required' });
-    }
+
+    const siteUrl = process.env.FRONTEND_URL || 'https://smart-quiz-institute.onrender.com';
+    const finalSubject = subject || 'Ready for your next study session?';
+    const defaultHtml = `
+      <p>Come back and keep building your exam readiness with Smart Exam Preparation.</p>
+      <h3>How to use it</h3>
+      <ol>
+        <li>Type any exam name or subject on the home page</li>
+        <li>Pick a difficulty and question count, then start practicing</li>
+        <li>Rate your confidence on each answer so we know what to review</li>
+      </ol>
+      <h3>Why it helps</h3>
+      <ul>
+        <li>AI-generated questions tailored to exactly what you're studying</li>
+        <li>Confidence tracking shows you what to revisit before the real exam</li>
+        <li>Upload your own PDFs or notes to practice from your actual material</li>
+      </ul>
+      <h3>Exam prep tip</h3>
+      <p>Little and often beats cramming — even a 10-question set today keeps your recall sharp.</p>
+      <p><a href="${siteUrl}">Continue practicing &rarr;</a></p>
+    `;
 
     const users = await User.find({}).select('name email');
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -82,8 +102,10 @@ app.post('/api/admin/broadcast-email', async (req, res) => {
         resend.emails.send({
           from: 'onboarding@resend.dev',
           to: u.email,
-          subject,
-          html: `<p>Hi ${u.name},</p><p>${message}</p>`,
+          subject: finalSubject,
+          html: message
+            ? `<p>Hi ${u.name},</p><p>${message}</p><p><a href="${siteUrl}">Visit Smart Exam Preparation &rarr;</a></p>`
+            : `<p>Hi ${u.name},</p>${defaultHtml}`,
         })
       )
     );
