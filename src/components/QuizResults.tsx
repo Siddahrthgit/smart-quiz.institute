@@ -127,15 +127,6 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
               <span>1. Re-Exam Wrong ({wrongQuestionsCount} Set)</span>
             </button>
           )}
-          {lowConfidenceCount > 0 && (
-            <button
-              onClick={onRetryLowConfidence}
-              className="flex items-center space-x-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-amber-600/30"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Retry Low Confidence ({lowConfidenceCount} Set)</span>
-            </button>
-          )}
 
           <button
             onClick={onGenerateFlashcards}
