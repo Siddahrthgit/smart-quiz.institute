@@ -51,8 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
           <div 
-            className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => setActiveTab('ai-quiz-flow')}
+            className="flex items-center space-x-3"
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5" />
