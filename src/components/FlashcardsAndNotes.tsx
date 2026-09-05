@@ -24,6 +24,7 @@ interface FlashcardsAndNotesProps {
   onGenerateNotes: (docId?: string) => Promise<void>;
   onUploadFile: (file: File) => Promise<void>;
   isLoading: boolean;
+  initialTab?: 'flashcards' | 'notes';
   error?: string | null;
 }
 
@@ -35,9 +36,10 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
   onGenerateNotes,
   onUploadFile,
   isLoading,
+  initialTab,
   error,
 }) => {
-  const [activeTab, setActiveTab] = useState<'flashcards' | 'notes' | 'upload'>('flashcards');
+  const [activeTab, setActiveTab] = useState<'flashcards' | 'notes' | 'upload'>(initialTab || 'flashcards');
   const [isDragging, setIsDragging] = useState(false);
   const [flashcardCount, setFlashcardCount] = useState(6);
 

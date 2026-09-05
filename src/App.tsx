@@ -536,7 +536,6 @@ export default function App() {
             onDeleteDocument={handleDeleteDocument}
             onOpenDocuments={() => setActiveTab('documents')}
             isLoading={isLoading}
-            initialTab={activeTab === 'documents-drive' ? 'drive' : 'materials'}
             error={error}
           />
         )}
@@ -582,7 +581,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'notes-cards' && (
+        {(activeTab === 'notes-cards' || activeTab === 'notes-cards-notes' || activeTab === 'notes-cards-flashcards') && (
           <FlashcardsAndNotes
             flashcards={flashcards}
             notes={notes}
@@ -591,7 +590,7 @@ export default function App() {
             onGenerateNotes={handleGenerateNotes}
             onUploadFile={handleUploadFile}
             isLoading={isLoading}
-            initialTab={activeTab === 'documents-drive' ? 'drive' : 'materials'}
+            initialTab={activeTab === 'notes-cards-notes' ? 'notes' : 'flashcards'}
             error={error}
           />
         )}

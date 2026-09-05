@@ -159,7 +159,9 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
           <span>·</span>
           <button onClick={() => onNavigate && onNavigate("documents-drive")} className="underline text-slate-300 hover:text-white">Questions from your drive</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("notes-cards")} className="underline text-slate-300 hover:text-white">Notes & Flashcards</button>
+          <button onClick={() => onNavigate && onNavigate("notes-cards-notes")} className="underline text-slate-300 hover:text-white">Notes</button>
+          <span>·</span>
+          <button onClick={() => onNavigate && onNavigate("notes-cards-flashcards")} className="underline text-slate-300 hover:text-white">Flashcards</button>
         </div>
         {onAuthSuccess && <div id="signup-section"><AuthForm onSuccess={onAuthSuccess} /></div>}
       </div>
