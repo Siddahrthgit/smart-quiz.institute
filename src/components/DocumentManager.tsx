@@ -25,6 +25,7 @@ interface DocumentManagerProps {
   onSelectDocForQuiz: (doc: DocumentItem) => void;
   onDeleteDocument?: (docId: string) => void;
   isLoading: boolean;
+  initialTab?: 'materials' | 'drive';
 }
 
 export const DocumentManager: React.FC<DocumentManagerProps> = ({
@@ -35,8 +36,9 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   onSelectDocForQuiz,
   onDeleteDocument,
   isLoading,
+  initialTab,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'materials' | 'drive' | 'chatbot'>('materials');
+  const [activeSubTab, setActiveSubTab] = useState<'materials' | 'drive' | 'chatbot'>(initialTab || 'materials');
   const [driveLink, setDriveLink] = useState('');
   const [driveTitle, setDriveTitle] = useState('');
   const [driveImportError, setDriveImportError] = useState<string | null>(null);

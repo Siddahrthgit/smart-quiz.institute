@@ -536,6 +536,7 @@ export default function App() {
             onDeleteDocument={handleDeleteDocument}
             onOpenDocuments={() => setActiveTab('documents')}
             isLoading={isLoading}
+            initialTab={activeTab === 'documents-drive' ? 'drive' : 'materials'}
             error={error}
           />
         )}
@@ -566,7 +567,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'documents' && (
+        {(activeTab === 'documents' || activeTab === 'documents-files' || activeTab === 'documents-drive') && (
           <DocumentManager
             documents={documents}
             onUploadFile={handleUploadFile}
@@ -577,6 +578,7 @@ export default function App() {
               setActiveTab('quiz-gen');
             }}
             isLoading={isLoading}
+            initialTab={activeTab === 'documents-drive' ? 'drive' : 'materials'}
           />
         )}
 
@@ -589,6 +591,7 @@ export default function App() {
             onGenerateNotes={handleGenerateNotes}
             onUploadFile={handleUploadFile}
             isLoading={isLoading}
+            initialTab={activeTab === 'documents-drive' ? 'drive' : 'materials'}
             error={error}
           />
         )}

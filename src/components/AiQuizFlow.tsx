@@ -155,9 +155,9 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </p>
         <LandingForm onStart={handleStartFromLanding} />
         <div className="flex gap-3 mt-6 text-xs text-slate-400">
-          <button onClick={() => onNavigate && onNavigate("documents")} className="underline text-slate-300 hover:text-white">Upload document</button>
+          <button onClick={() => onNavigate && onNavigate("documents-files")} className="underline text-slate-300 hover:text-white">Questions from your files</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("documents")} className="underline text-slate-300 hover:text-white">Materials & Drive</button>
+          <button onClick={() => onNavigate && onNavigate("documents-drive")} className="underline text-slate-300 hover:text-white">Questions from your drive</button>
           <span>·</span>
           <button onClick={() => onNavigate && onNavigate("notes-cards")} className="underline text-slate-300 hover:text-white">Notes & Flashcards</button>
         </div>
