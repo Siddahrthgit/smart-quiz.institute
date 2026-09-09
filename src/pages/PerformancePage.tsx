@@ -1,0 +1,150 @@
+import React, { useEffect, useState } from 'react';
+import { ownerHeaders } from '../lib/ownerAuth';
+
+interface WrongQuestion {
+  question: string;
+  options?: string[];
+  correctAnswer: string;
+  userAnswer?: string;
+  topic?: string;
+  note?: string;
+}
+
+interface Suggestion {
+  topic: string;
+  personal: number;
+  branchWide: number;
+}
+
+export function PerformancePage({
+  attemptId,
+  onReattempt,
+  onUploadNew,
+}: {
+  attemptId: string;
+  onReattempt: (reattempt: { docId: string; branch: string; subject: string; parentAttemptId: string; questions: any[] }) => void;
+  onUploadNew: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [score, setScore] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [wrong, setWrong] = useState<WrongQuestion[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [reattemptLoading, setReattemptLoading] = useState(false);
+
+  useEffect(() => {
+    load();
+    fetch('/api/core/suggestions', { headers: ownerHeaders() })
+      .then((r) => r.json())
+      .then((d) => setSuggestions(d.suggestions || []))
+      .catch(() => {});
+  }, [attemptId]);
+
+  async function load() {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/core/attempts/${attemptId}`, { headers: ownerHeaders() });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to load performance review');
+      setScore(data.score);
+      setTotal(data.total);
+      setWrong(data.wrongQuestions || []);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReattempt() {
+    setReattemptLoading(true);
+    try {
+      const res = await fetch(`/api/core/attempts/${attemptId}/reattempt`, {
+        method: 'POST',
+        headers: ownerHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to start reattempt');
+      onReattempt(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to start reattempt');
+    } finally {
+      setReattemptLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <p className="text-slate-300 animate-pulse">Loading your performance review…</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
+      <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
+        <h1 className="text-2xl font-bold mb-1">Performance Review</h1>
+        <p className="text-slate-400 mb-6">
+          You scored <span className="text-white font-semibold">{score}/{total}</span>
+        </p>
+
+        {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+
+        {wrong.length === 0 ? (
+          <div className="border border-emerald-800 bg-emerald-900/20 rounded-xl px-4 py-6 text-center">
+            <p className="text-emerald-300 font-medium">No wrong answers — nice work.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold">Wrong Questions ({wrong.length})</h2>
+              <button
+                onClick={handleReattempt}
+                disabled={reattemptLoading}
+                className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-sm"
+              >
+                {reattemptLoading ? 'Preparing…' : 'Reattempt All'}
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {wrong.map((q, i) => (
+                <div key={i} className="border border-slate-800 rounded-xl px-4 py-4 bg-slate-900/50">
+                  <p className="font-medium mb-2">{q.question}</p>
+                  <p className="text-sm text-red-400 mb-1">Your answer: {q.userAnswer || '(none)'}</p>
+                  <p className="text-sm text-emerald-400 mb-3">Correct answer: {q.correctAnswer}</p>
+                  {q.note && (
+                    <div className="bg-slate-950/60 border border-slate-800 rounded-lg px-3 py-2">
+                      <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">Notes</p>
+                      <p className="text-sm text-slate-300">{q.note}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <button onClick={onUploadNew} className="w-full mt-8 border border-slate-700 hover:border-slate-500 rounded-lg py-2 text-sm">
+          Upload Another PDF
+        </button>
+      </div>
+
+      {suggestions.length > 0 && (
+        <div className="md:w-72 bg-slate-900/60 border-t md:border-t-0 md:border-l border-slate-800 px-5 py-8">
+          <h3 className="text-sm font-semibold text-slate-300 mb-3">Suggested for you</h3>
+          <ul className="space-y-2">
+            {suggestions.map((s) => (
+              <li key={s.topic} className="text-sm text-slate-400 border border-slate-800 rounded-lg px-3 py-2">
+                {s.topic}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}

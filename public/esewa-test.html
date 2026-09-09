@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h3>eSewa Sandbox Test</h3>
+<form method="POST" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form">
+  <input type="hidden" name="amount" value="299" />
+  <input type="hidden" name="tax_amount" value="0" />
+  <input type="hidden" name="total_amount" value="299" />
+  <input type="hidden" name="transaction_uuid" value="d347b289-43bc-4121-8665-4b1313636496" />
+  <input type="hidden" name="product_code" value="EPAYTEST" />
+  <input type="hidden" name="product_service_charge" value="0" />
+  <input type="hidden" name="product_delivery_charge" value="0" />
+  <input type="hidden" name="success_url" value="https://smart-quiz-institute.onrender.com/api/payment/esewa/verify" />
+  <input type="hidden" name="failure_url" value="https://smart-quiz-institute.onrender.com/premium?status=failed" />
+  <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code" />
+  <input type="hidden" name="signature" value="wN3zEzRs0F5tyVgAIo6ytMc/j9gIZ+EuDhniiHMvTDc=" />
+  <button type="submit">Pay with eSewa (sandbox)</button>
+</form>
+</body>
+</html>
