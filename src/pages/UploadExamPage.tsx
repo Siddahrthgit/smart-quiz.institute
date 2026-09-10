@@ -101,7 +101,7 @@ export function UploadExamPage({
   if (phase === 'upload') {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
-        <div className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="flex-1 flex flex-col items-center px-4 pt-16 pb-10">
           <div className="w-full max-w-md text-center">
             <h1 className="text-2xl font-bold mb-2">Upload your PDF</h1>
             <p className="text-slate-400 text-sm mb-6">

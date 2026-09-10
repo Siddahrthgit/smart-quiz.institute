@@ -87,9 +87,24 @@ export function PerformancePage({
     <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
         <h1 className="text-2xl font-bold mb-1">Performance Review</h1>
-        <p className="text-slate-400 mb-6">
-          You scored <span className="text-white font-semibold">{score}/{total}</span>
-        </p>
+        <div className="flex flex-col items-center py-6 mb-6 border-b border-slate-800">
+          <div className="relative w-28 h-28 mb-3">
+            <svg className="w-full h-full -rotate-90">
+              <circle cx="56" cy="56" r="48" strokeWidth="8" fill="none" stroke="currentColor" className="text-slate-800" />
+              <circle
+                cx="56" cy="56" r="48" strokeWidth="8" fill="none" stroke="currentColor"
+                strokeDasharray={2 * Math.PI * 48}
+                strokeDashoffset={2 * Math.PI * 48 * (1 - (total ? score / total : 0))}
+                strokeLinecap="round"
+                className="text-indigo-500"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center text-2xl font-semibold">
+              {total ? Math.round((score / total) * 100) : 0}%
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm">{score} of {total} correct</p>
+        </div>
 
         {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 

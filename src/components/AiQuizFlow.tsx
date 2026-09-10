@@ -139,7 +139,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'landing') {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center text-center px-4">
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center text-center px-4 pt-12">
         <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4">
           <span className="text-2xl">✨</span>
         </div>
