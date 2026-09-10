@@ -99,3 +99,5 @@ img, svg, video, canvas {
     transform: translateY(-2px);
   }
 }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
