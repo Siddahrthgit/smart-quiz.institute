@@ -103,6 +103,7 @@ ${extractedText.slice(0, 6000)}`
       fileType: 'pdf',
       wordCount: extractedText.trim().split(/\s+/).length,
       summary: analysis.topics?.join(', '),
+      topics: analysis.topics,
     } as any);
 
     const questions = await generateJson<any[]>(
@@ -267,16 +268,24 @@ router.get('/suggestions', async (req: IdentifiedRequest, res: Response) => {
       { $group: { _id: '$questions.topic', count: { $sum: 1 } } },
     ]);
 
+    const ownerKey = `${req.ownerType}:${req.ownerId}`;
+    const materials = await Material.find({ ownerKey }, 'topics');
+    const pdfTopics = new Set(materials.flatMap((m: any) => m.topics || []).filter(Boolean));
+
     const personalMap = new Map(personalAgg.map((a: any) => [a._id, a.count]));
     const branchMap = new Map(branchAgg.map((a: any) => [a._id, a.count]));
-    const allTopics = new Set([...personalMap.keys(), ...branchMap.keys()].filter(Boolean));
+    const allTopics = new Set([...personalMap.keys(), ...branchMap.keys(), ...pdfTopics].filter(Boolean));
 
-    // Blended score: personal weakness weighted higher than branch-wide trend.
+    // Blended score: personal weakness weighted highest, then branch-wide
+    // trend, then a small bump for topics pulled straight from an uploaded
+    // PDF (so a brand-new student with no exam history yet still gets
+    // real suggestions instead of an empty list).
     const ranked = Array.from(allTopics)
       .map((topic) => {
         const personal = personalMap.get(topic) || 0;
         const branchWide = branchMap.get(topic) || 0;
-        return { topic, score: personal * 3 + branchWide, personal, branchWide };
+        const fromPdf = pdfTopics.has(topic) ? 1 : 0;
+        return { topic, score: personal * 3 + branchWide + fromPdf, personal, branchWide };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 10);
@@ -324,3 +333,23 @@ router.post('/guest/merge', async (req: IdentifiedRequest, res: Response) => {
 });
 
 export default router;
+router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) => {
+  try {
+    const { topic } = req.body;
+    if (!topic || typeof topic !== 'string') return res.status(400).json({ error: 'No topic provided' });
+
+    const branch = await getFixedBranch(req);
+    const docId = 'topic_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+
+    const questions = await generateJson<any[]>(
+      `Create 10 multiple-choice exam questions on the topic "${topic}"${branch ? ` within the field of ${branch}` : ''}.
+Each item: {"question": string, "options": string[4], "correctAnswer": string (must match one option exactly), "topic": string (short topic tag)}.
+Respond ONLY as a JSON array of 10 items, no other text.`
+    );
+
+    return res.json({ success: true, docId, branch: branch || null, subject: topic, questions });
+  } catch (err: any) {
+    console.error('exam/from-topic error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to generate practice set' });
+  }
+});

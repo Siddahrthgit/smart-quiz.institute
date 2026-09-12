@@ -13,6 +13,7 @@ export interface IMaterial extends Document {
   sizeFormatted?: string;
   wordCount?: number;
   summary?: string;
+  topics?: string[];
   createdAt: Date;
 }
 
@@ -26,6 +27,7 @@ const MaterialSchema = new Schema<IMaterial>({
   fileType: { type: String },
   sizeFormatted: { type: String },
   wordCount: { type: Number },
+  topics: { type: [String] },
   summary: { type: String },
   createdAt: { type: Date, default: Date.now },
 });

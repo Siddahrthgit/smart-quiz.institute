@@ -12,6 +12,7 @@ interface Suggestion {
   topic: string;
   personal: number;
   branchWide: number;
+  note?: string;
 }
 
 type Phase = 'upload' | 'analyzing' | 'exam' | 'submitting';
@@ -98,32 +99,56 @@ export function UploadExamPage({
     }
   }
 
+  async function handleRetrySet(topic: string) {
+    setError('');
+    setPhase('analyzing');
+    try {
+      const res = await fetch('/api/core/exam/from-topic', {
+        method: 'POST',
+        headers: { ...ownerHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate practice set');
+      setDocId(data.docId);
+      setBranch(data.branch);
+      setSubject(data.subject);
+      setQuestions(data.questions);
+      setAnswers({});
+      setCurrent(0);
+      setPhase('exam');
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+      setPhase('upload');
+    }
+  }
+
   if (phase === 'upload') {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
-        <div className="flex-1 flex flex-col items-center px-4 pt-16 pb-10">
-          <div className="w-full max-w-md text-center">
-            <h1 className="text-2xl font-bold mb-2">Upload your PDF</h1>
-            <p className="text-slate-400 text-sm mb-6">
+      <div className="min-h-screen bg-slate-950 text-white">
+        <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-16">
+          <div className="text-center mb-10">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Upload your PDF</h1>
+            <p className="text-slate-400 text-sm sm:text-base">
               We'll read it, work out your subject, and build your exam automatically.
             </p>
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl py-14 cursor-pointer transition-colors"
-            >
-              <p className="text-slate-300">Tap to choose a PDF</p>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-            />
-            {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
           </div>
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl py-14 sm:py-20 cursor-pointer transition-colors text-center"
+          >
+            <p className="text-slate-300">Tap to choose a PDF</p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+          />
+          {error && <p className="text-red-400 text-sm mt-4 text-center">{error}</p>}
+          <SuggestionsList suggestions={suggestions} onRetry={handleRetrySet} />
         </div>
-        <SuggestionsPanel suggestions={suggestions} />
       </div>
     );
   }
@@ -136,74 +161,96 @@ export function UploadExamPage({
     );
   }
 
-  // exam phase - no answers, no correctness, no suggestions shown here
-  const q = questions[current];
-  return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
-      <div className="max-w-xl mx-auto w-full px-4 py-8 flex-1">
-        <p className="text-slate-500 text-sm mb-1">
-          {subject} · Question {current + 1} of {questions.length}
-        </p>
-        <h2 className="text-lg font-semibold mb-5">{q.question}</h2>
-        <div className="space-y-2">
-          {q.options.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => setAnswers({ ...answers, [current]: opt })}
-              className={`w-full text-left px-4 py-3 rounded-lg border ${
-                answers[current] === opt
-                  ? 'border-indigo-500 bg-indigo-500/10'
-                  : 'border-slate-800 bg-slate-900 hover:border-slate-600'
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
+  // exam phase - all questions on one page, no pagination
+  const answeredCount = Object.keys(answers).length;
 
-        <div className="flex justify-between mt-8">
-          <button
-            disabled={current === 0}
-            onClick={() => setCurrent(current - 1)}
-            className="px-4 py-2 rounded-lg border border-slate-800 disabled:opacity-40"
-          >
-            Back
-          </button>
-          {current < questions.length - 1 ? (
-            <button
-              onClick={() => setCurrent(current + 1)}
-              className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmitExam}
-              disabled={phase === 'submitting'}
-              className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60"
-            >
-              {phase === 'submitting' ? 'Submitting…' : 'Finish Exam'}
-            </button>
-          )}
-        </div>
-        {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+  function handleFinishClick() {
+    const firstUnanswered = questions.findIndex((_, i) => !answers[i]);
+    if (firstUnanswered !== -1) {
+      setError(`Question ${firstUnanswered + 1} is unanswered`);
+      document.getElementById(`q-${firstUnanswered}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    setError(null);
+    handleSubmitExam();
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white pb-28">
+      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 py-3">
+        <p className="text-sm text-slate-400 max-w-2xl lg:max-w-3xl mx-auto">
+          {subject} · {answeredCount} of {questions.length} answered
+        </p>
+      </div>
+
+      <div className="max-w-2xl lg:max-w-3xl mx-auto w-full px-4 sm:px-6 py-8 space-y-10">
+        {questions.map((q, i) => (
+          <div key={i} id={`q-${i}`} className="scroll-mt-20">
+            <p className="text-slate-500 text-sm mb-1">Question {i + 1} of {questions.length}</p>
+            <h2 className="text-lg font-semibold mb-4">{q.question}</h2>
+            <div className="space-y-2">
+              {q.options.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => setAnswers({ ...answers, [i]: opt })}
+                  className={`w-full text-left px-4 py-3 rounded-lg border ${
+                    answers[i] === opt
+                      ? 'border-indigo-500 bg-indigo-500/10'
+                      : 'border-slate-800 bg-slate-900 hover:border-slate-600'
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+        {error && <p className="text-red-400 text-sm">{error}</p>}
+      </div>
+
+      <div className="fixed bottom-0 inset-x-0 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-3">
+        <button
+          onClick={handleFinishClick}
+          disabled={phase === 'submitting'}
+          className="max-w-2xl lg:max-w-3xl mx-auto w-full block rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 font-semibold py-3"
+        >
+          {phase === 'submitting' ? 'Submitting…' : `Finish Exam (${answeredCount}/${questions.length})`}
+        </button>
       </div>
     </div>
   );
 }
 
-function SuggestionsPanel({ suggestions }: { suggestions: Suggestion[] }) {
-  if (suggestions.length === 0) return <div className="hidden md:block md:w-72" />;
+function SuggestionsList({ suggestions, onRetry }: { suggestions: Suggestion[]; onRetry: (topic: string) => void }) {
+  const [openTopic, setOpenTopic] = useState<string | null>(null);
+  if (suggestions.length === 0) return null;
   return (
-    <div className="md:w-72 bg-slate-900/60 border-t md:border-t-0 md:border-l border-slate-800 px-5 py-8">
+    <div className="mt-12">
       <h3 className="text-sm font-semibold text-slate-300 mb-3">Suggested for you</h3>
-      <ul className="space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {suggestions.map((s) => (
-          <li key={s.topic} className="text-sm text-slate-400 border border-slate-800 rounded-lg px-3 py-2">
-            {s.topic}
-          </li>
+          <div key={s.topic} className="border border-slate-800 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setOpenTopic(openTopic === s.topic ? null : s.topic)}
+              className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white flex items-center justify-between gap-2"
+            >
+              {s.topic}
+              <span className="text-slate-500 text-xs">{openTopic === s.topic ? '−' : '+'}</span>
+            </button>
+            {openTopic === s.topic && (
+              <div className="px-3 pb-3 border-t border-slate-800 pt-2">
+                {s.note && <p className="text-xs text-slate-500 mb-2">{s.note}</p>}
+                <button
+                  onClick={() => onRetry(s.topic)}
+                  className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-medium py-2"
+                >
+                  Retry set
+                </button>
+              </div>
+            )}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
