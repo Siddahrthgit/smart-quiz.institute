@@ -158,7 +158,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
         // Rate confidence according to accuracy score
         const score = evalObj.scorePercentage ?? (evalObj.isCorrect ? 100 : 0);
         const autoConfidence: 'high' | 'low' =
-          score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low';
+          score >= 80 ? 'high' : 'low';
         
         setConfidence(autoConfidence);
 

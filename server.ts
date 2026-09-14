@@ -919,7 +919,7 @@ async function main() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`Smart Exam Preparation server listening on http://0.0.0.0:${PORT}`);
   });
 }

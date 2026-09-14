@@ -32,7 +32,7 @@ export interface UserAnswer {
   questionId: string;
   userAnswer: string | Record<string, string>;
   isCorrect?: boolean;
-  confidence?: 'high' | 'medium' | 'low';
+  confidence?: 'high' | 'low';
   timeSpentSeconds: number;
   aiFeedback?: string;
   scorePercentage?: number;
