@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ownerHeaders } from '../lib/ownerAuth';
+import { Share2 } from 'lucide-react';
 
 interface WrongQuestion {
   question: string;
@@ -29,9 +30,25 @@ export function PerformancePage({
   const [error, setError] = useState('');
   const [score, setScore] = useState(0);
   const [total, setTotal] = useState(0);
+  const [subject, setSubject] = useState('');
   const [wrong, setWrong] = useState<WrongQuestion[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [reattemptLoading, setReattemptLoading] = useState(false);
+
+  async function handleShare() {
+    const percent = total ? Math.round((score / total) * 100) : 0;
+    const text = subject
+      ? `I scored ${percent}% (${score}/${total}) on ${subject} — practice with Study Planner AI!`
+      : `I scored ${percent}% (${score}/${total}) — practice with Study Planner AI!`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+  }
 
   useEffect(() => {
     load();
@@ -50,6 +67,7 @@ export function PerformancePage({
       if (!res.ok) throw new Error(data.error || 'Failed to load performance review');
       setScore(data.score);
       setTotal(data.total);
+      setSubject(data.subject || '');
       setWrong(data.wrongQuestions || []);
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
@@ -104,6 +122,12 @@ export function PerformancePage({
             </div>
           </div>
           <p className="text-slate-400 text-sm">{score} of {total} correct</p>
+          <button
+            onClick={handleShare}
+            className="mt-3 flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-800 rounded-full px-4 py-1.5"
+          >
+            <Share2 size={14} /> Share
+          </button>
         </div>
 
         {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
