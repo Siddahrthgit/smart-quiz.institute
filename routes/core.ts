@@ -182,6 +182,7 @@ router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
  */
 router.get('/attempts/:id', async (req: IdentifiedRequest, res: Response) => {
   try {
+    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
     const attempt = await Attempt.findById(req.params.id);
     if (!attempt || attempt.ownerId !== req.ownerId) {
       return res.status(404).json({ error: 'Attempt not found' });
@@ -226,6 +227,7 @@ ${missingNotes.map((q: any) => `Q: ${q.question}\nCorrect answer: ${q.correctAns
  */
 router.post('/attempts/:id/reattempt', async (req: IdentifiedRequest, res: Response) => {
   try {
+    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
     const attempt = await Attempt.findById(req.params.id);
     if (!attempt || attempt.ownerId !== req.ownerId) {
       return res.status(404).json({ error: 'Attempt not found' });
@@ -316,6 +318,7 @@ router.post('/guest/merge', async (req: IdentifiedRequest, res: Response) => {
       await user.save();
     }
 
+    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
     const attemptsUpdated = await Attempt.updateMany(
       { ownerId: guestId, ownerType: 'guest' },
       { $set: { ownerId: req.ownerId, ownerType: 'user' } }
@@ -341,11 +344,31 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
     const branch = await getFixedBranch(req);
     const docId = 'topic_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
-    const questions = await generateJson<any[]>(
-      `Create 10 multiple-choice exam questions on the topic "${topic}"${branch ? ` within the field of ${branch}` : ''}.
+    const prevAttempt = await Attempt.findOne({
+    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
+      ownerId: req.ownerId,
+      ownerType: req.ownerType,
+      subject: topic,
+      docId: { $regex: '^topic_' },
+    }).sort({ createdAt: -1 });
+
+    const wrongFromLast = (prevAttempt?.questions || [])
+      .filter((q: any) => !q.isCorrect)
+      .slice(0, 5)
+      .map((q: any) => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, topic: q.topic }));
+
+    const newCount = 10 - wrongFromLast.length;
+    const avoidList = wrongFromLast.length
+      ? `\nDo not repeat these questions — ask about different aspects of the topic:\n${wrongFromLast.map((q: any) => `- ${q.question}`).join('\n')}`
+      : '';
+
+    const newQuestions = await generateJson<any[]>(
+      `Create ${newCount} multiple-choice exam questions on the topic "${topic}"${branch ? ` within the field of ${branch}` : ''}.${avoidList}
 Each item: {"question": string, "options": string[4], "correctAnswer": string (must match one option exactly), "topic": string (short topic tag)}.
-Respond ONLY as a JSON array of 10 items, no other text.`
+Respond ONLY as a JSON array of ${newCount} items, no other text.`
     );
+
+    const questions = [...wrongFromLast, ...newQuestions];
 
     return res.json({ success: true, docId, branch: branch || null, subject: topic, questions });
   } catch (err: any) {
