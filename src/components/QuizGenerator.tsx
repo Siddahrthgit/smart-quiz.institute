@@ -119,14 +119,14 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bento-card bg-slate-900 border-slate-800 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bento-card bg-slate-50 border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-xl font-black text-white">AI Quiz Generator</h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Configure AI parameters to generate personalized quizzes from your study material.
             </p>
           </div>
@@ -145,9 +145,9 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
 
       <form onSubmit={handleFormSubmit} className="space-y-6">
         {/* Source Material Selection */}
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <FileText className="w-4 h-4 text-indigo-400" />
               <span>1. Select Study Material Source</span>
             </h2>
@@ -161,7 +161,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
               className={`p-4 rounded-xl border text-left transition-all ${
                 sourceMode === 'doc'
                   ? 'bg-indigo-950/40 border-indigo-500 text-white'
-                  : 'bg-slate-800/50 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                  : 'bg-slate-100/50 border-slate-300/60 text-slate-600 hover:text-slate-800'
               }`}
             >
               <div className="font-semibold text-xs mb-1 flex items-center justify-between">
@@ -199,7 +199,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                     <h4 className="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">
                       {isUploadingPdf ? 'Uploading & Parsing PDF...' : 'Upload PDF / Document to Generate Quiz'}
                     </h4>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-600">
                       Click to select or drag and drop any PDF textbook, lecture slides, or notes
                     </p>
                   </div>
@@ -215,8 +215,8 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
               </div>
 
               {documents.length === 0 ? (
-                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/60 text-center space-y-1">
-                  <p className="text-xs text-slate-400">No documents in store yet. Upload a PDF above or import from Drive.</p>
+                <div className="p-3 rounded-xl bg-slate-100/40 border border-slate-300/60 text-center space-y-1">
+                  <p className="text-xs text-slate-600">No documents in store yet. Upload a PDF above or import from Drive.</p>
                   <button
                     type="button"
                     onClick={onOpenDocuments}
@@ -229,11 +229,11 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                    <label className="text-xs text-slate-700 font-semibold flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Select Target PDF / Document:</span>
                     </label>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-slate-600 font-mono">
                       {documents.length} document(s) available
                     </span>
                   </div>
@@ -241,7 +241,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                   <select
                     value={selectedDocId}
                     onChange={(e) => setSelectedDocId(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
                     {documents.map((doc) => (
                       <option key={doc.id} value={doc.id}>
@@ -252,14 +252,14 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
 
                   {/* Show Selected Document Card Info */}
                   {documents.find((d) => d.id === selectedDocId) && (
-                    <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-xs space-y-1.5">
-                      <div className="flex items-center justify-between font-bold text-slate-200">
+                    <div className="p-3 rounded-xl bg-slate-100/60 border border-slate-300/80 text-xs space-y-1.5">
+                      <div className="flex items-center justify-between font-bold text-slate-800">
                         <span className="flex items-center gap-1.5 text-indigo-300">
                           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                           <span>Ready for Quiz Generation:</span>
                         </span>
                         <div className="flex items-center space-x-2">
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-600 font-mono">
                             {documents.find((d) => d.id === selectedDocId)?.wordCount} words
                           </span>
                           {onDeleteDocument && (
@@ -271,7 +271,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                                   onDeleteDocument(targetDoc.id);
                                 }
                               }}
-                              className="text-slate-400 hover:text-red-400 p-1 hover:bg-red-950/40 rounded transition-colors"
+                              className="text-slate-600 hover:text-red-400 p-1 hover:bg-red-950/40 rounded transition-colors"
                               title="Delete PDF / Document"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -280,7 +280,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                         </div>
                       </div>
                       {documents.find((d) => d.id === selectedDocId)?.summary && (
-                        <p className="text-[11px] text-slate-400 italic line-clamp-2">
+                        <p className="text-[11px] text-slate-600 italic line-clamp-2">
                           "{documents.find((d) => d.id === selectedDocId)?.summary}"
                         </p>
                       )}
@@ -291,22 +291,22 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             </div>
           ) : (
             <div className="space-y-2 pt-2">
-              <label className="text-xs text-slate-400 block font-medium">Enter Academic Subject / Topic:</label>
+              <label className="text-xs text-slate-600 block font-medium">Enter Academic Subject / Topic:</label>
               <input
                 type="text"
                 value={customTopic}
                 onChange={(e) => setCustomTopic(e.target.value)}
                 placeholder="e.g. Organic Chemistry Functional Groups, World War II History, Python Async Architecture..."
-                className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
               {totalQ > 0 && (
-                <div className="mt-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 text-slate-400">
+                <div className="mt-3 p-3 rounded-xl bg-slate-100/50 border border-slate-300/60 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-slate-600">
                     <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
                     <span>Your recent performance</span>
                   </div>
                   <div className="flex items-center gap-3 font-mono">
-                    <span className="text-slate-300">{attempts.length} quizzes</span>
+                    <span className="text-slate-700">{attempts.length} quizzes</span>
                     <span className="text-emerald-400 font-bold">{previewAccuracy}% accuracy</span>
                   </div>
                 </div>
@@ -316,9 +316,9 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
         </div>
 
         {/* Difficulty & Question Count */}
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <Settings className="w-4 h-4 text-indigo-400" />
               <span>2. Difficulty & Question Volume</span>
             </h2>
@@ -328,7 +328,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Difficulty selector */}
             <div className="space-y-2">
-              <label className="text-xs text-slate-400 font-medium">Difficulty Level:</label>
+              <label className="text-xs text-slate-600 font-medium">Difficulty Level:</label>
               <div className="grid grid-cols-2 gap-2">
                 {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
                   <button
@@ -338,7 +338,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                     className={`px-3 py-2 rounded-xl text-xs font-semibold capitalize border transition-colors ${
                       difficulty === d
                         ? 'bg-indigo-600 text-white border-indigo-500'
-                        : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800'
+                        : 'bg-slate-100/60 text-slate-700 border-slate-300 hover:bg-slate-100'
                     }`}
                   >
                     {d === 'adaptive' ? '⚡ Adaptive' : d}
@@ -350,7 +350,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             {/* Question count */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <label className="text-slate-400 font-medium">Number of Questions:</label>
+                <label className="text-slate-600 font-medium">Number of Questions:</label>
                 <span className="text-indigo-400 font-bold font-mono text-sm">{numQuestions}</span>
               </div>
               <input
@@ -359,9 +359,9 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                 max={100}
                 value={numQuestions}
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
-                className="w-full accent-indigo-500 bg-slate-800 h-2 rounded-lg cursor-pointer"
+                className="w-full accent-indigo-500 bg-slate-100 h-2 rounded-lg cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+              <div className="flex justify-between text-[10px] text-slate-600 font-mono">
                 <span>3 Quick</span>
                 <span>10 Standard</span>
                 <span>100 Full Test</span>
@@ -371,9 +371,9 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
         </div>
 
         {/* Question Types */}
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-indigo-400" />
               <span>3. Question Formats (Multi-select)</span>
             </h2>
@@ -390,7 +390,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start space-x-3 ${
                     isSelected
                       ? 'bg-indigo-950/30 border-indigo-500/80 text-white'
-                      : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                      : 'bg-slate-100/40 border-slate-300/60 text-slate-600 hover:text-slate-800'
                   }`}
                 >
                   <div className="mt-0.5">
@@ -411,13 +411,13 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
         </div>
 
         {/* Phase 6 Exam Mode Options */}
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-5 h-5 text-amber-400" />
               <div>
                 <h2 className="text-sm font-bold text-white">Exam Mode</h2>
-                <p className="text-[11px] text-slate-400">Strict countdown timer, negative marking, and no instant answer reveals</p>
+                <p className="text-[11px] text-slate-600">Strict countdown timer, negative marking, and no instant answer reveals</p>
               </div>
             </div>
 
@@ -428,14 +428,14 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                 onChange={(e) => setIsExamMode(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+              <div className="w-11 h-6 bg-slate-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
             </label>
           </div>
 
           {isExamMode && (
-            <div className="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs text-slate-300 font-medium flex items-center space-x-1.5">
+                <label className="text-xs text-slate-700 font-medium flex items-center space-x-1.5">
                   <Clock className="w-3.5 h-3.5 text-amber-400" />
                   <span>Timer per Question (seconds):</span>
                 </label>
@@ -445,7 +445,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                   max={300}
                   value={timeLimitPerQuestion}
                   onChange={(e) => setTimeLimitPerQuestion(parseInt(e.target.value) || 60)}
-                  className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-2 text-xs font-mono"
+                  className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl px-4 py-2 text-xs font-mono"
                 />
               </div>
 
@@ -455,9 +455,9 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                   id="negative-marking"
                   checked={negativeMarking}
                   onChange={(e) => setNegativeMarking(e.target.checked)}
-                  className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 bg-slate-800 border-slate-700"
+                  className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 bg-slate-100 border-slate-300"
                 />
-                <label htmlFor="negative-marking" className="text-xs text-slate-300 cursor-pointer">
+                <label htmlFor="negative-marking" className="text-xs text-slate-700 cursor-pointer">
                   Enable Negative Marking (-0.25 per wrong answer)
                 </label>
               </div>

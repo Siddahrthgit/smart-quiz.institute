@@ -49,8 +49,8 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-6 shadow-2xl">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl w-full max-w-md p-6 space-y-6 shadow-2xl">
         <div className="flex items-center space-x-2">
           <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <Sparkles className="w-5 h-5" />
@@ -75,7 +75,7 @@ export const ResetPasswordPage: React.FC = () => {
         {!message && (
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div className="space-y-1">
-              <label className="text-slate-300 font-medium">New Password</label>
+              <label className="text-slate-700 font-medium">New Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
@@ -84,13 +84,13 @@ export const ResetPasswordPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-slate-300 font-medium">Confirm New Password</label>
+              <label className="text-slate-700 font-medium">Confirm New Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
@@ -99,7 +99,7 @@ export const ResetPasswordPage: React.FC = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={8}
-                  className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>

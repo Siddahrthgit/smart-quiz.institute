@@ -39,13 +39,13 @@ export const FeatureChatWidget: React.FC = () => {
   return (
     <div className="fixed bottom-5 right-5 z-40">
       {isOpen && (
-        <div className="mb-3 w-80 max-w-[90vw] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
+        <div className="mb-3 w-80 max-w-[90vw] bg-slate-50 border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 bg-slate-100 border-b border-slate-300">
             <div className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4 text-indigo-400" />
               <span className="text-sm font-bold text-white">Ask about features</span>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-white">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -57,27 +57,27 @@ export const FeatureChatWidget: React.FC = () => {
                 className={`text-xs rounded-xl px-3 py-2 max-w-[85%] ${
                   m.role === 'user'
                     ? 'bg-indigo-600 text-white ml-auto'
-                    : 'bg-slate-800 text-slate-200'
+                    : 'bg-slate-100 text-slate-800'
                 }`}
               >
                 {m.text}
               </div>
             ))}
             {loading && (
-              <div className="text-xs rounded-xl px-3 py-2 bg-slate-800 text-slate-400 w-fit">
+              <div className="text-xs rounded-xl px-3 py-2 bg-slate-100 text-slate-600 w-fit">
                 Thinking...
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 p-3 border-t border-slate-800">
+          <div className="flex items-center gap-2 p-3 border-t border-slate-200">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="Ask a question..."
-              className="flex-1 bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="flex-1 bg-slate-100 border border-slate-300 text-slate-900 text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
             <button
               onClick={sendMessage}

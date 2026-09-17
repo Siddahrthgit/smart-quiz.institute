@@ -87,11 +87,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl w-full max-w-md p-6 space-y-6 shadow-2xl relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg transition-colors"
+          className="absolute top-4 right-4 p-2 text-slate-600 hover:text-white rounded-lg transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -105,7 +105,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {mode === 'login' ? 'Welcome Back' : mode === 'forgot' ? 'Reset Password' : 'Create Your Account'}
             </h2>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             {mode === 'login'
               ? 'Log in to continue your studying.'
               : mode === 'forgot'
@@ -115,18 +115,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {mode !== 'forgot' && (
-          <div className="flex bg-slate-800 rounded-xl p-1 text-xs font-medium">
+          <div className="flex bg-slate-100 rounded-xl p-1 text-xs font-medium">
             <button
               type="button"
               onClick={() => { setMode('register'); setError(null); }}
-              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-600'}`}
             >
               Sign Up
             </button>
             <button
               type="button"
               onClick={() => { setMode('login'); setError(null); }}
-              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-600'}`}
             >
               Log In
             </button>
@@ -151,7 +151,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {mode === 'register' && (
             <>
               <div className="space-y-1">
-                <label className="text-slate-300 font-medium">Full Name</label>
+                <label className="text-slate-700 font-medium">Full Name</label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                   <input
@@ -159,12 +159,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-slate-300 font-medium">Username</label>
+                <label className="text-slate-700 font-medium">Username</label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                   <input
@@ -172,7 +172,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -180,7 +180,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           )}
 
           <div className="space-y-1">
-            <label className="text-slate-300 font-medium">
+            <label className="text-slate-700 font-medium">
               {mode === 'login' ? 'Email or Username' : 'Email Address'}
             </label>
             <div className="relative">
@@ -190,14 +190,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
           </div>
 
           {mode !== 'forgot' && (
             <div className="space-y-1">
-              <label className="text-slate-300 font-medium">Password</label>
+              <label className="text-slate-700 font-medium">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
@@ -206,7 +206,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -240,7 +240,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="button"
               onClick={() => { setMode('login'); setError(null); setMessage(null); }}
-              className="w-full text-slate-400 hover:text-slate-300 text-xs text-center"
+              className="w-full text-slate-600 hover:text-slate-700 text-xs text-center"
             >
               Back to Log In
             </button>

@@ -8,7 +8,7 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-white text-slate-900">
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-16 text-center space-y-6">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-medium">
           <Sparkles className="w-3.5 h-3.5" />
@@ -23,7 +23,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           Turn your study material into quizzes, and turn weak topics into strengths.
         </h1>
 
-        <p className="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
+        <p className="text-slate-600 text-sm md:text-base max-w-xl mx-auto">
           Upload your notes or PDFs, get instant AI-generated quizzes, and practice the questions
           you actually get wrong — until they're not weak spots anymore.
         </p>
@@ -62,9 +62,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         />
       </div>
 
-      <div className="border-t border-slate-800 bg-slate-900/50">
+      <div className="border-t border-slate-200 bg-slate-50/50">
         <div className="max-w-3xl mx-auto px-6 py-10 text-center space-y-2">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-600">
             Every quiz is generated from material you upload or from curated question banks —
             no filler, no random trivia.
           </p>
@@ -80,11 +80,11 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
   title,
   description,
 }) => (
-  <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
     <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
       {icon}
     </div>
     <h3 className="text-sm font-bold text-white">{title}</h3>
-    <p className="text-xs text-slate-400 leading-relaxed">{description}</p>
+    <p className="text-xs text-slate-600 leading-relaxed">{description}</p>
   </div>
 );

@@ -63,24 +63,24 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header & Mode Switcher */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <BrainCircuit className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">AI Flashcards & Study Notes</h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Spaced repetition flashcards and AI-generated executive summaries for high-yield revision.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+        <div className="flex items-center space-x-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-300">
           <button
             onClick={() => setActiveTab('flashcards')}
             className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-              activeTab === 'flashcards' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'flashcards' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'
             }`}
           >
             Flashcards ({flashcards.length})
@@ -88,12 +88,12 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
           <button
             onClick={() => setActiveTab('notes')}
             className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-              activeTab === 'notes' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'notes' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'
             }`}
           >
             Study Notes ({notes.length})
           </button>
-          <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'upload' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>Upload Material</button>
+          <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'upload' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'}`}>Upload Material</button>
         </div>
       </div>
 
@@ -101,13 +101,13 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
       {activeTab === 'flashcards' && (
         <div className="space-y-6">
           {/* Controls Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 border border-slate-200 p-4 rounded-2xl">
             <div className="flex items-center space-x-3">
-              <span className="text-xs text-slate-400 font-medium">Generate from:</span>
+              <span className="text-xs text-slate-600 font-medium">Generate from:</span>
               <select
                 value={selectedDocId}
                 onChange={(e) => setSelectedDocId(e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-3 py-1.5 text-xs focus:outline-none"
+                className="bg-slate-100 border border-slate-300 text-slate-900 rounded-xl px-3 py-1.5 text-xs focus:outline-none"
               >
                 {documents.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -117,7 +117,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 font-medium">Count: {flashcardCount}</span>
+              <span className="text-xs text-slate-600 font-medium">Count: {flashcardCount}</span>
               <input
                 type="range"
                 min={5}
@@ -150,7 +150,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
 
           {error && <p className="text-red-400 text-xs px-1">{error}</p>}
           {flashcards.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-400 text-xs space-y-3">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-12 text-center text-slate-600 text-xs space-y-3">
               <Layers className="w-8 h-8 text-indigo-400 mx-auto" />
               <p>No flashcards generated yet.</p>
               <button
@@ -171,14 +171,14 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
                   className={`w-full h-full rounded-2xl p-8 border transition-all duration-500 transform flex flex-col justify-between shadow-2xl ${
                     isFlipped
                       ? 'bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 border-indigo-500/50 text-indigo-100'
-                      : 'bg-slate-900 border-slate-800 text-white hover:border-slate-700'
+                      : 'bg-slate-50 border-slate-200 text-white hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700 font-mono">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-slate-100 text-indigo-300 border border-slate-300 font-mono">
                       {isFlipped ? 'ANSWER / CONCEPT BACK' : 'QUESTION / CONCEPT FRONT'}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-slate-600 font-mono">
                       Card {cardIndex + 1} of {flashcards.length}
                     </span>
                   </div>
@@ -187,21 +187,21 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
                     <h2 className="text-lg md:text-xl font-bold leading-relaxed">
                       {isFlipped ? currentCard.back : currentCard.front}
                     </h2>
-                    <p className="text-[11px] text-slate-400 italic">
+                    <p className="text-[11px] text-slate-600 italic">
                       {isFlipped ? '(Click card to flip back)' : '(Click card to reveal answer)'}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-slate-600">
                     <span className="capitalize text-indigo-400 font-semibold">{currentCard.topic}</span>
-                    <RotateCw className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-500" />
+                    <RotateCw className="w-4 h-4 text-slate-600 group-hover:rotate-180 transition-transform duration-500" />
                   </div>
                 </div>
               </div>
 
               {/* Spaced Repetition Rating Buttons */}
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
-                <span className="text-xs text-slate-400 font-medium block text-center">
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
+                <span className="text-xs text-slate-600 font-medium block text-center">
                   Spaced Repetition Rating (Phase 2):
                 </span>
                 <div className="grid grid-cols-3 gap-3">
@@ -233,11 +233,11 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
       {/* Mode 2: AI Generated Study Notes */}
       {activeTab === 'notes' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+          <div className="flex items-center justify-between bg-slate-50 border border-slate-200 p-4 rounded-2xl">
             <select
               value={selectedDocId}
               onChange={(e) => setSelectedDocId(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-3 py-1.5 text-xs focus:outline-none"
+              className="bg-slate-100 border border-slate-300 text-slate-900 rounded-xl px-3 py-1.5 text-xs focus:outline-none"
             >
               {documents.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -266,7 +266,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
           </div>
 
           {notes.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-400 text-xs space-y-3">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-12 text-center text-slate-600 text-xs space-y-3">
               <FileText className="w-8 h-8 text-indigo-400 mx-auto" />
               <p>No study notes generated yet.</p>
               <button
@@ -279,22 +279,22 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
           ) : (
             <div className="space-y-6">
               {notes.map((note) => (
-                <div key={note.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
+                <div key={note.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 space-y-6">
                   <div>
                     <h2 className="text-xl font-bold text-white mb-1">{note.title}</h2>
                     <p className="text-xs text-indigo-400 font-mono">Generated from: {note.documentName} • {note.date}</p>
                   </div>
 
                   {/* Summary */}
-                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2">
+                  <div className="p-4 rounded-xl bg-slate-100/60 border border-slate-300/60 space-y-2">
                     <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-wider">Executive Summary</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed">{note.summary}</p>
+                    <p className="text-xs text-slate-700 leading-relaxed">{note.summary}</p>
                   </div>
 
                   {/* Key Takeaways */}
                   <div className="space-y-2">
-                    <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Key Takeaways</h3>
-                    <ul className="space-y-2 text-xs text-slate-300">
+                    <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Key Takeaways</h3>
+                    <ul className="space-y-2 text-xs text-slate-700">
                       {note.keyTakeaways.map((takeaway, i) => (
                         <li key={i} className="flex items-start space-x-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -307,12 +307,12 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
                   {/* Key Terms */}
                   {note.keyTerms && note.keyTerms.length > 0 && (
                     <div className="space-y-3">
-                      <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Key Terminology Dictionary</h3>
+                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Key Terminology Dictionary</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {note.keyTerms.map((kt, i) => (
-                          <div key={i} className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50 text-xs">
+                          <div key={i} className="p-3 rounded-xl bg-slate-100/40 border border-slate-300/50 text-xs">
                             <span className="font-bold text-indigo-300 block mb-1">{kt.term}</span>
-                            <p className="text-slate-300 text-[11px] leading-relaxed">{kt.definition}</p>
+                            <p className="text-slate-700 text-[11px] leading-relaxed">{kt.definition}</p>
                           </div>
                         ))}
                       </div>
@@ -326,8 +326,8 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
       )}
 
       {activeTab === 'upload' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Upload Material</h3>
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
+          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Upload Material</h3>
           <div
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
@@ -340,9 +340,9 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
               <Upload className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-bold text-slate-200">Drag & drop your PDF or TXT file here</p>
+              <p className="text-xs font-bold text-slate-800">Drag & drop your PDF or TXT file here</p>
               <p className="text-[10px] text-indigo-400 font-semibold underline">or click to browse</p>
-              <p className="text-[10px] text-slate-400">Supports PDF, TXT up to 40MB</p>
+              <p className="text-[10px] text-slate-600">Supports PDF, TXT up to 40MB</p>
             </div>
             <button onClick={(e) => { e.stopPropagation(); document.getElementById('upload-material-input')?.click(); }} disabled={isLoading} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow disabled:opacity-50">
               {isLoading ? 'Uploading...' : 'Choose File'}
@@ -351,12 +351,12 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
           {documents.length > 0 && (
             <div className="space-y-2">
               {documents.map((doc) => (
-                <div key={doc.id} className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                <div key={doc.id} className="p-3 rounded-2xl bg-white border border-slate-200 flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-2.5 overflow-hidden">
                     <FileText className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                     <div className="truncate">
-                      <span className="font-bold text-slate-200 block truncate">{doc.name}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{doc.sizeFormatted}</span>
+                      <span className="font-bold text-slate-800 block truncate">{doc.name}</span>
+                      <span className="text-[10px] text-slate-600 font-mono">{doc.sizeFormatted}</span>
                     </div>
                   </div>
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">

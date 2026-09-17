@@ -167,12 +167,12 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
   const totalEarnedXp = tasks.filter((t) => t.completed).reduce((acc, curr) => acc + curr.xpReward, 0);
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl relative overflow-hidden">
+    <div className="bg-slate-50/90 border border-slate-200 rounded-3xl p-6 space-y-6 shadow-xl relative overflow-hidden">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-center space-x-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 p-0.5 shadow-md shadow-indigo-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-indigo-400">
+            <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-indigo-400">
               <Calendar className="w-5 h-5" />
             </div>
           </div>
@@ -183,29 +183,29 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                 Adaptive
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               Suggested topics & material based on your recent performance & deadlines.
             </p>
           </div>
         </div>
 
         {/* Daily Progress Widget */}
-        <div className="flex items-center space-x-4 bg-slate-950/80 border border-slate-800 p-3 rounded-2xl">
+        <div className="flex items-center space-x-4 bg-white/80 border border-slate-200 p-3 rounded-2xl">
           <div className="space-y-1">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="text-slate-400">Today's Goal</span>
+              <span className="text-slate-600">Today's Goal</span>
               <span className="text-emerald-400 font-mono">{progressPercent}%</span>
             </div>
-            <div className="w-32 h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
-          <div className="text-right pl-2 border-l border-slate-800">
+          <div className="text-right pl-2 border-l border-slate-200">
             <span className="text-xs font-black text-amber-400 block font-mono">+{totalEarnedXp} XP</span>
-            <span className="text-[10px] text-slate-400 font-semibold">{completedTaskCount}/{tasks.length} Completed</span>
+            <span className="text-[10px] text-slate-600 font-semibold">{completedTaskCount}/{tasks.length} Completed</span>
           </div>
         </div>
       </div>
@@ -216,16 +216,16 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
         {/* LEFT SUB-COLUMN: AI Recommended Focus Areas (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-indigo-400" />
               <span>Recommended Study Focus Today</span>
             </h3>
-            <span className="text-[11px] text-slate-400 font-semibold">Priority Ranking</span>
+            <span className="text-[11px] text-slate-600 font-semibold">Priority Ranking</span>
           </div>
 
           <div className="space-y-3">
             {/* Rec 1: High Error Document */}
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-indigo-500/30 hover:border-indigo-400 transition-all space-y-2.5">
+            <div className="p-4 rounded-2xl bg-white/80 border border-indigo-500/30 hover:border-indigo-400 transition-all space-y-2.5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
@@ -242,7 +242,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                   High Priority
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-600 leading-relaxed">
                 Focus on Water-Cement ratios for M25 concrete and slump test requirements. High error rate on recent quiz.
               </p>
               <div className="flex items-center justify-between pt-1">
@@ -258,7 +258,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
             </div>
 
             {/* Rec 2: Low-Confidence Practice */}
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-amber-500/30 hover:border-amber-400 transition-all space-y-2.5">
+            <div className="p-4 rounded-2xl bg-white/80 border border-amber-500/30 hover:border-amber-400 transition-all space-y-2.5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
@@ -275,7 +275,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                   Medium Priority
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-600 leading-relaxed">
                 Review questions rated "Low" confidence to boost retention before the upcoming exam.
               </p>
               <div className="flex items-center justify-between pt-1">
@@ -291,7 +291,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
             </div>
 
             {/* Rec 3: Targeted Quiz AI Generation */}
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-violet-500/50 transition-all space-y-2.5">
+            <div className="p-4 rounded-2xl bg-white/80 border border-slate-200 hover:border-violet-500/50 transition-all space-y-2.5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
@@ -304,11 +304,11 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                     </span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-300 text-[10px] font-bold">
                   Maintenance
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-600 leading-relaxed">
                 Generate a fresh 10-question AI quiz on flexible vs rigid pavements to maintain knowledge mastery.
               </p>
               <div className="flex items-center justify-between pt-1">
@@ -330,7 +330,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
           {/* Section A: Upcoming Deadlines */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-amber-400" />
                 <span>Upcoming Deadlines</span>
               </h3>
@@ -345,13 +345,13 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
 
             {/* Add Deadline Form Modal/Input */}
             {showAddDeadline && (
-              <form onSubmit={handleAddDeadline} className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <form onSubmit={handleAddDeadline} className="p-3 rounded-2xl bg-white border border-slate-200 space-y-2">
                 <input
                   type="text"
                   placeholder="Exam or Quiz Title..."
                   value={newDeadlineTitle}
                   onChange={(e) => setNewDeadlineTitle(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                   required
                 />
                 <div className="flex items-center space-x-2">
@@ -361,9 +361,9 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                     max="60"
                     value={newDeadlineDays}
                     onChange={(e) => setNewDeadlineDays(Number(e.target.value))}
-                    className="w-24 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+                    className="w-24 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
                   />
-                  <span className="text-xs text-slate-400 font-semibold">days away</span>
+                  <span className="text-xs text-slate-600 font-semibold">days away</span>
                   <button
                     type="submit"
                     className="ml-auto px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl"
@@ -378,11 +378,11 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
               {deadlines.map((item) => (
                 <div 
                   key={item.id}
-                  className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between text-xs"
+                  className="p-3 rounded-2xl bg-white/80 border border-slate-200 flex items-center justify-between text-xs"
                 >
                   <div className="space-y-0.5 truncate">
-                    <h4 className="font-bold text-slate-200 truncate">{item.title}</h4>
-                    <span className="text-[10px] text-slate-400">{item.subject} · Target: {item.targetScore}%</span>
+                    <h4 className="font-bold text-slate-800 truncate">{item.title}</h4>
+                    <span className="text-[10px] text-slate-600">{item.subject} · Target: {item.targetScore}%</span>
                   </div>
                   <span className={`px-2.5 py-1 rounded-xl font-mono text-[11px] font-bold flex-shrink-0 border ${
                     item.daysRemaining <= 2
@@ -399,8 +399,8 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
           </div>
 
           {/* Section B: Today's Action Checklist */}
-          <div className="space-y-3 pt-2 border-t border-slate-800">
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="space-y-3 pt-2 border-t border-slate-200">
+            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
               <CheckSquare className="w-4 h-4 text-emerald-400" />
               <span>Today's Study Tasks</span>
             </h3>
@@ -412,8 +412,8 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                   onClick={() => handleToggleTask(task.id)}
                   className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-xs ${
                     task.completed
-                      ? 'bg-slate-950/50 border-emerald-900/40 text-slate-500 line-through'
-                      : 'bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-200'
+                      ? 'bg-white/50 border-emerald-900/40 text-slate-500 line-through'
+                      : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800'
                   }`}
                 >
                   <div className="flex items-center space-x-2.5 overflow-hidden">
@@ -442,7 +442,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                 placeholder="Add study task..."
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
               <button
                 type="submit"

@@ -95,17 +95,17 @@ export function PerformancePage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <p className="text-slate-300 animate-pulse">Loading your performance review…</p>
+      <div className="min-h-screen bg-white text-white flex items-center justify-center">
+        <p className="text-slate-700 animate-pulse">Loading your performance review…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-white text-white flex flex-col md:flex-row">
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
         <h1 className="text-2xl font-bold mb-1">Performance Review</h1>
-        <div className="flex flex-col items-center py-6 mb-6 border-b border-slate-800">
+        <div className="flex flex-col items-center py-6 mb-6 border-b border-slate-200">
           <div className="relative w-28 h-28 mb-3">
             <svg className="w-full h-full -rotate-90">
               <circle cx="56" cy="56" r="48" strokeWidth="8" fill="none" stroke="currentColor" className="text-slate-800" />
@@ -121,7 +121,7 @@ export function PerformancePage({
               {total ? Math.round((score / total) * 100) : 0}%
             </div>
           </div>
-          <p className="text-slate-400 text-sm">{score} of {total} correct</p>
+          <p className="text-slate-600 text-sm">{score} of {total} correct</p>
           <button
             onClick={handleShare}
             className="mt-3 flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-800 rounded-full px-4 py-1.5"
@@ -151,14 +151,14 @@ export function PerformancePage({
 
             <div className="space-y-4">
               {wrong.map((q, i) => (
-                <div key={i} className="border border-slate-800 rounded-xl px-4 py-4 bg-slate-900/50">
+                <div key={i} className="border border-slate-200 rounded-xl px-4 py-4 bg-slate-50/50">
                   <p className="font-medium mb-2">{q.question}</p>
                   <p className="text-sm text-red-400 mb-1">Your answer: {q.userAnswer || '(none)'}</p>
                   <p className="text-sm text-emerald-400 mb-3">Correct answer: {q.correctAnswer}</p>
                   {q.note && (
-                    <div className="bg-slate-950/60 border border-slate-800 rounded-lg px-3 py-2">
+                    <div className="bg-white/60 border border-slate-200 rounded-lg px-3 py-2">
                       <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">Notes</p>
-                      <p className="text-sm text-slate-300">{q.note}</p>
+                      <p className="text-sm text-slate-700">{q.note}</p>
                     </div>
                   )}
                 </div>
@@ -167,17 +167,17 @@ export function PerformancePage({
           </>
         )}
 
-        <button onClick={onUploadNew} className="w-full mt-8 border border-slate-700 hover:border-slate-500 rounded-lg py-2 text-sm">
+        <button onClick={onUploadNew} className="w-full mt-8 border border-slate-300 hover:border-slate-500 rounded-lg py-2 text-sm">
           Upload Another PDF
         </button>
       </div>
 
       {suggestions.length > 0 && (
-        <div className="md:w-72 bg-slate-900/60 border-t md:border-t-0 md:border-l border-slate-800 px-5 py-8">
-          <h3 className="text-sm font-semibold text-slate-300 mb-3">Suggested for you</h3>
+        <div className="md:w-72 bg-slate-50/60 border-t md:border-t-0 md:border-l border-slate-200 px-5 py-8">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Suggested for you</h3>
           <ul className="space-y-2">
             {suggestions.map((s) => (
-              <li key={s.topic} className="text-sm text-slate-400 border border-slate-800 rounded-lg px-3 py-2">
+              <li key={s.topic} className="text-sm text-slate-600 border border-slate-200 rounded-lg px-3 py-2">
                 {s.topic}
               </li>
             ))}

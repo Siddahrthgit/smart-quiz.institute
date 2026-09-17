@@ -206,11 +206,11 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Top Header Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <button
             onClick={onExit}
-            className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors text-xs font-semibold"
+            className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors text-xs font-semibold"
           >
             ← Exit
           </button>
@@ -224,7 +224,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
 
         <div className="flex items-center space-x-4">
           {/* Question Progress Counter */}
-          <div className="text-xs font-mono font-semibold text-slate-300 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+          <div className="text-xs font-mono font-semibold text-slate-700 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-300">
             Question <span className="text-indigo-400">{currentIndex + 1}</span> / {questions.length}
           </div>
 
@@ -233,7 +233,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
             className={`flex items-center space-x-1.5 text-xs font-mono font-bold px-3 py-1.5 rounded-lg border ${
               config.isExamMode && timeRemaining < 60
                 ? 'bg-red-950/80 text-red-400 border-red-800 animate-pulse'
-                : 'bg-slate-800 text-slate-300 border-slate-700'
+                : 'bg-slate-100 text-slate-700 border-slate-300'
             }`}
           >
             <Clock className="w-4 h-4 text-indigo-400" />
@@ -246,7 +246,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
             className={`p-2 rounded-xl border transition-colors ${
               isBookmarked
                 ? 'bg-indigo-950/80 border-indigo-500 text-indigo-400'
-                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-800'
             }`}
             title="Bookmark this question"
           >
@@ -276,7 +276,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                   ? ans?.isCorrect === false && !config.isExamMode
                     ? 'bg-red-500'
                     : 'bg-emerald-500'
-                  : 'bg-slate-800'
+                  : 'bg-slate-100'
               }`}
               title={`Go to question ${idx + 1}`}
             />
@@ -285,7 +285,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
       </div>
 
       {/* Main Question Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl">
         {/* Question Meta tags */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -304,7 +304,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
               {currentQ.difficulty}
             </span>
             {currentQ.topic && (
-              <span className="text-[10px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md">
+              <span className="text-[10px] text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
                 Topic: {currentQ.topic}
               </span>
             )}
@@ -312,7 +312,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
         </div>
 
         {/* Question Text */}
-        <h2 className="text-lg md:text-xl font-bold text-slate-100 leading-snug">
+        <h2 className="text-lg md:text-xl font-bold text-slate-900 leading-snug">
           {currentQ.question}
         </h2>
 
@@ -326,7 +326,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                 const answeredObj = answers[currentQ.id];
                 const isSavedAns = answeredObj?.userAnswer === option;
 
-                let btnStyle = 'bg-slate-800/60 border-slate-700/80 text-slate-200 hover:bg-slate-800 hover:border-slate-600';
+                let btnStyle = 'bg-slate-100/60 border-slate-300/80 text-slate-800 hover:bg-slate-100 hover:border-slate-400';
 
                 if (!config.isExamMode && answeredObj) {
                   if (option === currentQ.correctAnswer) {
@@ -348,7 +348,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                     className={`w-full p-4 rounded-xl border text-left text-xs md:text-sm transition-all flex items-center justify-between ${btnStyle}`}
                   >
                     <div className="flex items-center space-x-3">
-                      <span className="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 font-mono text-xs flex items-center justify-center flex-shrink-0">
+                      <span className="w-6 h-6 rounded-lg bg-slate-100 border border-slate-300 text-slate-600 font-mono text-xs flex items-center justify-center flex-shrink-0">
                         {String.fromCharCode(65 + idx)}
                       </span>
                       <span>{option}</span>
@@ -374,7 +374,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                 value={typeof currentSelection === 'string' ? currentSelection : ''}
                 onChange={(e) => setCurrentSelection(e.target.value)}
                 placeholder="Type your answer here..."
-                className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
               <button
                 onClick={() => saveCurrentAnswer()}
@@ -393,7 +393,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                 value={typeof currentSelection === 'string' ? currentSelection : ''}
                 onChange={(e) => setCurrentSelection(e.target.value)}
                 placeholder="Write your explanation or detailed response here..."
-                className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl p-4 text-xs md:text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl p-4 text-xs md:text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
 
               <div className="flex items-center space-x-3">
@@ -420,9 +420,9 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
         </div>
 
         {/* Accuracy-Based Confidence Rating */}
-        <div className="pt-4 border-t border-slate-800 space-y-2">
+        <div className="pt-4 border-t border-slate-200 space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+            <label className="text-xs text-slate-700 font-semibold flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
               <span>Confidence Rating (Calibrated to Accuracy):</span>
             </label>
@@ -432,8 +432,8 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
           </div>
 
           {!config.isExamMode && answers[currentQ.id] && (
-            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Question Accuracy Status:</span>
+            <div className="p-3 rounded-xl bg-slate-100/80 border border-slate-300/80 flex items-center justify-between text-xs">
+              <span className="text-slate-600">Question Accuracy Status:</span>
               <span className={`font-bold flex items-center gap-1 ${
                 answers[currentQ.id].isCorrect ? 'text-emerald-400' : 'text-red-400'
               }`}>
@@ -470,7 +470,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
                     ? lvl === 'high'
                       ? 'bg-emerald-950 border-emerald-500 text-emerald-300 shadow-sm shadow-emerald-950'
                       : 'bg-red-950 border-red-500 text-red-300 shadow-sm shadow-red-950'
-                    : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                    : 'bg-slate-100/40 border-slate-300/60 text-slate-600 hover:text-slate-800'
                 }`}
               >
                 {lvl === 'high' ? '🟢 Confident' : '🔴 Need Improve'}
@@ -481,17 +481,17 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
 
         {/* Phase 2 AI Answer Explanations & Source Reference */}
         {!config.isExamMode && showExplanation && currentQ.explanation && (
-          <div className="p-4 rounded-xl bg-slate-800/80 border border-indigo-500/30 space-y-3">
+          <div className="p-4 rounded-xl bg-slate-100/80 border border-indigo-500/30 space-y-3">
             <div className="flex items-center space-x-2 text-indigo-400 text-xs font-bold">
               <Sparkles className="w-4 h-4" />
               <span>AI Explanation & Reference</span>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">{currentQ.explanation}</p>
+            <p className="text-xs text-slate-700 leading-relaxed">{currentQ.explanation}</p>
 
             {currentQ.sourceSnippet && (
-              <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-700/50 text-[11px] text-slate-400 italic">
-                <span className="font-semibold text-slate-300 not-italic">Source Excerpt: </span>
+              <div className="p-3 rounded-lg bg-slate-50/80 border border-slate-300/50 text-[11px] text-slate-600 italic">
+                <span className="font-semibold text-slate-700 not-italic">Source Excerpt: </span>
                 "{currentQ.sourceSnippet}"
               </div>
             )}
@@ -506,11 +506,11 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
         )}
 
         {/* Bottom Navigation Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors text-xs font-semibold disabled:opacity-40"
+            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors text-xs font-semibold disabled:opacity-40"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Previous</span>

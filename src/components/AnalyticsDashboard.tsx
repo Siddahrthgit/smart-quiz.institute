@@ -74,14 +74,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
-      <div className="bento-card bg-slate-900 border-slate-800 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bento-card bg-slate-50 border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-xl font-black text-white">Analytics Dashboard & Achievements</h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Track accuracy trajectories, topic mastery, daily streaks, and gamification rewards.
             </p>
           </div>
@@ -99,9 +99,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       {/* Gamification Badges & Leaderboard */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Badges Collection */}
-        <div className="md:col-span-2 bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="md:col-span-2 bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <Award className="w-4 h-4 text-amber-400" />
               <span>Phase 8 Achievement Badges ({badges.length})</span>
             </h2>
@@ -116,15 +116,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   key={badge.id}
                   className={`p-4 rounded-xl border transition-all flex items-start space-x-3 ${
                     isUnlocked
-                      ? 'bg-indigo-950/30 border-indigo-500/50 text-slate-100'
-                      : 'bg-slate-800/40 border-slate-700/50 text-slate-400 opacity-70'
+                      ? 'bg-indigo-950/30 border-indigo-500/50 text-slate-900'
+                      : 'bg-slate-100/40 border-slate-300/50 text-slate-600 opacity-70'
                   }`}
                 >
                   <div
                     className={`p-3 rounded-xl border flex-shrink-0 ${
                       isUnlocked
                         ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                        : 'bg-slate-800 text-slate-500 border-slate-700'
+                        : 'bg-slate-100 text-slate-500 border-slate-300'
                     }`}
                   >
                     <Award className="w-5 h-5" />
@@ -135,9 +135,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       <h3 className="text-xs font-bold text-white">{badge.title}</h3>
                       {isUnlocked && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-tight">{badge.description}</p>
+                    <p className="text-[11px] text-slate-600 leading-tight">{badge.description}</p>
 
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
                       <div
                         className="bg-indigo-500 h-full"
                         style={{ width: `${badge.progress}%` }}
@@ -151,9 +151,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
 
         {/* Global Leaderboard */}
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <Crown className="w-4 h-4 text-amber-400" />
               <span>Leaderboard</span>
             </h2>
@@ -167,11 +167,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
                   user.name.includes('(You)')
                     ? 'bg-indigo-950/60 border-indigo-500/80 text-white font-bold'
-                    : 'bg-slate-800/40 border-slate-700/60 text-slate-300'
+                    : 'bg-slate-100/40 border-slate-300/60 text-slate-700'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <span className="w-6 h-6 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono flex items-center justify-center font-bold">
+                  <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-[10px] font-mono flex items-center justify-center font-bold">
                     #{idx + 1}
                   </span>
                   <span>{user.name}</span>

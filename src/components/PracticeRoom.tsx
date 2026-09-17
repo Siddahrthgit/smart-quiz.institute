@@ -160,24 +160,24 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header & Sub-Nav */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-2xl bg-violet-600/20 text-violet-400 border border-violet-500/30">
             <BrainCircuit className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-xl font-black text-white">AI Practice & Weakness Focus Studio</h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Practice targeted wrong questions, voice pronunciations, and AI essay writing.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-1 bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700/80">
+        <div className="flex items-center space-x-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-300/80">
           <button
             onClick={() => setActiveTab('mistakes')}
             className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'mistakes' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'mistakes' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-800'
             }`}
           >
             <BrainCircuit className="w-4 h-4 text-amber-300" />
@@ -187,7 +187,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
           <button
             onClick={() => setActiveTab('speaking')}
             className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'speaking' ? 'bg-violet-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'speaking' ? 'bg-violet-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-800'
             }`}
           >
             <Mic className="w-4 h-4" />
@@ -197,7 +197,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
           <button
             onClick={() => setActiveTab('writing')}
             className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'writing' ? 'bg-violet-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'writing' ? 'bg-violet-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-800'
             }`}
           >
             <Edit3 className="w-4 h-4" />
@@ -217,8 +217,8 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
 
       {/* Speaking Exam */}
       {activeTab === 'speaking' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
-          <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 space-y-6">
+          <div className="p-4 rounded-xl bg-slate-100/80 border border-slate-300/80 space-y-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block font-mono">
               Speaking Exam Passage:
             </span>
@@ -236,19 +236,19 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
             >
               {isRecording ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
             </button>
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-xs text-slate-600 font-medium">
               {isRecording ? '🔴 Listening... Speak now into your microphone' : 'Click microphone icon to record your speech'}
             </p>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs text-slate-400 font-medium block">Spoken Transcript / Typed Text:</label>
+            <label className="text-xs text-slate-600 font-medium block">Spoken Transcript / Typed Text:</label>
             <textarea
               rows={3}
               value={spokenTranscript}
               onChange={(e) => setSpokenTranscript(e.target.value)}
               placeholder="Your spoken words will appear here automatically..."
-              className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl p-4 text-xs focus:ring-2 focus:ring-violet-500 focus:outline-none"
+              className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl p-4 text-xs focus:ring-2 focus:ring-violet-500 focus:outline-none"
             />
           </div>
 
@@ -271,7 +271,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
           </button>
 
           {speakingFeedback && (
-            <div className="p-5 rounded-2xl bg-slate-800/90 border border-violet-500/30 space-y-3">
+            <div className="p-5 rounded-2xl bg-slate-100/90 border border-violet-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-violet-300 font-bold text-xs">
                   <Award className="w-4 h-4 text-violet-400" />
@@ -281,7 +281,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
                   {speakingFeedback.scorePercentage}%
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">{speakingFeedback.feedback}</p>
+              <p className="text-xs text-slate-700 leading-relaxed">{speakingFeedback.feedback}</p>
             </div>
           )}
         </div>
@@ -289,8 +289,8 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
 
       {/* Writing Exam */}
       {activeTab === 'writing' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
-          <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 space-y-6">
+          <div className="p-4 rounded-xl bg-slate-100/80 border border-slate-300/80 space-y-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block font-mono">
               Writing Exam Prompt:
             </span>
@@ -298,13 +298,13 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs text-slate-400 font-medium block">Your Essay / Written Response:</label>
+            <label className="text-xs text-slate-600 font-medium block">Your Essay / Written Response:</label>
             <textarea
               rows={6}
               value={writingText}
               onChange={(e) => setWritingText(e.target.value)}
               placeholder="Type your detailed answer here..."
-              className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl p-4 text-xs md:text-sm focus:ring-2 focus:ring-violet-500 focus:outline-none"
+              className="w-full bg-slate-100 border border-slate-300 text-slate-900 rounded-xl p-4 text-xs md:text-sm focus:ring-2 focus:ring-violet-500 focus:outline-none"
             />
           </div>
 
@@ -327,7 +327,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
           </button>
 
           {writingFeedback && (
-            <div className="p-5 rounded-2xl bg-slate-800/90 border border-violet-500/30 space-y-3">
+            <div className="p-5 rounded-2xl bg-slate-100/90 border border-violet-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-violet-300 font-bold text-xs">
                   <Award className="w-4 h-4 text-violet-400" />
@@ -337,7 +337,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
                   {writingFeedback.scorePercentage} / 100
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">{writingFeedback.feedback}</p>
+              <p className="text-xs text-slate-700 leading-relaxed">{writingFeedback.feedback}</p>
             </div>
           )}
         </div>

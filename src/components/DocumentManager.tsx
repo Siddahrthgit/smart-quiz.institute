@@ -179,25 +179,25 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Header & Sub-Tab Switcher */}
-      <div className="bento-card bg-slate-900 border-slate-800 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bento-card bg-slate-50 border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <Cloud className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-xl font-black text-white">Study Materials & Google Drive</h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Upload PDF documents, connect Google Drive, or ask the AI Chatbot questions about your files.
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+          <div className="flex items-center space-x-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-300">
             <button
               onClick={() => setActiveSubTab('materials')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeSubTab === 'materials' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                activeSubTab === 'materials' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               My Materials ({documents.length})
@@ -205,7 +205,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             <button
               onClick={() => setActiveSubTab('drive')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeSubTab === 'drive' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                activeSubTab === 'drive' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               Google Drive
@@ -213,7 +213,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             <button
               onClick={() => setActiveSubTab('chatbot')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeSubTab === 'chatbot' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                activeSubTab === 'chatbot' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               AI Doc Chatbot
@@ -245,7 +245,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all space-y-3 ${
                 dragOver
                   ? 'border-indigo-400 bg-indigo-950/40'
-                  : 'border-slate-700 bg-slate-900/60 hover:border-indigo-500/50 hover:bg-slate-900'
+                  : 'border-slate-300 bg-slate-50/60 hover:border-indigo-500/50 hover:bg-slate-50'
               }`}
             >
               <input
@@ -259,8 +259,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                 <Upload className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-200">Click to Upload or Drag & Drop</p>
-                <p className="text-[11px] text-slate-400 mt-1">Supports PDF, TXT, and MD files (Up to 40MB)</p>
+                <p className="text-xs font-bold text-slate-800">Click to Upload or Drag & Drop</p>
+                <p className="text-[11px] text-slate-600 mt-1">Supports PDF, TXT, and MD files (Up to 40MB)</p>
               </div>
 
               {isLoading && (
@@ -272,9 +272,9 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             </div>
 
             {/* Quick Paste Form */}
-            <div className="bento-card bg-slate-900 border-slate-800 p-5 space-y-3">
+            <div className="bento-card bg-slate-50 border-slate-200 p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <Plus className="w-4 h-4 text-indigo-400" />
                   <span>Quick Paste Text</span>
                 </h3>
@@ -286,14 +286,14 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                   placeholder="Note Title (e.g., Organic Chem Ch 4)"
                   value={pasteTitle}
                   onChange={(e) => setPasteTitle(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
                 <textarea
                   rows={4}
                   placeholder="Paste study notes or article text here..."
                   value={pasteContent}
                   onChange={(e) => setPasteContent(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-lg p-3 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
                 <button
                   type="submit"
@@ -309,7 +309,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           {/* Materials List Column */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                 <FileText className="w-4 h-4 text-indigo-400" />
                 <span>Available Study Documents ({documents.length})</span>
               </h2>
@@ -317,7 +317,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             </div>
 
             {documents.length === 0 ? (
-              <div className="bento-card bg-slate-900 border-slate-800 p-8 text-center text-slate-400 text-xs space-y-2">
+              <div className="bento-card bg-slate-50 border-slate-200 p-8 text-center text-slate-600 text-xs space-y-2">
                 <p>No materials uploaded yet.</p>
                 <p>Upload a PDF above or use Google Drive import to start.</p>
               </div>
@@ -326,16 +326,16 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="bento-card bg-slate-900 border-slate-800 p-5 space-y-3 hover:border-indigo-500/40 transition-colors"
+                    className="bento-card bg-slate-50 border-slate-200 p-5 space-y-3 hover:border-indigo-500/40 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2.5 rounded-xl bg-slate-800 text-indigo-400 border border-slate-700">
+                        <div className="p-2.5 rounded-xl bg-slate-100 text-indigo-400 border border-slate-300">
                           <FileText className="w-5 h-5" />
                         </div>
                         <div>
                           <h3 className="text-sm font-bold text-white">{doc.name}</h3>
-                          <div className="flex items-center space-x-3 text-[11px] text-slate-400 mt-0.5">
+                          <div className="flex items-center space-x-3 text-[11px] text-slate-600 mt-0.5">
                             <span className="uppercase font-mono text-indigo-400">{doc.type}</span>
                             <span>•</span>
                             <span className="font-mono">{doc.sizeFormatted}</span>
@@ -364,7 +364,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                               }
                             }}
                             title="Delete PDF / Document"
-                            className="p-2 rounded-xl bg-slate-800 hover:bg-red-950/60 border border-slate-700 hover:border-red-800/80 text-slate-400 hover:text-red-400 transition-colors"
+                            className="p-2 rounded-xl bg-slate-100 hover:bg-red-950/60 border border-slate-300 hover:border-red-800/80 text-slate-600 hover:text-red-400 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -373,7 +373,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                     </div>
 
                     {doc.summary && (
-                      <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 text-xs text-slate-300">
+                      <div className="p-3 rounded-xl bg-slate-100/60 border border-slate-300/50 text-xs text-slate-700">
                         <span className="font-bold text-indigo-300 block mb-1">AI Executive Summary:</span>
                         <p>{doc.summary}</p>
                       </div>
@@ -389,36 +389,36 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
       {/* SubTab 2: Google Drive Import (share-link based) */}
       {activeSubTab === 'drive' && (
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-6">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-6">
           <div className="space-y-1">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Cloud className="w-5 h-5 text-indigo-400" />
               <span>Import from Google Drive</span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Paste a Google Drive share link (set sharing to "Anyone with the link"). Works with PDFs, TXT files, and Google Docs.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-3">
+          <div className="p-4 rounded-xl bg-slate-100/60 border border-slate-300/80 space-y-3">
             <div className="space-y-2">
-              <label className="text-xs text-slate-300 font-semibold block">Google Drive Share Link:</label>
+              <label className="text-xs text-slate-700 font-semibold block">Google Drive Share Link:</label>
               <input
                 type="text"
                 placeholder="https://drive.google.com/file/d/..."
                 value={driveLink}
                 onChange={(e) => setDriveLink(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-slate-300 font-semibold block">Title (optional):</label>
+              <label className="text-xs text-slate-700 font-semibold block">Title (optional):</label>
               <input
                 type="text"
                 placeholder="e.g. Lecture Notes Chapter 4"
                 value={driveTitle}
                 onChange={(e) => setDriveTitle(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-900 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -455,7 +455,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
       {/* SubTab 3: AI Document Chatbot */}
       {activeSubTab === 'chatbot' && (
-        <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+        <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400">
@@ -463,7 +463,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               </div>
               <div>
                 <h2 className="text-base font-bold text-white">Ask Your Document (AI Tutor)</h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-600">
                   Currently answering questions for: <span className="text-indigo-300 font-semibold">{selectedDoc?.name || 'All Materials'}</span>
                 </p>
               </div>
@@ -473,7 +473,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               <select
                 value={selectedDocId}
                 onChange={(e) => setSelectedDocId(e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none"
+                className="bg-slate-100 border border-slate-300 text-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none"
               >
                 {documents.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -485,7 +485,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           </div>
 
           {/* Chat history */}
-          <div className="h-96 overflow-y-auto bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-4">
+          <div className="h-96 overflow-y-auto bg-white/80 border border-slate-200 rounded-xl p-4 space-y-4">
             {chatMessages.map((msg) => (
               <div
                 key={msg.id}
@@ -501,7 +501,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                   className={`max-w-xl p-3.5 rounded-2xl leading-relaxed ${
                     msg.sender === 'user'
                       ? 'bg-indigo-600 text-white rounded-tr-none'
-                      : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-none'
+                      : 'bg-slate-100 border border-slate-300 text-slate-800 rounded-tl-none'
                   }`}
                 >
                   <p>{msg.text}</p>
@@ -525,7 +525,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               placeholder="Ask a question about your study material (e.g. 'Explain the self-attention mechanism in simple terms')..."
               value={inputChat}
               onChange={(e) => setInputChat(e.target.value)}
-              className="flex-1 bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="flex-1 bg-slate-100 border border-slate-300 text-slate-900 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
             <button
               type="submit"

@@ -125,19 +125,19 @@ export function UploadExamPage({
 
   if (phase === 'upload') {
     return (
-      <div className="min-h-screen bg-slate-950 text-white">
+      <div className="min-h-screen bg-white text-white">
         <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-16">
           <div className="text-center mb-10">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Upload your PDF</h1>
-            <p className="text-slate-400 text-sm sm:text-base">
+            <p className="text-slate-600 text-sm sm:text-base">
               We'll read it, work out your subject, and build your exam automatically.
             </p>
           </div>
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl py-14 sm:py-20 cursor-pointer transition-colors text-center"
+            className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl py-14 sm:py-20 cursor-pointer transition-colors text-center"
           >
-            <p className="text-slate-300">Tap to choose a PDF</p>
+            <p className="text-slate-700">Tap to choose a PDF</p>
           </div>
           <input
             ref={fileInputRef}
@@ -155,8 +155,8 @@ export function UploadExamPage({
 
   if (phase === 'analyzing') {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <p className="text-slate-300 animate-pulse">Reading your PDF and building your exam…</p>
+      <div className="min-h-screen bg-white text-white flex items-center justify-center">
+        <p className="text-slate-700 animate-pulse">Reading your PDF and building your exam…</p>
       </div>
     );
   }
@@ -176,9 +176,9 @@ export function UploadExamPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pb-28">
-      <div className="sticky top-0 z-10 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 py-3">
-        <p className="text-sm text-slate-400 max-w-2xl lg:max-w-3xl mx-auto">
+    <div className="min-h-screen bg-white text-white pb-28">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3">
+        <p className="text-sm text-slate-600 max-w-2xl lg:max-w-3xl mx-auto">
           {subject} · {answeredCount} of {questions.length} answered
         </p>
       </div>
@@ -196,7 +196,7 @@ export function UploadExamPage({
                   className={`w-full text-left px-4 py-3 rounded-lg border ${
                     answers[i] === opt
                       ? 'border-indigo-500 bg-indigo-500/10'
-                      : 'border-slate-800 bg-slate-900 hover:border-slate-600'
+                      : 'border-slate-200 bg-slate-50 hover:border-slate-400'
                   }`}
                 >
                   {opt}
@@ -208,7 +208,7 @@ export function UploadExamPage({
         {error && <p className="text-red-400 text-sm">{error}</p>}
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-3">
+      <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 px-4 py-3">
         <button
           onClick={handleFinishClick}
           disabled={phase === 'submitting'}
@@ -226,19 +226,19 @@ function SuggestionsList({ suggestions, onRetry }: { suggestions: Suggestion[]; 
   if (suggestions.length === 0) return null;
   return (
     <div className="mt-12">
-      <h3 className="text-sm font-semibold text-slate-300 mb-3">Suggested for you</h3>
+      <h3 className="text-sm font-semibold text-slate-700 mb-3">Suggested for you</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {suggestions.map((s) => (
-          <div key={s.topic} className="border border-slate-800 rounded-lg overflow-hidden">
+          <div key={s.topic} className="border border-slate-200 rounded-lg overflow-hidden">
             <button
               onClick={() => setOpenTopic(openTopic === s.topic ? null : s.topic)}
-              className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white flex items-center justify-between gap-2"
+              className="w-full text-left px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-white flex items-center justify-between gap-2"
             >
               {s.topic}
               <span className="text-slate-500 text-xs">{openTopic === s.topic ? '−' : '+'}</span>
             </button>
             {openTopic === s.topic && (
-              <div className="px-3 pb-3 border-t border-slate-800 pt-2">
+              <div className="px-3 pb-3 border-t border-slate-200 pt-2">
                 {s.note && <p className="text-xs text-slate-500 mb-2">{s.note}</p>}
                 <button
                   onClick={() => onRetry(s.topic)}

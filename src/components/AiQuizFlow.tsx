@@ -139,29 +139,29 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'landing') {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center text-center px-4 pt-12">
+      <div className="min-h-screen bg-white text-white flex flex-col items-center text-center px-4 pt-12">
         <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4">
           <span className="text-2xl">✨</span>
         </div>
         <h1 className="text-2xl font-bold mb-1">Smart AI question practicing</h1>
         {activeStats && (
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
             <span>{activeStats.activeToday} active today · {activeStats.totalUsers} total users</span>
           </div>
         )}
-        <p className="text-slate-400 text-sm mb-8 max-w-xs">
+        <p className="text-slate-600 text-sm mb-8 max-w-xs">
           Type any exam name or subject and we'll generate a custom quiz for you.
         </p>
         <LandingForm onStart={handleStartFromLanding} />
-        <div className="flex gap-3 mt-6 text-xs text-slate-400">
-          <button onClick={() => onNavigate && onNavigate("documents-files")} className="underline text-slate-300 hover:text-white">Questions from your files</button>
+        <div className="flex gap-3 mt-6 text-xs text-slate-600">
+          <button onClick={() => onNavigate && onNavigate("documents-files")} className="underline text-slate-700 hover:text-white">Questions from your files</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("documents-drive")} className="underline text-slate-300 hover:text-white">Questions from your drive</button>
+          <button onClick={() => onNavigate && onNavigate("documents-drive")} className="underline text-slate-700 hover:text-white">Questions from your drive</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("notes-cards-notes")} className="underline text-slate-300 hover:text-white">Notes</button>
+          <button onClick={() => onNavigate && onNavigate("notes-cards-notes")} className="underline text-slate-700 hover:text-white">Notes</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("notes-cards-flashcards")} className="underline text-slate-300 hover:text-white">Flashcards</button>
+          <button onClick={() => onNavigate && onNavigate("notes-cards-flashcards")} className="underline text-slate-700 hover:text-white">Flashcards</button>
         </div>
         {onAuthSuccess && <div id="signup-section"><AuthForm onSuccess={onAuthSuccess} /></div>}
       </div>
@@ -170,21 +170,21 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'session-setup') {
     return (
-      <div className="min-h-screen bg-slate-950 text-white max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="min-h-screen bg-white text-white max-w-lg mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-xl font-bold">{topic}</h1>
-          <p className="text-slate-400 text-sm">Set up your practice session</p>
+          <p className="text-slate-600 text-sm">Set up your practice session</p>
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-400 mb-2 block">Difficulty</label>
+          <label className="text-xs uppercase tracking-wide text-slate-600 mb-2 block">Difficulty</label>
           <div className="flex gap-2">
             {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
               <button
                 key={d}
                 onClick={() => setDifficulty(d)}
                 className={`flex-1 rounded-lg py-2 text-sm capitalize border ${
-                  difficulty === d ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  difficulty === d ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-50 border-slate-200 text-slate-600'
                 }`}
               >
                 {d}
@@ -194,7 +194,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-400 mb-2 block">Question Type</label>
+          <label className="text-xs uppercase tracking-wide text-slate-600 mb-2 block">Question Type</label>
           <div className="grid grid-cols-2 gap-2">
             {(
               [
@@ -208,7 +208,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
                 key={val}
                 onClick={() => setQuestionType(val)}
                 className={`rounded-lg py-2 text-xs border ${
-                  questionType === val ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  questionType === val ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-50 border-slate-200 text-slate-600'
                 }`}
               >
                 {label}
@@ -218,7 +218,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-400 mb-2 block">
+          <label className="text-xs uppercase tracking-wide text-slate-600 mb-2 block">
             Number of Questions: {questionCount}
           </label>
           <input
@@ -237,7 +237,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         <button
           onClick={handleGenerateQuestions}
           disabled={loading}
-          className="w-full rounded-xl bg-indigo-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold py-3 text-sm flex items-center justify-center gap-2"
+          className="w-full rounded-xl bg-indigo-600 disabled:bg-slate-100 disabled:text-slate-500 font-semibold py-3 text-sm flex items-center justify-center gap-2"
         >
           {loading && <div className="w-4 h-4 border-2 border-slate-500 border-t-white rounded-full animate-spin" />}
           {loading ? "Generating questions..." : "Start Quiz"}
@@ -251,14 +251,14 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'session-quiz' && question) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="min-h-screen bg-white text-white max-w-lg mx-auto px-4 py-6 space-y-6">
         <div>
-          <div className="flex justify-between text-sm text-slate-400 mb-2">
+          <div className="flex justify-between text-sm text-slate-600 mb-2">
             <span>
               Question {current + 1} / {questions.length}
             </span>
           </div>
-          <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div className="h-full bg-indigo-500 transition-all" style={{ width: `${progressPct}%` }} />
           </div>
         </div>
@@ -272,7 +272,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
                 key={i}
                 onClick={() => setSelected(i)}
                 className={`w-full text-left rounded-lg px-4 py-3 text-sm border ${
-                  selected === i ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-900 border-slate-800'
+                  selected === i ? 'bg-indigo-600 border-indigo-600' : 'bg-slate-50 border-slate-200'
                 }`}
               >
                 {opt}
@@ -282,7 +282,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         )}
 
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-400 mb-2 block">Confidence Level</label>
+          <label className="text-xs uppercase tracking-wide text-slate-600 mb-2 block">Confidence Level</label>
           <div className="flex gap-2">
             <button
               onClick={() => handleAnswer('low')}
@@ -305,13 +305,13 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
   const needImproveResults = results.filter((r) => !r.correct || r.confidence === 'low');
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white max-w-lg mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-white text-white max-w-lg mx-auto px-4 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">{topic}</h1>
-        <p className="text-slate-400 text-sm">Your results and next steps</p>
+        <p className="text-slate-600 text-sm">Your results and next steps</p>
       </div>
 
-      <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-4 flex items-center gap-4">
+      <div className="rounded-xl bg-slate-50/80 border border-slate-200 p-4 flex items-center gap-4">
         <div className="relative w-16 h-16 shrink-0">
           <svg viewBox="0 0 36 36" className="w-16 h-16">
             <path
@@ -337,31 +337,31 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </div>
         <div>
           <div className="text-sm font-semibold">Overall Score</div>
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-slate-600">
             {stats.correct} correct out of {results.length}
           </div>
         </div>
       </div>
 
       <div className="flex gap-3">
-        <div className="flex-1 rounded-xl bg-slate-900/80 border border-slate-800 p-4">
+        <div className="flex-1 rounded-xl bg-slate-50/80 border border-slate-200 p-4">
           <div className="text-2xl font-bold text-green-400">{stats.confident}</div>
-          <div className="text-xs uppercase tracking-wide text-slate-400 mt-1">Confident</div>
+          <div className="text-xs uppercase tracking-wide text-slate-600 mt-1">Confident</div>
         </div>
-        <div className="flex-1 rounded-xl bg-slate-900/80 border border-slate-800 p-4">
+        <div className="flex-1 rounded-xl bg-slate-50/80 border border-slate-200 p-4">
           <div className="text-2xl font-bold text-amber-400">{stats.needImprove}</div>
-          <div className="text-xs uppercase tracking-wide text-slate-400 mt-1">Need Improve</div>
+          <div className="text-xs uppercase tracking-wide text-slate-600 mt-1">Need Improve</div>
         </div>
       </div>
 
       {needImproveResults.length > 0 && (
-        <div className="rounded-xl bg-slate-900/80 border border-slate-800 p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-3">
+        <div className="rounded-xl bg-slate-50/80 border border-slate-200 p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600 mb-3">
             Need Improve Questions
           </h2>
           <div className="space-y-3">
             {needImproveResults.map((r, i) => (
-              <div key={r.questionId} className="rounded-lg bg-slate-950/60 border border-slate-800 p-3">
+              <div key={r.questionId} className="rounded-lg bg-white/60 border border-slate-200 p-3">
                 <div className="font-medium mb-2">
                   {i + 1}. {r.prompt}
                 </div>
@@ -403,7 +403,7 @@ function LandingForm({ onStart }: { onStart: (topic: string) => void }) {
       <button
         type="submit"
         disabled={!topic.trim()}
-        className="w-full rounded-xl bg-indigo-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold py-3 text-sm"
+        className="w-full rounded-xl bg-indigo-600 disabled:bg-slate-100 disabled:text-slate-500 font-semibold py-3 text-sm"
       >
         Start Practicing
       </button>
@@ -447,19 +447,19 @@ function AuthForm({ onSuccess }: { onSuccess: (user: { name: string; email: stri
   };
 
   return (
-    <div className="w-full max-w-sm mt-10 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-left">
-      <div className="flex items-center gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700 mb-5">
+    <div className="w-full max-w-sm mt-10 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-left">
+      <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-300 mb-5">
         <button
           type="button"
           onClick={() => setMode('register')}
-          className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+          className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'}`}
         >
           Sign Up
         </button>
         <button
           type="button"
           onClick={() => setMode('login')}
-          className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+          className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-800'}`}
         >
           Log In
         </button>
@@ -469,22 +469,22 @@ function AuthForm({ onSuccess }: { onSuccess: (user: { name: string; email: stri
         {mode === 'register' && (
           <>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Full Name</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+              <label className="text-xs text-slate-600 mb-1 block">Full Name</label>
+              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Username</label>
-              <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+              <label className="text-xs text-slate-600 mb-1 block">Username</label>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
             </div>
           </>
         )}
         <div>
-          <label className="text-xs text-slate-400 mb-1 block">{mode === 'login' ? 'Email or Username' : 'Email Address'}</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+          <label className="text-xs text-slate-600 mb-1 block">{mode === 'login' ? 'Email or Username' : 'Email Address'}</label>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
         </div>
         <div>
-          <label className="text-xs text-slate-400 mb-1 block">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+          <label className="text-xs text-slate-600 mb-1 block">Password</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
         </div>
 
         {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -492,7 +492,7 @@ function AuthForm({ onSuccess }: { onSuccess: (user: { name: string; email: stri
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-indigo-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold py-2.5 text-sm text-white"
+          className="w-full rounded-lg bg-indigo-600 disabled:bg-slate-100 disabled:text-slate-500 font-semibold py-2.5 text-sm text-white"
         >
           {loading ? 'Please wait...' : mode === 'login' ? 'Log In' : 'Create Account'}
         </button>

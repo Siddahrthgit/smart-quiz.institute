@@ -80,33 +80,33 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <div className="w-32 h-32 rounded-full border-4 border-indigo-500/40 bg-indigo-950/60 flex flex-col items-center justify-center shadow-lg">
             <span className="text-3xl font-extrabold text-white">{attempt.score}%</span>
-            <span className="text-[11px] text-slate-400 font-medium">Overall Score</span>
+            <span className="text-[11px] text-slate-600 font-medium">Overall Score</span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-left">
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-              <span className="text-[11px] text-slate-400 block">Accuracy</span>
+            <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200">
+              <span className="text-[11px] text-slate-600 block">Accuracy</span>
               <span className="text-lg font-bold text-emerald-400">
                 {attempt.correctCount} / {attempt.totalQuestions}
               </span>
             </div>
 
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-              <span className="text-[11px] text-slate-400 block">XP Awarded</span>
+            <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200">
+              <span className="text-[11px] text-slate-600 block">XP Awarded</span>
               <span className="text-lg font-bold text-indigo-300 font-mono">
                 +{attempt.xpEarned} XP
               </span>
             </div>
 
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-              <span className="text-[11px] text-slate-400 block">Time Spent</span>
-              <span className="text-lg font-bold text-slate-200 font-mono">
+            <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200">
+              <span className="text-[11px] text-slate-600 block">Time Spent</span>
+              <span className="text-lg font-bold text-slate-800 font-mono">
                 {Math.round(attempt.timeSpentSeconds / 60)}m {attempt.timeSpentSeconds % 60}s
               </span>
             </div>
 
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-              <span className="text-[11px] text-slate-400 block">Status</span>
+            <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200">
+              <span className="text-[11px] text-slate-600 block">Status</span>
               <span className="text-xs font-bold text-indigo-400 capitalize">
                 {attempt.score >= 80 ? 'Mastered 🎉' : attempt.score >= 60 ? 'Passing 👍' : 'Needs Practice 📖'}
               </span>
@@ -115,7 +115,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         </div>
 
         {/* Recommended Next Actions */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-800">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-200">
           {wrongQuestionsCount > 0 && (
             <button
               onClick={onRetryWrong}
@@ -147,7 +147,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
           <button
             onClick={onReturnDashboard}
-            className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition-colors"
+            className="flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
@@ -156,11 +156,11 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
       </div>
 
       {/* Accuracy-Rated Confidence Breakdown Card */}
-      <div className="bento-card bg-slate-900 border-slate-800 p-6 space-y-4">
+      <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Zap className="w-5 h-5 text-amber-400" />
-            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
               Accuracy-Rated Confidence Calibration
             </h2>
           </div>
@@ -169,7 +169,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           </span>
         </div>
 
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-600">
           Confidence levels are automatically rated based on your accuracy for every question to help you pinpoint areas for revision.
         </p>
 
@@ -177,7 +177,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-between">
             <div>
               <span className="text-[11px] text-emerald-400 font-semibold block">High Confidence</span>
-              <span className="text-xs text-slate-300">100% Correct / Mastered</span>
+              <span className="text-xs text-slate-700">100% Correct / Mastered</span>
             </div>
             <span className="text-xl font-extrabold text-emerald-300 font-mono">
               {highConfidenceCount}
@@ -187,7 +187,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           <div className="p-4 rounded-xl bg-red-950/40 border border-red-800/60 flex items-center justify-between">
             <div>
               <span className="text-[11px] text-red-400 font-semibold block">Low Confidence</span>
-              <span className="text-xs text-slate-300">0-49% Accuracy (Needs Practice)</span>
+              <span className="text-xs text-slate-700">0-49% Accuracy (Needs Practice)</span>
             </div>
             <span className="text-xl font-extrabold text-red-300 font-mono">
               {lowConfidenceCount}
@@ -198,7 +198,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
       {/* Detailed Question Review */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <FileText className="w-5 h-5 text-indigo-400" />
           <span>Detailed Question Analysis ({attempt.questions.length})</span>
         </h2>
@@ -217,13 +217,13 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                 key={q.id}
                 className={`p-6 rounded-2xl border transition-all ${
                   isCorrect
-                    ? 'bg-slate-900 border-slate-800'
-                    : 'bg-slate-900/90 border-red-500/30'
+                    ? 'bg-slate-50 border-slate-200'
+                    : 'bg-slate-50/90 border-red-500/30'
                 }`}
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex items-center space-x-2">
-                    <span className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 font-mono text-xs flex items-center justify-center font-bold">
+                    <span className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 font-mono text-xs flex items-center justify-center font-bold">
                       {idx + 1}
                     </span>
                     <span className="text-xs font-semibold text-indigo-400 capitalize">{q.topic || 'General'}</span>
@@ -255,12 +255,12 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                   </div>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-100 mb-4">{q.question}</h3>
+                <h3 className="text-sm font-bold text-slate-900 mb-4">{q.question}</h3>
 
                 {/* Answers Comparison */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-4">
-                  <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                    <span className="text-slate-400 block text-[11px] font-medium mb-1">Your Answer:</span>
+                  <div className="p-3 rounded-xl bg-slate-100/60 border border-slate-300/60">
+                    <span className="text-slate-600 block text-[11px] font-medium mb-1">Your Answer:</span>
                     <span className={`font-semibold ${isCorrect ? 'text-emerald-300' : 'text-red-300'}`}>
                       {ans?.userAnswer ? String(ans.userAnswer) : 'No Answer Provided'}
                     </span>
@@ -274,15 +274,15 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
                 {/* AI Explanation */}
                 {q.explanation && (
-                  <div className="p-4 rounded-xl bg-slate-800/80 border border-indigo-500/20 text-xs space-y-2">
+                  <div className="p-4 rounded-xl bg-slate-100/80 border border-indigo-500/20 text-xs space-y-2">
                     <div className="flex items-center space-x-1.5 text-indigo-400 font-bold">
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>AI Explanation:</span>
                     </div>
-                    <p className="text-slate-300 leading-relaxed">{q.explanation}</p>
+                    <p className="text-slate-700 leading-relaxed">{q.explanation}</p>
 
                     {q.sourceSnippet && (
-                      <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-700/50 text-[11px] text-slate-400 italic">
+                      <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-300/50 text-[11px] text-slate-600 italic">
                         "{q.sourceSnippet}"
                       </div>
                     )}

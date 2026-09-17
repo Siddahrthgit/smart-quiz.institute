@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-800 text-slate-100">
+    <header className="sticky top-0 z-40 bg-slate-50/95 backdrop-blur border-b border-slate-200 text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
                 Study Planner <span className="text-indigo-400 font-mono text-xs px-1.5 py-0.5 rounded bg-indigo-950 border border-indigo-800">AI</span>
               </span>
-              <p className="text-[11px] text-slate-400 -mt-0.5">Intelligent Study Platform</p>
+              <p className="text-[11px] text-slate-600 -mt-0.5">Intelligent Study Platform</p>
             </div>
           </div>
 
@@ -76,10 +76,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`flex items-center space-x-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/40 scale-[1.02]'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80 border border-transparent'
+                      : 'text-slate-700 hover:text-white hover:bg-slate-100/80 border border-transparent'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-600'}`} />
                   <span>{item.label}</span>
                 </button>
               );
@@ -107,10 +107,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* XP & Level Badge */}
             <div className="hidden lg:flex flex-col text-right w-28">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400 font-medium">Lvl {profile.level}</span>
+                <span className="text-slate-600 font-medium">Lvl {profile.level}</span>
                 <span className="text-indigo-300 font-mono font-semibold">{profile.xp} XP</span>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
                 <div 
                   className="bg-indigo-500 h-full transition-all duration-500" 
                   style={{ width: `${xpPercent}%` }}
@@ -120,7 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 {/* Notification Bell */}
             <button
               onClick={onRequestNotifications}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-300"
               title="Enable Notifications"
             >
               <Bell className="w-4 h-4" />
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Account Icon */}
             <button
               onClick={onOpenAuth}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700"
+              className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-300"
               title="User Account"
             >
               <User className="w-4 h-4" />
@@ -138,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile Sub-Navigation Bar */}
-      <div className="md:hidden flex items-center justify-around border-t border-slate-800 bg-slate-900 px-2 py-2.5 overflow-x-auto gap-1">
+      <div className="md:hidden flex items-center justify-around border-t border-slate-200 bg-slate-50 px-2 py-2.5 overflow-x-auto gap-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -149,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`flex flex-col items-center px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition-all flex-shrink-0 ${
                 isActive 
                   ? 'bg-indigo-600 text-white shadow-md' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-700 hover:text-white hover:bg-slate-100'
               }`}
             >
               <Icon className="w-4 h-4 mb-1" />
@@ -159,7 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         })}
         <button
           onClick={onOpenFriends}
-          className="flex flex-col items-center px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition-all flex-shrink-0 text-indigo-400 hover:text-white hover:bg-slate-800"
+          className="flex flex-col items-center px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition-all flex-shrink-0 text-indigo-400 hover:text-white hover:bg-slate-100"
         >
           <Users className="w-4 h-4 mb-1" />
           <span className="whitespace-nowrap">Friends</span>

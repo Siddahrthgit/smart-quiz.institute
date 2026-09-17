@@ -204,7 +204,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -left-10 -top-10 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -219,7 +219,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                 Misconception AI Engine
               </span>
             </div>
-            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+            <p className="text-xs text-slate-700 max-w-2xl leading-relaxed">
               Analyzes all questions you missed across quizzes, identifies your underlying conceptual gaps, and generates fresh AI variations to ensure 100% mastery.
             </p>
           </div>
@@ -246,7 +246,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
 
           <button
             onClick={handleRetryExactQuestions}
-            className="flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-4 py-3.5 rounded-2xl border border-slate-700 transition-all"
+            className="flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-4 py-3.5 rounded-2xl border border-slate-300 transition-all"
           >
             <RefreshCw className="w-4 h-4 text-emerald-400" />
             <span>Retry Exact Questions ({filteredItems.length})</span>
@@ -262,9 +262,9 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
       )}
 
       {/* Stats & Topic Filter Row */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/80 border border-slate-200 rounded-2xl p-4">
         <div className="flex items-center space-x-3 text-xs">
-          <span className="text-slate-400 font-semibold">Logged Mistakes Bank:</span>
+          <span className="text-slate-600 font-semibold">Logged Mistakes Bank:</span>
           <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-300 font-bold border border-red-500/30 font-mono">
             {displayItems.length} Misconceptions
           </span>
@@ -282,7 +282,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               selectedTopicFilter === 'all'
                 ? 'bg-indigo-600 text-white'
-                : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                : 'bg-slate-100 text-slate-600 hover:text-slate-800'
             }`}
           >
             All Topics
@@ -294,7 +294,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 selectedTopicFilter === tp
                   ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  : 'bg-slate-100 text-slate-600 hover:text-slate-800'
               }`}
             >
               {tp}
@@ -306,14 +306,14 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
       {/* Mistake Cards List */}
       <div className="space-y-4">
         {filteredItems.length === 0 && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-12 text-center text-slate-400 text-sm">
+          <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-12 text-center text-slate-600 text-sm">
             No mistakes to review yet. Take a quiz and any wrong answers will show up here for targeted practice.
           </div>
         )}
         {filteredItems.map((item, idx) => (
           <div
             key={item.id}
-            className="bg-slate-900 border border-slate-800 hover:border-slate-700/90 rounded-2xl p-5 md:p-6 space-y-4 transition-all shadow-md"
+            className="bg-slate-50 border border-slate-200 hover:border-slate-300/90 rounded-2xl p-5 md:p-6 space-y-4 transition-all shadow-md"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center space-x-3">
@@ -324,13 +324,13 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                   <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 font-mono">
                     {item.question.topic || 'General Topic'}
                   </span>
-                  <p className="text-sm font-bold text-slate-100 mt-0.5 leading-snug">
+                  <p className="text-sm font-bold text-slate-900 mt-0.5 leading-snug">
                     {item.question.question}
                   </p>
                 </div>
               </div>
 
-              <span className="text-[10px] text-slate-400 font-mono flex-shrink-0 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+              <span className="text-[10px] text-slate-600 font-mono flex-shrink-0 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-300">
                 {item.quizTitle}
               </span>
             </div>
@@ -342,7 +342,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                   <XCircle className="w-3.5 h-3.5" />
                   <span>Your Recorded Answer:</span>
                 </div>
-                <p className="text-slate-300 font-mono text-xs pl-5">{item.userAnswer || 'Incorrect / Skipped'}</p>
+                <p className="text-slate-700 font-mono text-xs pl-5">{item.userAnswer || 'Incorrect / Skipped'}</p>
               </div>
 
               <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-xs space-y-1">
@@ -350,16 +350,16 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Correct Solution:</span>
                 </div>
-                <p className="text-slate-200 font-bold text-xs pl-5">{item.question.correctAnswer}</p>
+                <p className="text-slate-800 font-bold text-xs pl-5">{item.question.correctAnswer}</p>
               </div>
             </div>
 
             {/* AI Explanation Snippet */}
-            <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/70 text-xs text-slate-300 space-y-1">
+            <div className="p-3.5 rounded-xl bg-slate-100/60 border border-slate-300/70 text-xs text-slate-700 space-y-1">
               <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider font-mono block">
                 Why this answer is right:
               </span>
-              <p className="text-slate-300 leading-relaxed">{item.question.explanation}</p>
+              <p className="text-slate-700 leading-relaxed">{item.question.explanation}</p>
             </div>
 
             {/* AI Misconception Analysis Result if requested */}
@@ -369,12 +369,12 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                   <BrainCircuit className="w-4 h-4 text-indigo-400" />
                   <span>AI Misconception Diagnostic:</span>
                 </div>
-                <p className="text-slate-200 leading-relaxed">{aiAnalysisMap[item.id]}</p>
+                <p className="text-slate-800 leading-relaxed">{aiAnalysisMap[item.id]}</p>
               </div>
             )}
 
             {/* Card Action Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/80">
               <button
                 onClick={() => handleAnalyzeMisconception(item)}
                 disabled={analyzingQuestionId === item.id}
@@ -401,7 +401,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                       `Practice explaining this concept aloud: "${item.question.question}". Correct concept: ${item.question.correctAnswer}.`
                     )
                   }
-                  className="flex items-center space-x-1 text-xs text-slate-400 hover:text-violet-300 bg-slate-800 hover:bg-slate-700/80 px-3 py-2 rounded-xl border border-slate-700 transition-colors"
+                  className="flex items-center space-x-1 text-xs text-slate-600 hover:text-violet-300 bg-slate-100 hover:bg-slate-200/80 px-3 py-2 rounded-xl border border-slate-300 transition-colors"
                   title="Practice speaking this answer"
                 >
                   <Mic className="w-3.5 h-3.5 text-violet-400" />
@@ -415,7 +415,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
                       `Write a short essay explaining why "${item.question.correctAnswer}" is the correct answer to: "${item.question.question}", and address common pitfalls.`
                     )
                   }
-                  className="flex items-center space-x-1 text-xs text-slate-400 hover:text-violet-300 bg-slate-800 hover:bg-slate-700/80 px-3 py-2 rounded-xl border border-slate-700 transition-colors"
+                  className="flex items-center space-x-1 text-xs text-slate-600 hover:text-violet-300 bg-slate-100 hover:bg-slate-200/80 px-3 py-2 rounded-xl border border-slate-300 transition-colors"
                   title="Write an essay on this concept"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-violet-400" />
