@@ -19,7 +19,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           Make Your Own Mock Test
         </p>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
           Turn your study material into quizzes, and turn weak topics into strengths.
         </h1>
 
@@ -84,7 +84,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
     <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
       {icon}
     </div>
-    <h3 className="text-sm font-bold text-white">{title}</h3>
+    <h3 className="text-sm font-bold text-slate-900">{title}</h3>
     <p className="text-xs text-slate-600 leading-relaxed">{description}</p>
   </div>
 );

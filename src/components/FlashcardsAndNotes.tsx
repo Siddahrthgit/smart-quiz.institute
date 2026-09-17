@@ -69,7 +69,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
             <BrainCircuit className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">AI Flashcards & Study Notes</h1>
+            <h1 className="text-xl font-bold text-slate-900">AI Flashcards & Study Notes</h1>
             <p className="text-xs text-slate-600">
               Spaced repetition flashcards and AI-generated executive summaries for high-yield revision.
             </p>
@@ -171,7 +171,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
                   className={`w-full h-full rounded-2xl p-8 border transition-all duration-500 transform flex flex-col justify-between shadow-2xl ${
                     isFlipped
                       ? 'bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 border-indigo-500/50 text-indigo-100'
-                      : 'bg-slate-50 border-slate-200 text-white hover:border-slate-300'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -281,7 +281,7 @@ export const FlashcardsAndNotes: React.FC<FlashcardsAndNotesProps> = ({
               {notes.map((note) => (
                 <div key={note.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 space-y-6">
                   <div>
-                    <h2 className="text-xl font-bold text-white mb-1">{note.title}</h2>
+                    <h2 className="text-xl font-bold text-slate-900 mb-1">{note.title}</h2>
                     <p className="text-xs text-indigo-400 font-mono">Generated from: {note.documentName} • {note.date}</p>
                   </div>
 

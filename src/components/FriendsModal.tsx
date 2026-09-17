@@ -74,7 +74,7 @@ export const FriendsModal: React.FC<FriendsModalProps> = ({
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>Friends & Peer Exam Progress</span>
                 <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-mono border border-indigo-500/30">
                   {friendsList.length} Connected
@@ -88,7 +88,7 @@ export const FriendsModal: React.FC<FriendsModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:text-white hover:bg-slate-200 transition-colors"
+            className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

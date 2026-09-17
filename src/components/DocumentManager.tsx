@@ -185,7 +185,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             <Cloud className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white">Study Materials & Google Drive</h1>
+            <h1 className="text-xl font-black text-slate-900">Study Materials & Google Drive</h1>
             <p className="text-xs text-slate-600">
               Upload PDF documents, connect Google Drive, or ask the AI Chatbot questions about your files.
             </p>
@@ -334,7 +334,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                           <FileText className="w-5 h-5" />
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-white">{doc.name}</h3>
+                          <h3 className="text-sm font-bold text-slate-900">{doc.name}</h3>
                           <div className="flex items-center space-x-3 text-[11px] text-slate-600 mt-0.5">
                             <span className="uppercase font-mono text-indigo-400">{doc.type}</span>
                             <span>•</span>
@@ -391,7 +391,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       {activeSubTab === 'drive' && (
         <div className="bento-card bg-slate-50 border-slate-200 p-6 space-y-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Cloud className="w-5 h-5 text-indigo-400" />
               <span>Import from Google Drive</span>
             </h2>
@@ -462,7 +462,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">Ask Your Document (AI Tutor)</h2>
+                <h2 className="text-base font-bold text-slate-900">Ask Your Document (AI Tutor)</h2>
                 <p className="text-xs text-slate-600">
                   Currently answering questions for: <span className="text-indigo-300 font-semibold">{selectedDoc?.name || 'All Materials'}</span>
                 </p>

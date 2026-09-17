@@ -91,7 +91,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       <div className="bg-slate-50 border border-slate-200 rounded-2xl w-full max-w-md p-6 space-y-6 shadow-2xl relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-600 hover:text-white rounded-lg transition-colors"
+          className="absolute top-4 right-4 p-2 text-slate-600 hover:text-slate-900 rounded-lg transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -101,7 +101,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
               <Sparkles className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-lg font-bold text-slate-900">
               {mode === 'login' ? 'Welcome Back' : mode === 'forgot' ? 'Reset Password' : 'Create Your Account'}
             </h2>
           </div>

@@ -43,9 +43,9 @@ export const FeatureChatWidget: React.FC = () => {
           <div className="flex items-center justify-between px-4 py-3 bg-slate-100 border-b border-slate-300">
             <div className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span className="text-sm font-bold text-white">Ask about features</span>
+              <span className="text-sm font-bold text-slate-900">Ask about features</span>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-white">
+            <button onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-slate-900">
               <X className="w-4 h-4" />
             </button>
           </div>

@@ -52,7 +52,7 @@ export function LoginPage({ onAuthed, onContinueAsGuest }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white text-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white text-slate-900 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold text-center mb-1">Smart Quiz AI</h1>
         <p className="text-slate-600 text-center mb-6 text-sm">

@@ -178,7 +178,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-black text-white tracking-tight">Daily AI Study Planner</h2>
+              <h2 className="text-base font-black text-slate-900 tracking-tight">Daily AI Study Planner</h2>
               <span className="px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold">
                 Adaptive
               </span>
@@ -232,7 +232,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                     <FileText className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Concrete Technology.pdf</h4>
+                    <h4 className="text-xs font-bold text-slate-900">Concrete Technology.pdf</h4>
                     <span className="text-[10px] text-red-400 font-semibold block">
                       Low Quiz Score (65%) · 8 Missed Concepts
                     </span>
@@ -265,7 +265,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                     <Flame className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Low Confidence Question Drill</h4>
+                    <h4 className="text-xs font-bold text-slate-900">Low Confidence Question Drill</h4>
                     <span className="text-[10px] text-amber-400 font-semibold block">
                       {profile.lowConfidenceQuestionIds.length || 12} Flagged Items Pending
                     </span>
@@ -298,7 +298,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                     <HelpCircle className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Highway Engineering Self-Assessment</h4>
+                    <h4 className="text-xs font-bold text-slate-900">Highway Engineering Self-Assessment</h4>
                     <span className="text-[10px] text-violet-400 font-semibold block">
                       Not Tested in 7 Days
                     </span>
@@ -351,7 +351,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                   placeholder="Exam or Quiz Title..."
                   value={newDeadlineTitle}
                   onChange={(e) => setNewDeadlineTitle(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                   required
                 />
                 <div className="flex items-center space-x-2">
@@ -361,7 +361,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                     max="60"
                     value={newDeadlineDays}
                     onChange={(e) => setNewDeadlineDays(Number(e.target.value))}
-                    className="w-24 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+                    className="w-24 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-500 font-mono"
                   />
                   <span className="text-xs text-slate-600 font-semibold">days away</span>
                   <button
@@ -442,7 +442,7 @@ export const DailyStudyPlanner: React.FC<DailyStudyPlannerProps> = ({
                 placeholder="Add study task..."
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
               <button
                 type="submit"

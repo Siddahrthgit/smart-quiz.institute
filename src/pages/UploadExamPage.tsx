@@ -125,7 +125,7 @@ export function UploadExamPage({
 
   if (phase === 'upload') {
     return (
-      <div className="min-h-screen bg-white text-white">
+      <div className="min-h-screen bg-white text-slate-900">
         <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-16">
           <div className="text-center mb-10">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Upload your PDF</h1>
@@ -155,7 +155,7 @@ export function UploadExamPage({
 
   if (phase === 'analyzing') {
     return (
-      <div className="min-h-screen bg-white text-white flex items-center justify-center">
+      <div className="min-h-screen bg-white text-slate-900 flex items-center justify-center">
         <p className="text-slate-700 animate-pulse">Reading your PDF and building your exam…</p>
       </div>
     );
@@ -176,7 +176,7 @@ export function UploadExamPage({
   }
 
   return (
-    <div className="min-h-screen bg-white text-white pb-28">
+    <div className="min-h-screen bg-white text-slate-900 pb-28">
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3">
         <p className="text-sm text-slate-600 max-w-2xl lg:max-w-3xl mx-auto">
           {subject} · {answeredCount} of {questions.length} answered
@@ -232,7 +232,7 @@ function SuggestionsList({ suggestions, onRetry }: { suggestions: Suggestion[]; 
           <div key={s.topic} className="border border-slate-200 rounded-lg overflow-hidden">
             <button
               onClick={() => setOpenTopic(openTopic === s.topic ? null : s.topic)}
-              className="w-full text-left px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-white flex items-center justify-between gap-2"
+              className="w-full text-left px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center justify-between gap-2"
             >
               {s.topic}
               <span className="text-slate-500 text-xs">{openTopic === s.topic ? '−' : '+'}</span>

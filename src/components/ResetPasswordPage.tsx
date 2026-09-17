@@ -55,7 +55,7 @@ export const ResetPasswordPage: React.FC = () => {
           <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <Sparkles className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-white">Set a New Password</h2>
+          <h2 className="text-lg font-bold text-slate-900">Set a New Password</h2>
         </div>
 
         {message && (

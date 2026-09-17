@@ -95,14 +95,14 @@ export function PerformancePage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white text-white flex items-center justify-center">
+      <div className="min-h-screen bg-white text-slate-900 flex items-center justify-center">
         <p className="text-slate-700 animate-pulse">Loading your performance review…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col md:flex-row">
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
         <h1 className="text-2xl font-bold mb-1">Performance Review</h1>
         <div className="flex flex-col items-center py-6 mb-6 border-b border-slate-200">

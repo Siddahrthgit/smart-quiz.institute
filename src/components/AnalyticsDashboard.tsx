@@ -80,7 +80,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white">Analytics Dashboard & Achievements</h1>
+            <h1 className="text-xl font-black text-slate-900">Analytics Dashboard & Achievements</h1>
             <p className="text-xs text-slate-600">
               Track accuracy trajectories, topic mastery, daily streaks, and gamification rewards.
             </p>
@@ -132,7 +132,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
                   <div className="space-y-1 w-full">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold text-white">{badge.title}</h3>
+                      <h3 className="text-xs font-bold text-slate-900">{badge.title}</h3>
                       {isUnlocked && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                     </div>
                     <p className="text-[11px] text-slate-600 leading-tight">{badge.description}</p>
@@ -166,7 +166,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 key={idx}
                 className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
                   user.name.includes('(You)')
-                    ? 'bg-indigo-950/60 border-indigo-500/80 text-white font-bold'
+                    ? 'bg-indigo-950/60 border-indigo-500/80 text-slate-900 font-bold'
                     : 'bg-slate-100/40 border-slate-300/60 text-slate-700'
                 }`}
               >

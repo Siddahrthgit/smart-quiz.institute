@@ -102,7 +102,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
             <div>
-              <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-1.5">
+              <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
                 <span>Study Planner</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">AI</span>
               </h1>
@@ -191,7 +191,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <span>Welcome back, {profile.name.split(' ')[0]}</span>
                 <span>👋</span>
               </h2>
@@ -338,7 +338,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* Donut Chart Visual */}
           <div className="flex items-center justify-center my-2 relative">
             <div className="w-32 h-32 rounded-full border-8 border-emerald-500 border-t-red-500 border-r-amber-500 flex flex-col items-center justify-center text-center shadow-lg">
-              <span className="text-2xl font-black text-white font-mono">{overallAccuracy}%</span>
+              <span className="text-2xl font-black text-slate-900 font-mono">{overallAccuracy}%</span>
               <span className="text-[10px] text-slate-600 font-semibold">Overall Score</span>
             </div>
           </div>

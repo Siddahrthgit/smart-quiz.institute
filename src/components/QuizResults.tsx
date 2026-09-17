@@ -73,13 +73,13 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             <Award className="w-3.5 h-3.5" />
             <span>{attempt.source === 'practice' ? 'Wrong Answered Practice' : 'Quiz Completed'}</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">{attempt.quizTitle}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{attempt.quizTitle}</h1>
         </div>
 
         {/* Score Circle & XP */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <div className="w-32 h-32 rounded-full border-4 border-indigo-500/40 bg-indigo-950/60 flex flex-col items-center justify-center shadow-lg">
-            <span className="text-3xl font-extrabold text-white">{attempt.score}%</span>
+            <span className="text-3xl font-extrabold text-slate-900">{attempt.score}%</span>
             <span className="text-[11px] text-slate-600 font-medium">Overall Score</span>
           </div>
 

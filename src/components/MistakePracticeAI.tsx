@@ -214,7 +214,7 @@ export const MistakePracticeAI: React.FC<MistakePracticeAIProps> = ({
           </div>
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-black text-white tracking-tight">AI Targeted Mistake & Weakness Practice</h1>
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">AI Targeted Mistake & Weakness Practice</h1>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase font-mono">
                 Misconception AI Engine
               </span>

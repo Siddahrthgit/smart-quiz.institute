@@ -166,7 +166,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
             <BrainCircuit className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white">AI Practice & Weakness Focus Studio</h1>
+            <h1 className="text-xl font-black text-slate-900">AI Practice & Weakness Focus Studio</h1>
             <p className="text-xs text-slate-600">
               Practice targeted wrong questions, voice pronunciations, and AI essay writing.
             </p>
@@ -222,7 +222,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block font-mono">
               Speaking Exam Passage:
             </span>
-            <p className="text-sm font-semibold text-white leading-relaxed">"{targetPrompt}"</p>
+            <p className="text-sm font-semibold text-slate-900 leading-relaxed">"{targetPrompt}"</p>
           </div>
 
           <div className="flex flex-col items-center justify-center space-y-4 py-6">
@@ -294,7 +294,7 @@ export const PracticeRoom: React.FC<PracticeRoomProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block font-mono">
               Writing Exam Prompt:
             </span>
-            <p className="text-sm font-semibold text-white leading-relaxed">{writingPrompt}</p>
+            <p className="text-sm font-semibold text-slate-900 leading-relaxed">{writingPrompt}</p>
           </div>
 
           <div className="space-y-2">

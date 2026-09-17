@@ -139,7 +139,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'landing') {
     return (
-      <div className="min-h-screen bg-white text-white flex flex-col items-center text-center px-4 pt-12">
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center text-center px-4 pt-12">
         <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4">
           <span className="text-2xl">✨</span>
         </div>
@@ -155,13 +155,13 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
         </p>
         <LandingForm onStart={handleStartFromLanding} />
         <div className="flex gap-3 mt-6 text-xs text-slate-600">
-          <button onClick={() => onNavigate && onNavigate("documents-files")} className="underline text-slate-700 hover:text-white">Questions from your files</button>
+          <button onClick={() => onNavigate && onNavigate("documents-files")} className="underline text-slate-700 hover:text-slate-900">Questions from your files</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("documents-drive")} className="underline text-slate-700 hover:text-white">Questions from your drive</button>
+          <button onClick={() => onNavigate && onNavigate("documents-drive")} className="underline text-slate-700 hover:text-slate-900">Questions from your drive</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("notes-cards-notes")} className="underline text-slate-700 hover:text-white">Notes</button>
+          <button onClick={() => onNavigate && onNavigate("notes-cards-notes")} className="underline text-slate-700 hover:text-slate-900">Notes</button>
           <span>·</span>
-          <button onClick={() => onNavigate && onNavigate("notes-cards-flashcards")} className="underline text-slate-700 hover:text-white">Flashcards</button>
+          <button onClick={() => onNavigate && onNavigate("notes-cards-flashcards")} className="underline text-slate-700 hover:text-slate-900">Flashcards</button>
         </div>
         {onAuthSuccess && <div id="signup-section"><AuthForm onSuccess={onAuthSuccess} /></div>}
       </div>
@@ -170,7 +170,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'session-setup') {
     return (
-      <div className="min-h-screen bg-white text-white max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="min-h-screen bg-white text-slate-900 max-w-lg mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-xl font-bold">{topic}</h1>
           <p className="text-slate-600 text-sm">Set up your practice session</p>
@@ -251,7 +251,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
 
   if (phase === 'session-quiz' && question) {
     return (
-      <div className="min-h-screen bg-white text-white max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="min-h-screen bg-white text-slate-900 max-w-lg mx-auto px-4 py-6 space-y-6">
         <div>
           <div className="flex justify-between text-sm text-slate-600 mb-2">
             <span>
@@ -305,7 +305,7 @@ export function AiQuizFlow({ onNavigate, onAuthSuccess }: { onNavigate?: (tab: s
   const needImproveResults = results.filter((r) => !r.correct || r.confidence === 'low');
 
   return (
-    <div className="min-h-screen bg-white text-white max-w-lg mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-white text-slate-900 max-w-lg mx-auto px-4 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">{topic}</h1>
         <p className="text-slate-600 text-sm">Your results and next steps</p>
@@ -470,21 +470,21 @@ function AuthForm({ onSuccess }: { onSuccess: (user: { name: string; email: stri
           <>
             <div>
               <label className="text-xs text-slate-600 mb-1 block">Full Name</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500" />
             </div>
             <div>
               <label className="text-xs text-slate-600 mb-1 block">Username</label>
-              <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+              <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500" />
             </div>
           </>
         )}
         <div>
           <label className="text-xs text-slate-600 mb-1 block">{mode === 'login' ? 'Email or Username' : 'Email Address'}</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500" />
         </div>
         <div>
           <label className="text-xs text-slate-600 mb-1 block">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500" />
         </div>
 
         {error && <p className="text-red-400 text-xs">{error}</p>}

@@ -125,7 +125,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white">AI Quiz Generator</h1>
+            <h1 className="text-xl font-black text-slate-900">AI Quiz Generator</h1>
             <p className="text-xs text-slate-600">
               Configure AI parameters to generate personalized quizzes from your study material.
             </p>
@@ -160,7 +160,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
               onClick={() => setSourceMode('doc')}
               className={`p-4 rounded-xl border text-left transition-all ${
                 sourceMode === 'doc'
-                  ? 'bg-indigo-950/40 border-indigo-500 text-white'
+                  ? 'bg-indigo-950/40 border-indigo-500 text-slate-900'
                   : 'bg-slate-100/50 border-slate-300/60 text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -196,7 +196,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                     )}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">
+                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-indigo-300 transition-colors">
                       {isUploadingPdf ? 'Uploading & Parsing PDF...' : 'Upload PDF / Document to Generate Quiz'}
                     </h4>
                     <p className="text-[11px] text-slate-600">
@@ -389,7 +389,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
                   onClick={() => toggleType(t.id)}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start space-x-3 ${
                     isSelected
-                      ? 'bg-indigo-950/30 border-indigo-500/80 text-white'
+                      ? 'bg-indigo-950/30 border-indigo-500/80 text-slate-900'
                       : 'bg-slate-100/40 border-slate-300/60 text-slate-600 hover:text-slate-800'
                   }`}
                 >
@@ -416,7 +416,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-5 h-5 text-amber-400" />
               <div>
-                <h2 className="text-sm font-bold text-white">Exam Mode</h2>
+                <h2 className="text-sm font-bold text-slate-900">Exam Mode</h2>
                 <p className="text-[11px] text-slate-600">Strict countdown timer, negative marking, and no instant answer reveals</p>
               </div>
             </div>

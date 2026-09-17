@@ -215,7 +215,7 @@ export const QuizRunner: React.FC<QuizRunnerProps> = ({
             ← Exit
           </button>
           <div>
-            <h1 className="text-base font-bold text-white leading-tight">{quizTitle}</h1>
+            <h1 className="text-base font-bold text-slate-900 leading-tight">{quizTitle}</h1>
             {documentName && (
               <p className="text-[11px] text-indigo-400 font-medium">Source: {documentName}</p>
             )}

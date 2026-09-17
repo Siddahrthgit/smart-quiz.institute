@@ -57,7 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+              <span className="text-lg font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
                 Study Planner <span className="text-indigo-400 font-mono text-xs px-1.5 py-0.5 rounded bg-indigo-950 border border-indigo-800">AI</span>
               </span>
               <p className="text-[11px] text-slate-600 -mt-0.5">Intelligent Study Platform</p>
@@ -76,10 +76,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`flex items-center space-x-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/40 scale-[1.02]'
-                      : 'text-slate-700 hover:text-white hover:bg-slate-100/80 border border-transparent'
+                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-600'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-slate-900' : 'text-slate-600'}`} />
                   <span>{item.label}</span>
                 </button>
               );
@@ -149,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`flex flex-col items-center px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition-all flex-shrink-0 ${
                 isActive 
                   ? 'bg-indigo-600 text-white shadow-md' 
-                  : 'text-slate-700 hover:text-white hover:bg-slate-100'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
               <Icon className="w-4 h-4 mb-1" />
@@ -159,7 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         })}
         <button
           onClick={onOpenFriends}
-          className="flex flex-col items-center px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition-all flex-shrink-0 text-indigo-400 hover:text-white hover:bg-slate-100"
+          className="flex flex-col items-center px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition-all flex-shrink-0 text-indigo-400 hover:text-slate-900 hover:bg-slate-100"
         >
           <Users className="w-4 h-4 mb-1" />
           <span className="whitespace-nowrap">Friends</span>
