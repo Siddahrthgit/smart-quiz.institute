@@ -48,6 +48,46 @@ function isPdfArtifact(s: string) {
 }
 
 
+
+function uniqueStrings(values: string[]) {
+  return [...new Set(values.map(v => v.replace(/\s+/g, ' ').trim()).filter(Boolean))];
+}
+
+function shorten(value: string, max: number) {
+  const v = value.replace(/\s+/g, ' ').trim();
+  return v.length <= max ? v : v.slice(0, max - 1).trimEnd() + '…';
+}
+
+function hash(value: string) {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function shuffled<T>(items: T[], seed: number) {
+  const a = [...items];
+  let x = seed || 1;
+  for (let i = a.length - 1; i > 0; i--) {
+    x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+    const j = Math.abs(x) % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function words(text: string) {
+  return (text.toLowerCase().match(/[a-z][a-z0-9'-]{2,}/g) || [])
+    .filter(w => !STOP.has(w));
+}
+
+function topicFrom(value: string) {
+  const ws = words(value);
+  return ws.length ? ws.slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'General';
+}
+
 function sentences(text: string) {
   const t = clean(text)
     .replace(/[•▪◦●◆]/g, '\n')
