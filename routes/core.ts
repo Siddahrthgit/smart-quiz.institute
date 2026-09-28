@@ -73,9 +73,9 @@ router.post('/upload-and-analyze', upload.single('file'), async (req: Identified
     const extractedText = await parsePdfBuffer(buffer);
     if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
 
-    const cleanText = extractedText.replace(/\\s+/g, ' ').trim();
+    const cleanText = extractedText.replace(/\s+/g, ' ').trim();
     docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    await Material.create({ docId, userId: req.ownerType === 'user' ? req.ownerId : undefined, ownerKey: ownerKey(req), title: originalname, extractedText, fileType: 'pdf', wordCount: cleanText.split(/\\s+/).length, summary: 'Uploaded study material', topics: [] } as any);
+    await Material.create({ docId, userId: req.ownerType === 'user' ? req.ownerId : undefined, ownerKey: ownerKey(req), title: originalname, extractedText, fileType: 'pdf', wordCount: cleanText.split(/\s+/).length, summary: 'Uploaded study material', topics: [] } as any);
 
     const existingBranch = await getFixedBranch(req);
     const branch = existingBranch || requestedBranch || 'General';
@@ -83,6 +83,13 @@ router.post('/upload-and-analyze', upload.single('file'), async (req: Identified
     const subject = analysis.subject;
     const topics = analysis.topics.slice(0, 6);
     const questions = analysis.questions;
+
+    if (!questions.length) {
+      return res.status(422).json({
+        error: 'NO_USABLE_QUESTIONS',
+        message: 'PDF text was extracted, but it did not contain enough readable study statements to build questions. Try a clearer text-based PDF.'
+      });
+    }
 
     await setFixedBranchIfEmpty(req, branch);
     await Material.updateOne({ docId, ownerKey: ownerKey(req) }, { $set: { summary: topics.join(', '), topics } });
