@@ -7,6 +7,7 @@ import { Guest } from '../db/Guest';
 import { Attempt } from '../db/Attempt';
 import { identifyOwner, IdentifiedRequest } from '../middleware/auth';
 import { generateJson } from '../lib/gemini';
+import { analyzeLocalText, generateLocalQuestions, generateLocalNotes, findLocalRepeated } from '../lib/localQuizEngine';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -65,88 +66,47 @@ function ownerKey(req: IdentifiedRequest) {
 }
 
 router.post('/upload-and-analyze', upload.single('file'), async (req: IdentifiedRequest, res: Response) => {
+  let docId = '';
   try {
     if (!req.file) return res.status(400).json({ error: 'No PDF provided' });
     const { originalname, buffer } = req.file;
+    const requestedBranch = typeof req.body?.branch === 'string' ? req.body.branch.trim() : '';
     const extractedText = await parsePdfBuffer(buffer);
     if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
 
+    const cleanText = extractedText.replace(/\\s+/g, ' ').trim();
+    docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    await Material.create({ docId, userId: req.ownerType === 'user' ? req.ownerId : undefined, ownerKey: ownerKey(req), title: originalname, extractedText, fileType: 'pdf', wordCount: cleanText.split(/\\s+/).length, summary: 'Uploaded study material', topics: [] } as any);
+
     const existingBranch = await getFixedBranch(req);
-    const analysis = await generateJson<{ branch: string; subject: string; topics: string[] }>(
-      `Classify this study material. ${existingBranch ? `The student's branch is already fixed as "${existingBranch}". Return that branch.` : 'Infer the branch/category.'}
-Infer the specific subject and 3-6 short topic tags.
-Return ONLY JSON: {"branch":string,"subject":string,"topics":string[]}
+    const branch = existingBranch || requestedBranch || 'General';
+    const analysis = analyzeLocalText(cleanText, 10);
+    const subject = analysis.subject;
+    const topics = analysis.topics.slice(0, 6);
+    const questions = analysis.questions;
 
-MATERIAL:
-${extractedText.slice(0, 6000)}`
-    );
-    const branch = existingBranch || analysis.branch;
     await setFixedBranchIfEmpty(req, branch);
-
-    const docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    await Material.create({
-      docId,
-      userId: req.ownerType === 'user' ? req.ownerId : undefined,
-      ownerKey: ownerKey(req),
-      title: originalname,
-      extractedText,
-      fileType: 'pdf',
-      wordCount: extractedText.trim().split(/\s+/).length,
-      summary: analysis.topics?.join(', '),
-      topics: analysis.topics,
-    } as any);
-
-    const questions = await generateJson<any[]>(
-      `Create 10 multiple-choice questions ONLY from this material. Each item must be {"question":string,"options":string[4],"correctAnswer":string,"topic":string}, and correctAnswer must exactly match one option. Return ONLY a JSON array.
-SUBJECT: ${analysis.subject}
-MATERIAL:
-${extractedText.slice(0, 6000)}`
-    );
-
-    return res.json({ success: true, docId, branch, subject: analysis.subject, topics: analysis.topics, questions });
+    await Material.updateOne({ docId, ownerKey: ownerKey(req) }, { $set: { summary: topics.join(', '), topics } });
+    return res.json({ success: true, docId, branch, subject, topics, questions, local: true });
   } catch (err: any) {
     console.error('upload-and-analyze error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to analyze PDF' });
+    return res.status(500).json({ error: 'LOCAL_ANALYSIS_FAILED', message: 'Could not analyze this PDF locally. Please try another text-based PDF.', ...(docId ? { docId } : {}) });
   }
 });
 
 router.post('/material/action', async (req: IdentifiedRequest, res: Response) => {
   try {
     const { docId, action } = req.body as { docId?: string; action?: 'notes' | 'repeated' | 'generate' };
-    if (!docId || !['notes', 'repeated', 'generate'].includes(action || '')) {
-      return res.status(400).json({ error: 'docId and a valid action are required' });
-    }
+    if (!docId || !['notes', 'repeated', 'generate'].includes(action || '')) return res.status(400).json({ error: 'docId and a valid action are required' });
     const material = await Material.findOne({ docId, ownerKey: ownerKey(req) });
     if (!material) return res.status(404).json({ error: 'Study material not found' });
-    const text = String((material as any).extractedText || '').slice(0, 18000);
-
-    if (action === 'notes') {
-      const notes = await generateJson<any>(
-        `Create useful study notes from the uploaded material. Do not invent facts. Return ONLY JSON with keys title, summary, keyConcepts, definitions, formulas, keyPoints. Use arrays for keyConcepts, definitions, formulas, keyPoints.
-MATERIAL:
-${text}`
-      );
-      return res.json({ success: true, action, notes });
-    }
-
-    if (action === 'repeated') {
-      const repeated = await generateJson<any>(
-        `Analyze this uploaded material for repetition/emphasis INSIDE THE MATERIAL ONLY. Do not claim that a question appeared in past exams unless the material itself explicitly provides that evidence. Return ONLY JSON with keys scope, disclaimer, repeatedQuestions, repeatedConcepts, emphasizedTopics. repeatedQuestions must contain only questions/prompts that are actually repeated or strongly emphasized in the supplied material.
-MATERIAL:
-${text}`
-      );
-      return res.json({ success: true, action, repeated });
-    }
-
-    const questions = await generateJson<any[]>(
-      `Generate exactly 10 multiple-choice questions from ONLY this uploaded material. Return ONLY JSON array. Each item: {"question":string,"options":string[4],"correctAnswer":string,"topic":string}; correctAnswer must exactly equal one option. Avoid duplicate questions.
-MATERIAL:
-${text}`
-    );
-    return res.json({ success: true, action, questions });
+    const text = String((material as any).extractedText || '');
+    if (action === 'notes') return res.json({ success: true, action, notes: { title: material.title, keyPoints: generateLocalNotes(text), topics: analyzeLocalText(text, 0).topics } });
+    if (action === 'repeated') return res.json({ success: true, action, repeated: { scope: 'uploaded material only', disclaimer: 'These are repeated or frequent terms detected inside your uploaded material; they are not claims about past exams.', repeatedQuestions: [], repeatedConcepts: findLocalRepeated(text), emphasizedTopics: analyzeLocalText(text, 0).topics } });
+    return res.json({ success: true, action, questions: generateLocalQuestions(text, 10) });
   } catch (err: any) {
     console.error('material/action error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to process study material' });
+    return res.status(500).json({ error: 'LOCAL_ACTION_FAILED', message: 'Could not process this study material locally.' });
   }
 });
 
@@ -167,7 +127,10 @@ router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
     return res.json({ success: true, attemptId: attempt.id, score, total: scored.length });
   } catch (err: any) {
     console.error('exam/submit error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to submit exam' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to submit exam'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to submit exam')
+    });
   }
 });
 
@@ -181,7 +144,10 @@ router.get('/attempts/latest', async (req: IdentifiedRequest, res: Response) => 
       wrongCount: attempt.questions.filter((q: any) => !q.isCorrect).length,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to load latest performance' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to load latest performance'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to load latest performance')
+    });
   }
 });
 
@@ -212,7 +178,10 @@ ${missing.map((q: any) => `Q: ${q.question}\nCorrect: ${q.correctAnswer}\nStuden
     });
   } catch (err: any) {
     console.error('attempts/:id error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to load performance review' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to load performance review'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to load performance review')
+    });
   }
 });
 
@@ -229,7 +198,10 @@ router.post('/attempts/:id/reattempt', async (req: IdentifiedRequest, res: Respo
       questions: wrong.map((q: any) => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, topic: q.topic })),
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to start reattempt' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to start reattempt'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to start reattempt')
+    });
   }
 });
 
@@ -250,7 +222,10 @@ router.get('/suggestions', async (req: IdentifiedRequest, res: Response) => {
     })).sort((a, b) => b.personal - a.personal).slice(0, 10);
     return res.json({ branch, suggestions: ranked });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to load weak topics' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to load weak topics'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to load weak topics')
+    });
   }
 });
 
@@ -270,7 +245,10 @@ router.post('/guest/merge', async (req: IdentifiedRequest, res: Response) => {
     await guest.save();
     return res.json({ success: true, merged: attemptsUpdated.modifiedCount });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to merge guest data' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to merge guest data'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to merge guest data')
+    });
   }
 });
 
@@ -292,7 +270,10 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
     );
     return res.json({ success: true, docId, branch: branch || null, subject: topic, questions: [...wrongFromLast, ...fresh] });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to generate practice set' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to generate practice set'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to generate practice set')
+    });
   }
 });
 
