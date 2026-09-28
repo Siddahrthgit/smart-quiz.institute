@@ -25,7 +25,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
 
   async function action(action:'notes'|'repeated'|'generate'){
     setError('');
-    const res=await fetch('/api/core/material/action',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,action})});
+    const res=await fetch('/api/core/material/action',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,action,count:30})});
     const data=await res.json();
     if(!res.ok) throw new Error(data.message||data.error||'Action failed');
     if(action==='notes') setNotes(data.notes);
@@ -113,7 +113,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     <div className="text-center px-6">
       <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center animate-pulse"><Sparkles className="w-7 h-7 text-indigo-600"/></div>
       <h2 className="text-xl font-semibold">Building your exam…</h2>
-      <p className="text-sm text-slate-500 mt-2">Analyzing your PDF and preparing 10 questions.</p>
+      <p className="text-sm text-slate-500 mt-2">Analyzing your PDF and preparing up to 30 questions.</p>
       <p className="text-xs text-slate-400 mt-3">This can take a little time. Please keep this page open.</p>
     </div>
   </div>;
@@ -128,8 +128,8 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
       <Action icon={<BarChart3/>} title="Performance Check — Retry Wrong Questions" onClick={performance}/>
     </div>
     {error&&<p className="text-red-600 text-sm mt-4">{error}</p>}
-    {notes&&<Result title="Study Notes"><pre className="whitespace-pre-wrap text-sm">{JSON.stringify(notes,null,2)}</pre></Result>}
-    {repeated&&<Result title="Most Repeated / Emphasized in This PDF"><p className="text-xs text-slate-500 mb-2">{repeated.disclaimer}</p><pre className="whitespace-pre-wrap text-sm">{JSON.stringify(repeated,null,2)}</pre></Result>}
+    {notes&&<Result title="Study Notes"><div className="space-y-3">{(notes.keyPoints||[]).map((n:string,i:number)=><div key={i} className="rounded-lg bg-white border border-slate-200 p-3 text-sm leading-6">{n}</div>)}</div></Result>}
+    {repeated&&<Result title="Most Repeated / Emphasized in This PDF"><p className="text-xs text-slate-500 mb-3">{repeated.disclaimer}</p><div className="space-y-2">{(repeated.repeatedConcepts||[]).map((x:any,i:number)=><div key={i} className="flex items-center justify-between rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm"><span>{x.phrase}</span><span className="text-xs text-slate-500">{x.count}×</span></div>)}</div></Result>}
     {generated&&<Result title="Generated Questions"><div className="space-y-3">{generated.length ? generated.map((q,i)=><div key={i} className="border-t pt-3"><b>Q{i+1}. {q.question}</b><div className="text-sm mt-1">{q.options.join(' • ')}</div></div>) : <p className="text-sm text-slate-500">No questions could be generated from this material.</p>}<button className="mt-4 rounded-lg bg-indigo-600 text-white px-4 py-2" onClick={()=>{setQuestions(generated);setAnswers({});setPhase('exam')}}>Start Exam</button></div></Result>}
     <div className="mt-8"><SuggestionsList suggestions={suggestions} onRetry={retryTopic}/><QuestionLibrary branch={branch} onPractice={retryTopic}/></div>
   </div></div>;
