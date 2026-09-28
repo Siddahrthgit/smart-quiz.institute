@@ -33,6 +33,20 @@ function clean(text: string) {
     .trim();
 }
 
+function isPdfArtifact(s: string) {
+  const v = s.replace(/\s+/g, ' ').trim();
+  if (/^(?:page|slide)?\s*[-–—]?\s*\d+\s*(?:of|\/)\s*\d+$/i.test(v)) return true;
+  if (/^\d+\s*(?:of|\/)\s*\d+\s*[-–—]?/i.test(v)) return true;
+  if (/^(?:thank you|www\.|https?:\/\/)/i.test(v)) return true;
+  if (/^(?:prepared by|author\s*[:\-]|tutor\b|course\b)/i.test(v)) return true;
+  if (/\b\d+\s+of\s+\d+\b/i.test(v) && v.length < 220) return true;
+  const words = v.split(/\s+/);
+  const numeric = (v.match(/\d+(?:\.\d+)?/g) || []).length;
+  const alpha = (v.match(/[A-Za-z]/g) || []).length;
+  if (numeric >= 2 && numeric > alpha / 4) return true;
+  return false;
+}
+
 function sentences(text: string) {
   const t = clean(text);
   const raw = t.replace(/\r/g, '\n')
@@ -45,10 +59,9 @@ function sentences(text: string) {
     else expanded.push(...(item.match(/.{1,600}(?:\s+|$)/g) || []).map(x => x.trim()));
   }
   return uniqueStrings(expanded.filter(s => {
-    if (/^(?:page|slide)?\s*[-–—]?\s*\d+\s*(?:of|\/)\s*\d+$/i.test(s)) return false;
-    if (/^\d+\s+of\s+\d+\s*--?/i.test(s)) return false;
     const alpha = (s.match(/[A-Za-z]/g) || []).length;
-    return s.length >= 30 && alpha >= 12 && s.split(/\s+/).length >= 5;
+    return s.length >= 35 && s.length <= 500 && alpha >= 20 &&
+      s.split(/\s+/).length >= 6 && !isPdfArtifact(s);
   }));
 }
 
@@ -118,7 +131,7 @@ function makeDefinitionQuestion(sentence: string, answerPool: string[], i: numbe
 }
 
 function makeNumericQuestion(sentence: string, numberPool: string[], i: number): LocalQuestion | null {
-  const numbers = sentence.match(/\b\d+(?:\.\d+)?(?:\s*%|\s*(?:mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\/m3|m3\/s|°C|days?|years?))?\b/gi);
+  const numbers = sentence.match(/\b\d+(?:\.\d+)?\s*(?:%|mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\/m3|m3\/s|°C|days?|years?)\b/gi);
   if (!numbers || numbers.length === 0) return null;
 
   const target = numbers[0];
@@ -128,6 +141,7 @@ function makeNumericQuestion(sentence: string, numberPool: string[], i: number):
   ).slice(0, 3);
   if (alternatives.length < 3) return null;
 
+  if (!/[A-Za-z]{3,}/.test(target) || !/\s?(?:%|mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\/m3|m3\/s|°C|days?|years?)\b/i.test(target)) return null;
   const redacted = sentence.replace(target, '_____');
   const options = shuffled([target, ...alternatives], hash(sentence) + 41);
   return {
@@ -153,6 +167,7 @@ function makeTrueFalseQuestion(sentence: string, i: number): LocalQuestion {
 }
 
 function makeGenericMcq(sentence: string, pool: string[], i: number): LocalQuestion | null {
+  if (isPdfArtifact(sentence)) return null;
   const correct = shorten(sentence, 220);
   const candidates = uniqueStrings(pool.filter(x => x !== sentence && x.length >= 25).map(x => shorten(x, 220)));
   const distractors = shuffled(candidates, hash(sentence) + 59).slice(0, 3);
@@ -169,6 +184,7 @@ function makeGenericMcq(sentence: string, pool: string[], i: number): LocalQuest
 }
 
 function makeCompletionQuestion(sentence: string, pool: string[], i: number): LocalQuestion | null {
+  if (isPdfArtifact(sentence)) return null;
   const cleaned = shorten(sentence, 240);
   const ws = cleaned.split(/\s+/);
   if (ws.length < 7) return null;
