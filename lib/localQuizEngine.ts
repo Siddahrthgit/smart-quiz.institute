@@ -107,13 +107,22 @@ function hash(text: string) {
 }
 
 function makeDefinitionQuestion(sentence: string, answerPool: string[], i: number): LocalQuestion | null {
-  const m = sentence.match(/^(.{3,100}?)\s+(?:is|are|means|refers to|consists of|includes|is defined as|are defined as|shall be|should be|must be)\s+(.{5,300})[.!?]?$/i);
+  const m = sentence.match(/^(.{3,80}?)\s+(?:is|are|means|refers to|consists of|includes|is defined as|are defined as|shall be|should be|must be)\s+(.{5,180})[.!?]?$/i);
   if (!m) return null;
 
-  const subject = shorten(m[1], 100);
-  const answer = shorten(m[2], 180);
+  const subject = shorten(m[1], 80);
+  const answer = shorten(m[2], 160);
+  if (/^(?:firstly|secondly|thirdly|then|next|note|data|required|prepared|author|chapter|section|figure|table)\b/i.test(subject)) return null;
+  if (/\b(?:of\s+\d+|\d+\s+of\s+\d+|prepared by|thank you|estimating, costing|license examination)\b/i.test(sentence)) return null;
+  if (answer.split(/\s+/).length < 4 || /--|\.\.\.|\btherefore\b|\b1\/\d+th\b/i.test(answer)) return null;
   const distractors = shuffled(
-    uniqueStrings(answerPool.filter(x => x !== answer && x.length >= 5)),
+    uniqueStrings(answerPool.filter(x =>
+      x !== answer &&
+      x.length >= 12 &&
+      x.split(/\s+/).length >= 4 &&
+      x.split(/\s+/).length <= 24 &&
+      !/--|\.\.\.|\b(?:page|slide|prepared by|thank you|therefore)\b/i.test(x)
+    )),
     hash(sentence)
   ).slice(0, 3);
 
@@ -131,6 +140,7 @@ function makeDefinitionQuestion(sentence: string, answerPool: string[], i: numbe
 }
 
 function makeNumericQuestion(sentence: string, numberPool: string[], i: number): LocalQuestion | null {
+  if (/\b(?:page|slide|of\s+\d+|\d+\s+of\s+\d+|prepared by|thank you|license examination)\b/i.test(sentence)) return null;
   const numbers = sentence.match(/\b\d+(?:\.\d+)?\s*(?:%|mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\/m3|m3\/s|°C|days?|years?)\b/gi);
   if (!numbers || numbers.length === 0) return null;
 
@@ -143,6 +153,7 @@ function makeNumericQuestion(sentence: string, numberPool: string[], i: number):
 
   if (!/[A-Za-z]{3,}/.test(target) || !/\s?(?:%|mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\/m3|m3\/s|°C|days?|years?)\b/i.test(target)) return null;
   const redacted = sentence.replace(target, '_____');
+  if (redacted.split(/\s+/).length < 7 || /--|\.\.\.|\b(?:page|slide|prepared by|thank you)\b/i.test(redacted)) return null;
   const options = shuffled([target, ...alternatives], hash(sentence) + 41);
   return {
     id: 'local-num-' + i,
