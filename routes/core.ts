@@ -173,7 +173,7 @@ router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
 
 router.get('/attempts/latest', async (req: IdentifiedRequest, res: Response) => {
   try {
-    const attempt = await Attempt.findOne({ ownerId: req.ownerId, ownerType: req.ownerType }).sort({ createdAt: -1 });
+    const attempt = await (Attempt as any).findOne({ ownerId: req.ownerId, ownerType: req.ownerType }).sort({ createdAt: -1 });
     if (!attempt) return res.json({ hasAttempt: false });
     return res.json({
       hasAttempt: true, attemptId: attempt.id, docId: attempt.docId, branch: attempt.branch,
@@ -241,7 +241,7 @@ router.get('/suggestions', async (req: IdentifiedRequest, res: Response) => {
       { $match: { ownerId: req.ownerId, ownerType: req.ownerType } }, { $unwind: '$questions' },
       { $match: { 'questions.isCorrect': false } }, { $group: { _id: '$questions.topic', count: { $sum: 1 } } },
     ]);
-    const materials = await Material.find({ ownerKey: ownerKey(req) }, 'topics');
+    const materials = await (Material as any).find({ ownerKey: ownerKey(req) }, 'topics');
     const pdfTopics = new Set(materials.flatMap((m: any) => m.topics || []).filter(Boolean));
     const personal = new Map(personalAgg.map((a: any) => [a._id, a.count]));
     const topics = new Set([...personal.keys(), ...pdfTopics].filter(Boolean));
