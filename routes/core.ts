@@ -16,13 +16,13 @@ async function parsePdfBuffer(buffer: Buffer): Promise<string> {
     const PDFParseClass = (pdfParseModule as any).PDFParse || (pdfParseModule as any).default?.PDFParse;
     if (typeof PDFParseClass === 'function') {
       const parser = new PDFParseClass({ data: buffer });
-      const res = await parser.getText();
-      return res?.text || '';
+      const result = await parser.getText();
+      return result?.text || '';
     }
     const parseFn = (pdfParseModule as any).default || pdfParseModule;
     if (typeof parseFn === 'function') {
-      const res = await parseFn(buffer);
-      return res?.text || '';
+      const result = await parseFn(buffer);
+      return result?.text || '';
     }
   } catch (err) {
     console.error('PDF parsing error:', err);
@@ -30,7 +30,6 @@ async function parsePdfBuffer(buffer: Buffer): Promise<string> {
   return buffer.toString('utf-8');
 }
 
-// Every route below requires either a logged-in user or a guest session.
 router.use(identifyOwner);
 
 async function getFixedBranch(req: IdentifiedRequest): Promise<string | undefined> {
@@ -50,46 +49,37 @@ async function setFixedBranchIfEmpty(req: IdentifiedRequest, branch: string) {
       await user.save();
     }
   } else {
-    const existing = await Guest.findOne({ guestId: req.ownerId });
-    if (existing && !existing.branch) {
-      existing.branch = branch;
-      existing.lastActiveAt = new Date();
-      await existing.save();
-    } else if (!existing) {
+    const guest = await Guest.findOne({ guestId: req.ownerId });
+    if (guest && !guest.branch) {
+      guest.branch = branch;
+      guest.lastActiveAt = new Date();
+      await guest.save();
+    } else if (!guest) {
       await Guest.create({ guestId: req.ownerId, branch, lastActiveAt: new Date() });
     }
   }
 }
 
-/**
- * PAGE 2 — Upload PDF.
- * Student only uploads. Behind the scenes: extract text, infer subject
- * always, infer branch only if this owner doesn't already have one fixed,
- * persist the document scoped to this owner, and generate exam questions.
- */
+function ownerKey(req: IdentifiedRequest) {
+  return `${req.ownerType}:${req.ownerId}`;
+}
+
 router.post('/upload-and-analyze', upload.single('file'), async (req: IdentifiedRequest, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No PDF provided' });
-
     const { originalname, buffer } = req.file;
     const extractedText = await parsePdfBuffer(buffer);
-    if (!extractedText.trim()) {
-      return res.status(400).json({ error: 'Could not read any text from this PDF' });
-    }
+    if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
 
     const existingBranch = await getFixedBranch(req);
-
     const analysis = await generateJson<{ branch: string; subject: string; topics: string[] }>(
-      `You are classifying a student's study material.
-${existingBranch ? `This student's branch/category is already fixed as "${existingBranch}". Keep branch exactly as "${existingBranch}" unless the text is clearly from a completely unrelated field (in which case still return your best-guess branch, but this is unusual).` : `Infer the student's branch/category (e.g. "Civil Engineering", "Computer Science", "Medicine") from the material below.`}
-Also infer the specific subject of THIS document (e.g. "Soil Mechanics", "Data Structures").
-List 3-6 short topic tags covered in the material.
-Respond ONLY as JSON: {"branch": string, "subject": string, "topics": string[]}
+      `Classify this study material. ${existingBranch ? `The student's branch is already fixed as "${existingBranch}". Return that branch.` : 'Infer the branch/category.'}
+Infer the specific subject and 3-6 short topic tags.
+Return ONLY JSON: {"branch":string,"subject":string,"topics":string[]}
 
 MATERIAL:
 ${extractedText.slice(0, 6000)}`
     );
-
     const branch = existingBranch || analysis.branch;
     await setFixedBranchIfEmpty(req, branch);
 
@@ -97,7 +87,7 @@ ${extractedText.slice(0, 6000)}`
     await Material.create({
       docId,
       userId: req.ownerType === 'user' ? req.ownerId : undefined,
-      ownerKey: `${req.ownerType}:${req.ownerId}`,
+      ownerKey: ownerKey(req),
       title: originalname,
       extractedText,
       fileType: 'pdf',
@@ -107,67 +97,73 @@ ${extractedText.slice(0, 6000)}`
     } as any);
 
     const questions = await generateJson<any[]>(
-      `Create 10 multiple-choice exam questions from this material on the subject "${analysis.subject}".
-Each item: {"question": string, "options": string[4], "correctAnswer": string (must match one option exactly), "topic": string (short topic tag)}.
-Respond ONLY as a JSON array of 10 items, no other text.
-
+      `Create 10 multiple-choice questions ONLY from this material. Each item must be {"question":string,"options":string[4],"correctAnswer":string,"topic":string}, and correctAnswer must exactly match one option. Return ONLY a JSON array.
+SUBJECT: ${analysis.subject}
 MATERIAL:
 ${extractedText.slice(0, 6000)}`
     );
 
-    return res.json({
-      success: true,
-      docId,
-      branch,
-      subject: analysis.subject,
-      topics: analysis.topics,
-      questions,
-    });
+    return res.json({ success: true, docId, branch, subject: analysis.subject, topics: analysis.topics, questions });
   } catch (err: any) {
     console.error('upload-and-analyze error:', err);
     return res.status(500).json({ error: err.message || 'Failed to analyze PDF' });
   }
 });
 
-/**
- * PAGE 2 — submit the finished exam session.
- * No answers are ever sent back during the exam itself; only here, after
- * submission, do we score it and store the attempt for Page 3.
- */
-router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
+router.post('/material/action', async (req: IdentifiedRequest, res: Response) => {
   try {
-    const { docId, branch, subject, questions, source, parentAttemptId } = req.body as {
-      docId: string;
-      branch: string;
-      subject: string;
-      source?: 'exam' | 'reattempt';
-      parentAttemptId?: string;
-      questions: { question: string; options?: string[]; correctAnswer: string; userAnswer?: string; topic?: string }[];
-    };
+    const { docId, action } = req.body as { docId?: string; action?: 'notes' | 'repeated' | 'generate' };
+    if (!docId || !['notes', 'repeated', 'generate'].includes(action || '')) {
+      return res.status(400).json({ error: 'docId and a valid action are required' });
+    }
+    const material = await Material.findOne({ docId, ownerKey: ownerKey(req) });
+    if (!material) return res.status(404).json({ error: 'Study material not found' });
+    const text = String((material as any).extractedText || '').slice(0, 18000);
 
-    if (!Array.isArray(questions) || questions.length === 0) {
-      return res.status(400).json({ error: 'No questions submitted' });
+    if (action === 'notes') {
+      const notes = await generateJson<any>(
+        `Create useful study notes from the uploaded material. Do not invent facts. Return ONLY JSON with keys title, summary, keyConcepts, definitions, formulas, keyPoints. Use arrays for keyConcepts, definitions, formulas, keyPoints.
+MATERIAL:
+${text}`
+      );
+      return res.json({ success: true, action, notes });
     }
 
-    const scored = questions.map((q) => ({
+    if (action === 'repeated') {
+      const repeated = await generateJson<any>(
+        `Analyze this uploaded material for repetition/emphasis INSIDE THE MATERIAL ONLY. Do not claim that a question appeared in past exams unless the material itself explicitly provides that evidence. Return ONLY JSON with keys scope, disclaimer, repeatedQuestions, repeatedConcepts, emphasizedTopics. repeatedQuestions must contain only questions/prompts that are actually repeated or strongly emphasized in the supplied material.
+MATERIAL:
+${text}`
+      );
+      return res.json({ success: true, action, repeated });
+    }
+
+    const questions = await generateJson<any[]>(
+      `Generate exactly 10 multiple-choice questions from ONLY this uploaded material. Return ONLY JSON array. Each item: {"question":string,"options":string[4],"correctAnswer":string,"topic":string}; correctAnswer must exactly equal one option. Avoid duplicate questions.
+MATERIAL:
+${text}`
+    );
+    return res.json({ success: true, action, questions });
+  } catch (err: any) {
+    console.error('material/action error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to process study material' });
+  }
+});
+
+router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
+  try {
+    const { docId, branch, subject, questions, source, parentAttemptId } = req.body as any;
+    if (!Array.isArray(questions) || !questions.length) return res.status(400).json({ error: 'No questions submitted' });
+    const scored = questions.map((q: any) => ({
       ...q,
       isCorrect: (q.userAnswer || '').trim().toLowerCase() === (q.correctAnswer || '').trim().toLowerCase(),
     }));
-    const score = scored.filter((q) => q.isCorrect).length;
-
+    const score = scored.filter((q: any) => q.isCorrect).length;
     const attempt = await Attempt.create({
-      ownerId: req.ownerId,
-      ownerType: req.ownerType,
-      docId,
-      branch,
-      subject,
-      questions: scored,
-      score,
-      total: scored.length,
-      source: source === 'reattempt' ? 'reattempt' : 'exam',
-      parentAttemptId,
+      ownerId: req.ownerId, ownerType: req.ownerType, docId, branch, subject,
+      questions: scored, score, total: scored.length,
+      source: source === 'reattempt' ? 'reattempt' : 'exam', parentAttemptId,
     });
-
     return res.json({ success: true, attemptId: attempt.id, score, total: scored.length });
   } catch (err: any) {
     console.error('exam/submit error:', err);
@@ -175,44 +171,43 @@ router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
   }
 });
 
-/**
- * PAGE 3 — Performance Review data: the attempt, wrong questions ready for
- * reattempt, and (if not generated yet) notes-form explanations for each
- * wrong answer.
- */
+router.get('/attempts/latest', async (req: IdentifiedRequest, res: Response) => {
+  try {
+    const attempt = await Attempt.findOne({ ownerId: req.ownerId, ownerType: req.ownerType }).sort({ createdAt: -1 });
+    if (!attempt) return res.json({ hasAttempt: false });
+    return res.json({
+      hasAttempt: true, attemptId: attempt.id, docId: attempt.docId, branch: attempt.branch,
+      subject: attempt.subject, score: attempt.score, total: attempt.total,
+      wrongCount: attempt.questions.filter((q: any) => !q.isCorrect).length,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to load latest performance' });
+  }
+});
+
 router.get('/attempts/:id', async (req: IdentifiedRequest, res: Response) => {
   try {
-    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
+    // @ts-expect-error mongoose 9 query-overload bug
     const attempt = await Attempt.findById(req.params.id);
-    if (!attempt || attempt.ownerId !== req.ownerId) {
+    if (!attempt || attempt.ownerId !== req.ownerId || attempt.ownerType !== req.ownerType) {
       return res.status(404).json({ error: 'Attempt not found' });
     }
-
     const wrong = attempt.questions.filter((q: any) => !q.isCorrect);
-    const missingNotes = wrong.filter((q: any) => !q.note);
-
-    if (missingNotes.length > 0) {
+    const missing = wrong.filter((q: any) => !q.note);
+    if (missing.length) {
       const notes = await generateJson<{ question: string; note: string }[]>(
-        `For each wrong answer below, write a short notes-form explanation (2-4 sentences, like a study note, not just "the answer is X") of why the correct answer is right.
-Respond ONLY as a JSON array: [{"question": string, "note": string}, ...]
-
-WRONG ANSWERS:
-${missingNotes.map((q: any) => `Q: ${q.question}\nCorrect answer: ${q.correctAnswer}\nStudent answered: ${q.userAnswer || '(no answer)'}`).join('\n\n')}`
+        `For each wrong answer, write a short study-note explanation. Return ONLY JSON array of {"question":string,"note":string}.
+${missing.map((q: any) => `Q: ${q.question}\nCorrect: ${q.correctAnswer}\nStudent: ${q.userAnswer || '(none)'}`).join('\n\n')}`
       );
       for (const n of notes) {
-        const q = attempt.questions.find((aq: any) => aq.question === n.question);
+        const q = attempt.questions.find((x: any) => x.question === n.question);
         if (q) (q as any).note = n.note;
       }
       await attempt.save();
     }
-
     return res.json({
-      attemptId: attempt.id,
-      docId: attempt.docId,
-      branch: attempt.branch,
-      subject: attempt.subject,
-      score: attempt.score,
-      total: attempt.total,
+      attemptId: attempt.id, docId: attempt.docId, branch: attempt.branch, subject: attempt.subject,
+      score: attempt.score, total: attempt.total,
       wrongQuestions: attempt.questions.filter((q: any) => !q.isCorrect),
     });
   } catch (err: any) {
@@ -221,23 +216,16 @@ ${missingNotes.map((q: any) => `Q: ${q.question}\nCorrect answer: ${q.correctAns
   }
 });
 
-/**
- * PAGE 3 — Reattempt: re-serve the wrong questions from a prior attempt as
- * a fresh mini exam (still no answers shown during it).
- */
 router.post('/attempts/:id/reattempt', async (req: IdentifiedRequest, res: Response) => {
   try {
-    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
+    // @ts-expect-error mongoose 9 query-overload bug
     const attempt = await Attempt.findById(req.params.id);
-    if (!attempt || attempt.ownerId !== req.ownerId) {
+    if (!attempt || attempt.ownerId !== req.ownerId || attempt.ownerType !== req.ownerType) {
       return res.status(404).json({ error: 'Attempt not found' });
     }
     const wrong = attempt.questions.filter((q: any) => !q.isCorrect);
     return res.json({
-      docId: attempt.docId,
-      branch: attempt.branch,
-      subject: attempt.subject,
-      parentAttemptId: attempt.id,
+      docId: attempt.docId, branch: attempt.branch, subject: attempt.subject, parentAttemptId: attempt.id,
       questions: wrong.map((q: any) => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, topic: q.topic })),
     });
   } catch (err: any) {
@@ -245,134 +233,67 @@ router.post('/attempts/:id/reattempt', async (req: IdentifiedRequest, res: Respo
   }
 });
 
-/**
- * Suggestions side panel — blended ranked list: this owner's own weak
- * topics, plus branch-wide common weak topics across other users/guests
- * in the SAME branch. Only aggregated topic counts cross the owner
- * boundary here, never another person's individual records.
- */
 router.get('/suggestions', async (req: IdentifiedRequest, res: Response) => {
   try {
     const branch = await getFixedBranch(req);
     if (!branch) return res.json({ suggestions: [] });
-
     const personalAgg = await Attempt.aggregate([
-      { $match: { ownerId: req.ownerId } },
-      { $unwind: '$questions' },
-      { $match: { 'questions.isCorrect': false } },
-      { $group: { _id: '$questions.topic', count: { $sum: 1 } } },
+      { $match: { ownerId: req.ownerId, ownerType: req.ownerType } }, { $unwind: '$questions' },
+      { $match: { 'questions.isCorrect': false } }, { $group: { _id: '$questions.topic', count: { $sum: 1 } } },
     ]);
-
-    const branchAgg = await Attempt.aggregate([
-      { $match: { branch } },
-      { $unwind: '$questions' },
-      { $match: { 'questions.isCorrect': false } },
-      { $group: { _id: '$questions.topic', count: { $sum: 1 } } },
-    ]);
-
-    const ownerKey = `${req.ownerType}:${req.ownerId}`;
-    const materials = await Material.find({ ownerKey }, 'topics');
+    const materials = await Material.find({ ownerKey: ownerKey(req) }, 'topics');
     const pdfTopics = new Set(materials.flatMap((m: any) => m.topics || []).filter(Boolean));
-
-    const personalMap = new Map(personalAgg.map((a: any) => [a._id, a.count]));
-    const branchMap = new Map(branchAgg.map((a: any) => [a._id, a.count]));
-    const allTopics = new Set([...personalMap.keys(), ...branchMap.keys(), ...pdfTopics].filter(Boolean));
-
-    // Blended score: personal weakness weighted highest, then branch-wide
-    // trend, then a small bump for topics pulled straight from an uploaded
-    // PDF (so a brand-new student with no exam history yet still gets
-    // real suggestions instead of an empty list).
-    const ranked = Array.from(allTopics)
-      .map((topic) => {
-        const personal = personalMap.get(topic) || 0;
-        const branchWide = branchMap.get(topic) || 0;
-        const fromPdf = pdfTopics.has(topic) ? 1 : 0;
-        return { topic, score: personal * 3 + branchWide + fromPdf, personal, branchWide };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
-
+    const personal = new Map(personalAgg.map((a: any) => [a._id, a.count]));
+    const topics = new Set([...personal.keys(), ...pdfTopics].filter(Boolean));
+    const ranked = Array.from(topics).map((topic) => ({
+      topic, personal: personal.get(topic) || 0, branchWide: 0,
+    })).sort((a, b) => b.personal - a.personal).slice(0, 10);
     return res.json({ branch, suggestions: ranked });
   } catch (err: any) {
-    console.error('suggestions error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to load suggestions' });
+    return res.status(500).json({ error: err.message || 'Failed to load weak topics' });
   }
 });
 
-/**
- * When a guest signs up / logs in for the first time after using the app
- * as a guest, fold their guest data into the new account so nothing is lost.
- */
 router.post('/guest/merge', async (req: IdentifiedRequest, res: Response) => {
   try {
     if (req.ownerType !== 'user') return res.status(400).json({ error: 'Must be logged in to merge' });
     const { guestId } = req.body as { guestId: string };
     if (!guestId) return res.status(400).json({ error: 'guestId required' });
-
     const guest = await Guest.findOne({ guestId });
     if (!guest) return res.json({ success: true, merged: 0 });
-
     const user = await User.findById(req.ownerId);
-    if (user && !user.branch && guest.branch) {
-      user.branch = guest.branch;
-      await user.save();
-    }
-
-    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
-    const attemptsUpdated = await Attempt.updateMany(
-      { ownerId: guestId, ownerType: 'guest' },
-      { $set: { ownerId: req.ownerId, ownerType: 'user' } }
-    );
+    if (user && !user.branch && guest.branch) { user.branch = guest.branch; await user.save(); }
+    // @ts-expect-error mongoose 9 query-overload bug
+    const attemptsUpdated = await Attempt.updateMany({ ownerId: guestId, ownerType: 'guest' }, { $set: { ownerId: req.ownerId, ownerType: 'user' } });
     await Material.updateMany({ ownerKey: `guest:${guestId}` }, { $set: { userId: req.ownerId, ownerKey: `user:${req.ownerId}` } });
-
     guest.mergedIntoUserId = req.ownerId as any;
     await guest.save();
-
     return res.json({ success: true, merged: attemptsUpdated.modifiedCount });
   } catch (err: any) {
-    console.error('guest/merge error:', err);
     return res.status(500).json({ error: err.message || 'Failed to merge guest data' });
   }
 });
 
-export default router;
 router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) => {
   try {
-    const { topic } = req.body;
-    if (!topic || typeof topic !== 'string') return res.status(400).json({ error: 'No topic provided' });
-
+    const { topic } = req.body as { topic?: string };
+    if (!topic) return res.status(400).json({ error: 'No topic provided' });
     const branch = await getFixedBranch(req);
     const docId = 'topic_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-
     const prevAttempt = await Attempt.findOne({
-    // @ts-expect-error mongoose 9 query-overload bug, documented upstream — not app logic
-      ownerId: req.ownerId,
-      ownerType: req.ownerType,
-      subject: topic,
-      docId: { $regex: '^topic_' },
+      ownerId: req.ownerId, ownerType: req.ownerType, subject: topic, docId: { $regex: '^topic_' },
     }).sort({ createdAt: -1 });
-
-    const wrongFromLast = (prevAttempt?.questions || [])
-      .filter((q: any) => !q.isCorrect)
-      .slice(0, 5)
+    const wrongFromLast = (prevAttempt?.questions || []).filter((q: any) => !q.isCorrect).slice(0, 5)
       .map((q: any) => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, topic: q.topic }));
-
     const newCount = 10 - wrongFromLast.length;
-    const avoidList = wrongFromLast.length
-      ? `\nDo not repeat these questions — ask about different aspects of the topic:\n${wrongFromLast.map((q: any) => `- ${q.question}`).join('\n')}`
-      : '';
-
-    const newQuestions = await generateJson<any[]>(
-      `Create ${newCount} multiple-choice exam questions on the topic "${topic}"${branch ? ` within the field of ${branch}` : ''}.${avoidList}
-Each item: {"question": string, "options": string[4], "correctAnswer": string (must match one option exactly), "topic": string (short topic tag)}.
-Respond ONLY as a JSON array of ${newCount} items, no other text.`
+    const avoid = wrongFromLast.length ? ` Do not repeat these: ${wrongFromLast.map((q: any) => q.question).join(' | ')}` : '';
+    const fresh = await generateJson<any[]>(
+      `Create ${newCount} MCQs on "${topic}" in ${branch || 'the student's field'}.${avoid} Return ONLY JSON array with question, options[4], correctAnswer and topic.`
     );
-
-    const questions = [...wrongFromLast, ...newQuestions];
-
-    return res.json({ success: true, docId, branch: branch || null, subject: topic, questions });
+    return res.json({ success: true, docId, branch: branch || null, subject: topic, questions: [...wrongFromLast, ...fresh] });
   } catch (err: any) {
-    console.error('exam/from-topic error:', err);
     return res.status(500).json({ error: err.message || 'Failed to generate practice set' });
   }
 });
+
+export default router;
