@@ -110,13 +110,13 @@ router.post('/upload-and-analyze', (req: IdentifiedRequest, res: Response, next)
       });
     }
 
-    const cleanText = extractedText.replace(/\s+/g, ' ').trim();
+    const cleanText = extractedText.replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
     docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     await Material.create({ docId, userId: req.ownerType === 'user' ? req.ownerId : undefined, ownerKey: ownerKey(req), title: originalname, extractedText, fileType: 'pdf', wordCount: cleanText.split(/\s+/).length, summary: 'Uploaded study material', topics: [] } as any);
 
     const existingBranch = await getFixedBranch(req);
     const branch = existingBranch || requestedBranch || 'General';
-    const analysis = analyzeLocalText(cleanText, 30);
+    const analysis = analyzeLocalText(cleanText, 20);
     const subject = analysis.subject;
     const topics = analysis.topics.slice(0, 6);
     const questions = analysis.questions;
@@ -146,7 +146,7 @@ router.post('/material/action', async (req: IdentifiedRequest, res: Response) =>
     const text = String((material as any).extractedText || '');
     if (action === 'notes') return res.json({ success: true, action, notes: { title: material.title, keyPoints: generateLocalNotes(text), topics: analyzeLocalText(text, 0).topics } });
     if (action === 'repeated') return res.json({ success: true, action, repeated: { scope: 'uploaded material only', disclaimer: 'These are repeated or frequent terms detected inside your uploaded material; they are not claims about past exams.', repeatedQuestions: [], repeatedConcepts: findLocalRepeated(text), emphasizedTopics: analyzeLocalText(text, 0).topics } });
-    const requestedCount = Math.max(1, Math.min(Number(count) || 30, 30));
+    const requestedCount = Math.max(1, Math.min(Number(count) || 20, 20));
     return res.json({ success: true, action, questions: generateLocalQuestions(text, requestedCount) });
   } catch (err: any) {
     console.error('material/action error:', err);
@@ -356,7 +356,7 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
       : sourceSentences;
 
     const pool = relevant.length >= 3 ? relevant.join(' ') : text;
-    const questions = generateLocalQuestions(pool, 30);
+    const questions = generateLocalQuestions(pool, 20);
 
     if (!questions.length) {
       return res.status(422).json({
