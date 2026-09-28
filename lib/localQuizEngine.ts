@@ -131,7 +131,7 @@ function makeDefinitionQuestion(sentence: string, answerPool: string[], i: numbe
   const options = shuffled([answer, ...distractors], hash(sentence) + 17);
   return {
     id: 'local-def-' + i,
-    question: `According to the uploaded material, what is the correct description of "${subject}"?`,
+    question: `What is the correct description of "${subject}"?`,
     options,
     correctAnswer: answer,
     topic: topicFrom(sentence),
@@ -157,7 +157,7 @@ function makeNumericQuestion(sentence: string, numberPool: string[], i: number):
   const options = shuffled([target, ...alternatives], hash(sentence) + 41);
   return {
     id: 'local-num-' + i,
-    question: `According to the uploaded material, which value correctly completes this statement? "${shorten(redacted, 210)}"`,
+    question: `Which value correctly completes this statement? "${shorten(redacted, 210)}"`,
     options,
     correctAnswer: target,
     topic: topicFrom(sentence),
@@ -169,7 +169,7 @@ function makeTrueFalseQuestion(sentence: string, i: number): LocalQuestion {
   const statement = shorten(sentence, 260);
   return {
     id: 'local-tf-' + i,
-    question: `According to the uploaded material, is this statement true or false? "${statement}"`,
+    question: `Is this statement true or false? "${statement}"`,
     options: ['True', 'False'],
     correctAnswer: 'True',
     topic: topicFrom(sentence),
@@ -220,7 +220,7 @@ function makeCompletionQuestion(sentence: string, pool: string[], i: number): Lo
   const answer = hidden;
   return {
     id: 'local-complete-' + i,
-    question: `According to the uploaded material, complete the statement: "${shorten(stem, 260)}"`,
+    question: `Complete the statement: "${shorten(stem, 260)}"`,
     options: shuffled([answer, ...distractors], hash(sentence) + 103),
     correctAnswer: answer,
     topic: topicFrom(sentence),
