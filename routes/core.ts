@@ -106,7 +106,10 @@ ${extractedText.slice(0, 6000)}`
     return res.json({ success: true, docId, branch, subject: analysis.subject, topics: analysis.topics, questions });
   } catch (err: any) {
     console.error('upload-and-analyze error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to analyze PDF' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to analyze PDF'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to analyze PDF')
+    });
   }
 });
 
@@ -146,7 +149,10 @@ ${text}`
     return res.json({ success: true, action, questions });
   } catch (err: any) {
     console.error('material/action error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to process study material' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to process study material'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to process study material')
+    });
   }
 });
 
@@ -167,7 +173,10 @@ router.post('/exam/submit', async (req: IdentifiedRequest, res: Response) => {
     return res.json({ success: true, attemptId: attempt.id, score, total: scored.length });
   } catch (err: any) {
     console.error('exam/submit error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to submit exam' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to submit exam'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to submit exam')
+    });
   }
 });
 
@@ -181,7 +190,10 @@ router.get('/attempts/latest', async (req: IdentifiedRequest, res: Response) => 
       wrongCount: attempt.questions.filter((q: any) => !q.isCorrect).length,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to load latest performance' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to load latest performance'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to load latest performance')
+    });
   }
 });
 
@@ -212,7 +224,10 @@ ${missing.map((q: any) => `Q: ${q.question}\nCorrect: ${q.correctAnswer}\nStuden
     });
   } catch (err: any) {
     console.error('attempts/:id error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to load performance review' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to load performance review'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to load performance review')
+    });
   }
 });
 
@@ -229,7 +244,10 @@ router.post('/attempts/:id/reattempt', async (req: IdentifiedRequest, res: Respo
       questions: wrong.map((q: any) => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, topic: q.topic })),
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to start reattempt' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to start reattempt'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to start reattempt')
+    });
   }
 });
 
@@ -250,7 +268,10 @@ router.get('/suggestions', async (req: IdentifiedRequest, res: Response) => {
     })).sort((a, b) => b.personal - a.personal).slice(0, 10);
     return res.json({ branch, suggestions: ranked });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to load weak topics' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to load weak topics'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to load weak topics')
+    });
   }
 });
 
@@ -270,7 +291,10 @@ router.post('/guest/merge', async (req: IdentifiedRequest, res: Response) => {
     await guest.save();
     return res.json({ success: true, merged: attemptsUpdated.modifiedCount });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to merge guest data' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to merge guest data'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to merge guest data')
+    });
   }
 });
 
@@ -292,7 +316,10 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
     );
     return res.json({ success: true, docId, branch: branch || null, subject: topic, questions: [...wrongFromLast, ...fresh] });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to generate practice set' });
+    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
+      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to generate practice set'),
+      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to generate practice set')
+    });
   }
 });
 
