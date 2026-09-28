@@ -116,7 +116,7 @@ router.post('/upload-and-analyze', (req: IdentifiedRequest, res: Response, next)
 
     const existingBranch = await getFixedBranch(req);
     const branch = existingBranch || requestedBranch || 'General';
-    const analysis = analyzeLocalText(cleanText, 10);
+    const analysis = analyzeLocalText(cleanText, 30);
     const subject = analysis.subject;
     const topics = analysis.topics.slice(0, 6);
     const questions = analysis.questions;
@@ -139,14 +139,15 @@ router.post('/upload-and-analyze', (req: IdentifiedRequest, res: Response, next)
 
 router.post('/material/action', async (req: IdentifiedRequest, res: Response) => {
   try {
-    const { docId, action } = req.body as { docId?: string; action?: 'notes' | 'repeated' | 'generate' };
+    const { docId, action, count } = req.body as { docId?: string; action?: 'notes' | 'repeated' | 'generate'; count?: number };
     if (!docId || !['notes', 'repeated', 'generate'].includes(action || '')) return res.status(400).json({ error: 'docId and a valid action are required' });
     const material = await Material.findOne({ docId, ownerKey: ownerKey(req) });
     if (!material) return res.status(404).json({ error: 'Study material not found' });
     const text = String((material as any).extractedText || '');
     if (action === 'notes') return res.json({ success: true, action, notes: { title: material.title, keyPoints: generateLocalNotes(text), topics: analyzeLocalText(text, 0).topics } });
     if (action === 'repeated') return res.json({ success: true, action, repeated: { scope: 'uploaded material only', disclaimer: 'These are repeated or frequent terms detected inside your uploaded material; they are not claims about past exams.', repeatedQuestions: [], repeatedConcepts: findLocalRepeated(text), emphasizedTopics: analyzeLocalText(text, 0).topics } });
-    return res.json({ success: true, action, questions: generateLocalQuestions(text, 10) });
+    const requestedCount = Math.max(1, Math.min(Number(count) || 30, 30));
+    return res.json({ success: true, action, questions: generateLocalQuestions(text, requestedCount) });
   } catch (err: any) {
     console.error('material/action error:', err);
     return res.status(500).json({ error: 'LOCAL_ACTION_FAILED', message: 'Could not process this study material locally.' });
@@ -355,7 +356,7 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
       : sourceSentences;
 
     const pool = relevant.length >= 3 ? relevant.join(' ') : text;
-    const questions = generateLocalQuestions(pool, 10);
+    const questions = generateLocalQuestions(pool, 30);
 
     if (!questions.length) {
       return res.status(422).json({
