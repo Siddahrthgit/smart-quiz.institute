@@ -16,7 +16,7 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const isPdf = file.mimetype === 'application/pdf' || file.mimetype === '' || file.originalname.toLowerCase().endsWith('.pdf');
-    cb(isPdf ? null : new Error('ONLY_PDF_ALLOWED'), isPdf);
+    if (isPdf) cb(null, true); else cb(new Error('ONLY_PDF_ALLOWED'), false);
   },
 });
 
