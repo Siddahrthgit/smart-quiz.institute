@@ -41,7 +41,11 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
       const fd=new FormData(); fd.append('file',file); fd.append('branch',selectedBranch);
       const res=await fetch('/api/core/upload-and-analyze',{method:'POST',headers:ownerHeaders(),body:fd});
       const data=await res.json(); if(!res.ok) throw new Error(data.message||data.error||'Failed to analyze PDF');
-      setDocId(data.docId);setBranch(data.branch);setSubject(data.subject);setQuestions(data.questions||[]);setAnswers({});setPhase('menu');
+      const builtQuestions = Array.isArray(data.questions) ? data.questions : [];
+      if (!builtQuestions.length) {
+        throw new Error('PDF text was extracted, but no usable questions could be built. Try a text-based PDF with readable study content.');
+      }
+      setDocId(data.docId);setBranch(data.branch);setSubject(data.subject);setQuestions(builtQuestions);setAnswers({});setPhase('menu');
     }catch(e:any){setError(e.message||'Something went wrong');setPhase('upload');}
   }
   async function submit(){
@@ -96,7 +100,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     {error&&<p className="text-red-600 text-sm mt-4">{error}</p>}
     {notes&&<Result title="Study Notes"><pre className="whitespace-pre-wrap text-sm">{JSON.stringify(notes,null,2)}</pre></Result>}
     {repeated&&<Result title="Most Repeated / Emphasized in This PDF"><p className="text-xs text-slate-500 mb-2">{repeated.disclaimer}</p><pre className="whitespace-pre-wrap text-sm">{JSON.stringify(repeated,null,2)}</pre></Result>}
-    {generated&&<Result title="Generated Questions"><div className="space-y-3">{generated.map((q,i)=><div key={i} className="border-t pt-3"><b>Q{i+1}. {q.question}</b><div className="text-sm mt-1">{q.options.join(' • ')}</div></div>)}<button className="mt-4 rounded-lg bg-indigo-600 text-white px-4 py-2" onClick={()=>{setQuestions(generated);setAnswers({});setPhase('exam')}}>Start Exam</button></div></Result>}
+    {generated&&<Result title="Generated Questions"><div className="space-y-3">{generated.length ? generated.map((q,i)=><div key={i} className="border-t pt-3"><b>Q{i+1}. {q.question}</b><div className="text-sm mt-1">{q.options.join(' • ')}</div></div>) : <p className="text-sm text-slate-500">No questions could be generated from this material.</p>}<button className="mt-4 rounded-lg bg-indigo-600 text-white px-4 py-2" onClick={()=>{setQuestions(generated);setAnswers({});setPhase('exam')}}>Start Exam</button></div></Result>}
     <div className="mt-8"><SuggestionsList suggestions={suggestions} onRetry={retryTopic}/><QuestionLibrary branch={branch} onPractice={retryTopic}/></div>
   </div></div>;
 
