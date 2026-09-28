@@ -280,7 +280,7 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
     if (!topic) return res.status(400).json({ error: 'No topic provided' });
     const branch = await getFixedBranch(req);
     const docId = 'topic_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    const prevAttempt = await Attempt.findOne({
+    const prevAttempt = await (Attempt as any).findOne({
       ownerId: req.ownerId, ownerType: req.ownerType, subject: topic, docId: { $regex: '^topic_' },
     }).sort({ createdAt: -1 });
     const wrongFromLast = (prevAttempt?.questions || []).filter((q: any) => !q.isCorrect).slice(0, 5)
