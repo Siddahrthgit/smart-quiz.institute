@@ -365,6 +365,29 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   });
 
 
+  // Last-resort source-faithful generator: some technical PDFs contain
+  // useful statements that are not phrased as normal sentences.
+  if (questions.length < target && ss.length >= 4) {
+    ss.forEach((s, idx) => {
+      if (questions.length >= target) return;
+      const statement = shorten(s, 220);
+      const distractors = shuffled(
+        uniqueStrings(ss.filter(x => x !== s).map(x => shorten(x, 220)))
+          .filter(x => x.length >= 20),
+        hash(s) + 211
+      ).slice(0, 3);
+      if (distractors.length < 3) return;
+      add({
+        id: 'local-source-' + (idx + 1),
+        question: 'Which statement is supported by the uploaded material?',
+        options: shuffled([statement, ...distractors], hash(s) + 223),
+        correctAnswer: statement,
+        topic: topicFrom(s),
+        source: 'Uploaded material'
+      });
+    });
+  }
+
   return {
     subject: topics.slice(0, 2).join(' & ') || 'Uploaded Study Material',
     topics,
