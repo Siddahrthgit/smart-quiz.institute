@@ -65,25 +65,17 @@ function ownerKey(req: IdentifiedRequest) {
 }
 
 router.post('/upload-and-analyze', upload.single('file'), async (req: IdentifiedRequest, res: Response) => {
+  let docId = '';
   try {
     if (!req.file) return res.status(400).json({ error: 'No PDF provided' });
     const { originalname, buffer } = req.file;
     const extractedText = await parsePdfBuffer(buffer);
     if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
 
-    const existingBranch = await getFixedBranch(req);
-    const analysis = await generateJson<{ branch: string; subject: string; topics: string[] }>(
-      `Classify this study material. ${existingBranch ? `The student's branch is already fixed as "${existingBranch}". Return that branch.` : 'Infer the branch/category.'}
-Infer the specific subject and 3-6 short topic tags.
-Return ONLY JSON: {"branch":string,"subject":string,"topics":string[]}
+    const cleanText = extractedText.replace(/\s+/g, ' ').trim();
+    const materialText = cleanText.slice(0, 9000);
+    docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
-MATERIAL:
-${extractedText.slice(0, 6000)}`
-    );
-    const branch = existingBranch || analysis.branch;
-    await setFixedBranchIfEmpty(req, branch);
-
-    const docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     await Material.create({
       docId,
       userId: req.ownerType === 'user' ? req.ownerId : undefined,
@@ -91,24 +83,80 @@ ${extractedText.slice(0, 6000)}`
       title: originalname,
       extractedText,
       fileType: 'pdf',
-      wordCount: extractedText.trim().split(/\s+/).length,
-      summary: analysis.topics?.join(', '),
-      topics: analysis.topics,
+      wordCount: cleanText.split(/\s+/).length,
+      summary: 'Uploaded study material',
+      topics: [],
     } as any);
 
-    const questions = await generateJson<any[]>(
-      `Create 10 multiple-choice questions ONLY from this material. Each item must be {"question":string,"options":string[4],"correctAnswer":string,"topic":string}, and correctAnswer must exactly match one option. Return ONLY a JSON array.
-SUBJECT: ${analysis.subject}
+    const existingBranch = await getFixedBranch(req);
+    const analysis = await generateJson<{
+      branch: string;
+      subject: string;
+      topics: string[];
+      questions: Array<{ question: string; options: string[]; correctAnswer: string; topic: string }>;
+    }>(
+      `Analyze this study material and create the first exam in ONE response.
+${existingBranch ? `The student's branch is already fixed as "${existingBranch}". Return that branch.` : 'Infer the branch/category.'}
+Return a specific subject, 3-6 short topic tags, and exactly 10 high-quality MCQs.
+Every MCQ must have exactly 4 options and correctAnswer must exactly match one option.
+Use ONLY information supported by the material. Avoid duplicate questions.
+Return ONLY JSON:
+{"branch":string,"subject":string,"topics":string[],"questions":[{"question":string,"options":string[],"correctAnswer":string,"topic":string}]}
+
 MATERIAL:
-${extractedText.slice(0, 6000)}`
+${materialText}`
     );
 
-    return res.json({ success: true, docId, branch, subject: analysis.subject, topics: analysis.topics, questions });
+    const branch = existingBranch || analysis.branch;
+    const topics = Array.isArray(analysis.topics) ? analysis.topics.filter(Boolean).slice(0, 6) : [];
+    let questions = Array.isArray(analysis.questions) ? analysis.questions : [];
+
+    const validQuestions = (items: any[]) =>
+      items.length === 10 &&
+      items.every(q =>
+        q &&
+        typeof q.question === 'string' &&
+        Array.isArray(q.options) &&
+        q.options.length === 4 &&
+        q.options.every((o: any) => typeof o === 'string' && o.trim()) &&
+        typeof q.correctAnswer === 'string' &&
+        q.options.includes(q.correctAnswer) &&
+        typeof q.topic === 'string'
+      );
+
+    if (!validQuestions(questions)) {
+      questions = await generateJson<any[]>(
+        `Repair this exam response. Return EXACTLY 10 valid MCQs using ONLY the material.
+Each item must be {"question":string,"options":string[4],"correctAnswer":string,"topic":string}.
+correctAnswer must exactly equal one option. No duplicates. Return ONLY a JSON array.
+
+MATERIAL:
+${materialText}
+
+INVALID RESPONSE:
+${JSON.stringify(questions).slice(0, 12000)}`
+      );
+    }
+
+    if (!validQuestions(questions)) {
+      throw new Error('AI returned an invalid exam format. Please try again.');
+    }
+
+    await setFixedBranchIfEmpty(req, branch);
+    await Material.updateOne(
+      { docId, ownerKey: ownerKey(req) },
+      { $set: { summary: topics.join(', '), topics } }
+    );
+
+    return res.json({ success: true, docId, branch, subject: analysis.subject, topics, questions });
   } catch (err: any) {
     console.error('upload-and-analyze error:', err);
     return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
       error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to analyze PDF'),
-      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to analyze PDF')
+      message: err?.code === 'AI_TEMPORARILY_BUSY'
+        ? 'AI is temporarily busy. Please try again in a moment.'
+        : (err.message || 'Failed to analyze PDF'),
+      ...(docId ? { docId } : {})
     });
   }
 });
