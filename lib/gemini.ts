@@ -13,16 +13,32 @@ export function getGeminiClient(): GoogleGenAI {
   return client;
 }
 
-export const QUESTION_MODEL = 'gemini-3.6-flash';
+export const QUESTION_MODEL = 'gemini-3.8-flash';
 
 // Ask Gemini for JSON only, strip stray markdown fences, and parse safely.
-export async function generateJson<T>(prompt: string): Promise<T> {
+// Retries on transient 503 (model overloaded) with exponential backoff -
+// this is exactly the error that killed generate-from-material earlier.
+export async function generateJson<T>(prompt: string, retries = 2): Promise<T> {
   const ai = getGeminiClient();
-  const response = await ai.models.generateContent({
-    model: QUESTION_MODEL,
-    contents: prompt,
-  });
-  const raw = (response.text || '').trim();
-  const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-  return JSON.parse(cleaned) as T;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: QUESTION_MODEL,
+        contents: prompt,
+      });
+      const raw = (response.text || '').trim();
+      const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+      return JSON.parse(cleaned) as T;
+    } catch (err: any) {
+      const isOverloaded = err?.status === 503;
+      if (isOverloaded && attempt < retries) {
+        const delay = 1000 * Math.pow(2, attempt);
+        console.warn(`generateJson: Gemini overloaded, retrying in ${delay}ms (attempt ${attempt + 1}/${retries})`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error('generateJson: exhausted retries');
 }
