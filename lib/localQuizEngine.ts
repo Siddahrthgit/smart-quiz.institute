@@ -34,11 +34,22 @@ function clean(text: string) {
 }
 
 function sentences(text: string) {
-  const t = clean(text).replace(/\n+/g, ' ');
-  return t
-    .split(/(?<=[.!?])\s+|(?<=:)\s+(?=[A-Z0-9])/)
-    .map(s => s.trim().replace(/^[-•*]\s*/, ''))
-    .filter(s => s.length >= 30 && s.length <= 700);
+  const t = clean(text);
+  const raw = t.replace(/\r/g, '\n')
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map(s => s.trim().replace(/^[-•*▪◦]\s*/, ''))
+    .filter(Boolean);
+  const expanded: string[] = [];
+  for (const item of raw) {
+    if (item.length <= 700) expanded.push(item);
+    else expanded.push(...(item.match(/.{1,600}(?:\s+|$)/g) || []).map(x => x.trim()));
+  }
+  return uniqueStrings(expanded.filter(s => {
+    if (/^(?:page|slide)?\s*[-–—]?\s*\d+\s*(?:of|\/)\s*\d+$/i.test(s)) return false;
+    if (/^\d+\s+of\s+\d+\s*--?/i.test(s)) return false;
+    const alpha = (s.match(/[A-Za-z]/g) || []).length;
+    return s.length >= 30 && alpha >= 12 && s.split(/\s+/).length >= 5;
+  }));
 }
 
 function words(text: string) {
