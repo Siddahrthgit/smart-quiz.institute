@@ -142,19 +142,49 @@ function makeTrueFalseQuestion(sentence: string, i: number): LocalQuestion {
 }
 
 function makeGenericMcq(sentence: string, pool: string[], i: number): LocalQuestion | null {
-  const correct = shorten(sentence, 180);
-  const distractors = shuffled(
-    uniqueStrings(pool.filter(x => x !== sentence && x.length >= 30).map(shorten)),
-    hash(sentence) + 59
-  ).slice(0, 3);
+  const correct = shorten(sentence, 220);
+  const candidates = uniqueStrings(pool.filter(x => x !== sentence && x.length >= 25).map(x => shorten(x, 220)));
+  const distractors = shuffled(candidates, hash(sentence) + 59).slice(0, 3);
   if (distractors.length < 3) return null;
-
   const options = shuffled([correct, ...distractors], hash(sentence) + 67);
   return {
     id: 'local-fact-' + i,
-    question: 'Which statement is supported by the uploaded material?',
+    question: 'Which statement is directly supported by the uploaded material?',
     options,
     correctAnswer: correct,
+    topic: topicFrom(sentence),
+    source: 'Uploaded material'
+  };
+}
+
+function makeCompletionQuestion(sentence: string, pool: string[], i: number): LocalQuestion | null {
+  const cleaned = shorten(sentence, 240);
+  const ws = cleaned.split(/\s+/);
+  if (ws.length < 7) return null;
+
+  // Hide a meaningful middle phrase. The correct option is always the
+  // original phrase, while distractors come from other source sentences.
+  const start = Math.max(2, Math.floor(ws.length * 0.35));
+  const len = Math.max(2, Math.min(6, Math.floor(ws.length * 0.25)));
+  const hidden = ws.slice(start, start + len).join(' ');
+  if (hidden.length < 5) return null;
+
+  const stem = [...ws.slice(0, start), '_____', ...ws.slice(start + len)].join(' ');
+  const distractors = shuffled(
+    uniqueStrings(pool.filter(x => x !== sentence).map(x => {
+      const p = x.split(/\s+/);
+      return p.slice(0, Math.min(6, p.length)).join(' ');
+    })).filter(x => x.length >= 5 && x !== hidden),
+    hash(sentence) + 101
+  ).slice(0, 3);
+
+  if (distractors.length < 3) return null;
+  const answer = hidden;
+  return {
+    id: 'local-complete-' + i,
+    question: `According to the uploaded material, complete the statement: "${shorten(stem, 260)}"`,
+    options: shuffled([answer, ...distractors], hash(sentence) + 103),
+    correctAnswer: answer,
     topic: topicFrom(sentence),
     source: 'Uploaded material'
   };
