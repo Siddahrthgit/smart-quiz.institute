@@ -164,34 +164,28 @@ function isCompleteAnswer(value: string) {
   return true;
 }
 function makeDefinitionQuestion(sentence: string, answerPool: string[], i: number): LocalQuestion | null {
-  const m = sentence.match(/^(.{3,80}?)\s+(?:is|are|means|refers to|consists of|includes|is defined as|are defined as|shall be|should be|must be)\s+(.{5,180})[.!?]?$/i);
+  // Only build a definition question when the PDF contains a complete
+  // source fact. Never use orphan fragments such as "Which of the following?".
+  const m = sentence.match(/^(.{3,90}?)\\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\\s+(.{8,220})[.!?]?$/i);
   if (!m) return null;
+  const subject = shorten(m[1], 90);
+  const answer = shorten(m[2], 210);
+  if (!isCompleteAnswer(answer)) return null;
+  if (/^(?:q|question|which|what|there|during|sab|page|slide)\\b/i.test(subject)) return null;
 
-  const subject = shorten(m[1], 80);
-  const answer = shorten(m[2], 160);
-  if (/^(?:firstly|secondly|thirdly|then|next|note|data|required|prepared|author|chapter|section|figure|table)\b/i.test(subject)) return null;
-  if (/\b(?:of\s+\d+|\d+\s+of\s+\d+|prepared by|thank you|estimating, costing|license examination)\b/i.test(sentence)) return null;
-  if (!isCompleteAnswer(answer) || /\b1\/\d+th\b/i.test(answer)) return null;
   const distractors = shuffled(
-    uniqueStrings(answerPool.filter(x =>
-      x !== answer &&
-      x.length >= 12 &&
-      x.split(/\s+/).length >= 4 &&
-      x.split(/\s+/).length <= 24 &&
-      !/--|\.\.\.|\b(?:page|slide|prepared by|thank you|therefore)\b/i.test(x)
-    )),
-    hash(sentence)
+    uniqueStrings(answerPool.filter(x => x !== answer).map(x => shorten(x, 210)))
+      .filter(x => isCompleteAnswer(x) && x !== answer),
+    hash(sentence) + 17
   ).slice(0, 3);
-
   if (distractors.length < 3) return null;
 
-  const options = shuffled([answer, ...distractors], hash(sentence) + 17);
   return {
     id: 'local-def-' + i,
     question: `What is the correct description of "${subject}"?`,
-    options,
+    options: shuffled([answer, ...distractors], hash(sentence) + 19),
     correctAnswer: answer,
-    topic: topicFrom(sentence),
+    topic: subject,
     source: 'Uploaded material'
   };
 }
@@ -288,43 +282,36 @@ function makeCompletionQuestion(sentence: string, pool: string[], i: number): Lo
 
 export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   const ss = sentences(text);
+
+  // Extract only complete, source-faithful facts. This is the important
+  // boundary between PDF text extraction and question generation.
+  const factRows = ss.map((s, i) => {
+    const m = s.match(/^(.{3,90}?)\\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\\s+(.{8,220})[.!?]?$/i);
+    return m ? { subject: shorten(m[1],90), answer: shorten(m[2],210), source:s, i } : null;
+  }).filter(Boolean) as {subject:string;answer:string;source:string;i:number}[];
+
+  const facts = uniqueStrings(factRows.map(f => f.subject + '|||' + f.answer)).map(k => {
+    const p=k.split('|||');
+    return factRows.find(f=>f.subject===p[0] && f.answer===p[1])!;
+  });
+
   const freq = new Map<string, number>();
-  for (const w of words(text)) freq.set(w, (freq.get(w) || 0) + 1);
+  for (const w of words(text)) freq.set(w, (freq.get(w)||0)+1);
+  const topics = [...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10)
+    .map(([w])=>w.charAt(0).toUpperCase()+w.slice(1));
 
-  const topWords = [...freq.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 14)
-    .map(([word]) => word);
+  // Library/Notes contains facts with their answers, not raw PDF fragments.
+  const notes = facts.slice(0,24).map(f => `${f.subject} — ${f.answer}`);
 
-  const topics = uniqueStrings(topWords.slice(0, 8).map(w => w.charAt(0).toUpperCase() + w.slice(1)));
+  // "Most Repeated Questions" means the most important exam-relevant
+  // questions/facts from the uploaded material. It is NOT a raw word-frequency list.
+  const repeated = facts.map((f, idx) => ({
+    phrase: `${f.subject} — ${f.answer}`,
+    count: 1000 - idx
+  })).slice(0,20);
 
-  const notes = ss
-    .filter(s => isStrongSourceSentence(s) || /^(?:specifications|estimation|valuation|rate analysis|plinth area|cube rate|quantity surveying|bill of quantities|abstract of cost)\b/i.test(s))
-    .slice(0, 24)
-    .map(s => shorten(s, 300));
-
-  const phraseFreq = new Map<string, number>();
-  for (let i = 0; i < ss.length; i++) {
-    const ws = words(ss[i]);
-    for (let j = 0; j < ws.length - 1; j++) {
-      const phrase = ws[j] + ' ' + ws[j + 1];
-      phraseFreq.set(phrase, (phraseFreq.get(phrase) || 0) + 1);
-    }
-  }
-  const repeated = [...phraseFreq.entries()]
-    .filter(([, n]) => n > 1)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 12)
-    .map(([phrase, count]) => ({ phrase, count }));
-
-  const answerPool = uniqueStrings(
-    ss.map(s => s.match(/(?:is|are|means|refers to|consists of|includes|is defined as|are defined as|shall be|should be|must be)\s+(.{5,300})[.!?]?$/i)?.[1] || '')
-      .map(shorten)
-  );
-
-  const numberPool = uniqueStrings(
-    (text.match(/\b\d+(?:\.\d+)?(?:\s*%|\s*(?:mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\/m3|m3\/s|°C|days?|years?))?\b/gi) || [])
-  );
+  const answerPool = uniqueStrings(facts.map(f=>f.answer));
+  const numberPool = uniqueStrings((text.match(/\\b\\d+(?:\\.\\d+)?(?:\\s*%|\\s*(?:mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\\/m3|m3\\/s|°C|days?|years?))?\\b/gi)||[]));
 
   const questions: LocalQuestion[] = [];
   const seen = new Set<string>();
@@ -338,58 +325,18 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
     questions.push(q);
   };
 
-  // Prefer high-confidence definition and numeric questions.
-  ss.forEach((s, idx) => {
-    if (questions.length >= target) return;
-    add(makeDefinitionQuestion(s, answerPool, idx + 1));
-    if (questions.length < target) add(makeNumericQuestion(s, numberPool, idx + 1));
-  });
+  // 1) Definition/fact questions first.
+  facts.forEach((f,i)=>add(makeDefinitionQuestion(f.source, answerPool, i+1)));
 
-  // Completion questions work well with textbooks and technical PDFs
-  // even when the extracted text has no "X is Y" definitions.
-  ss.forEach((s, idx) => {
-    if (questions.length >= target) return;
-    add(makeCompletionQuestion(s, ss, idx + 1));
-  });
+  // 2) Numeric facts such as 1028 km and construction years.
+  ss.forEach((s,i)=>{ if(questions.length<target) add(makeNumericQuestion(s,numberPool,i+1)); });
 
-  // Then use factual True/False questions.
-  ss.forEach((s, idx) => {
-    if (questions.length >= target) return;
-    add(makeTrueFalseQuestion(s, idx + 1));
-  });
-
-  // Finally use statement-based MCQs when enough distinct source sentences exist.
-  ss.forEach((s, idx) => {
-    if (questions.length >= target) return;
-    add(makeGenericMcq(s, ss, idx + 1));
-  });
-
-
-  // Last-resort source-faithful generator: some technical PDFs contain
-  // useful statements that are not phrased as normal sentences.
-  if (questions.length < target && ss.length >= 4) {
-    ss.forEach((s, idx) => {
-      if (questions.length >= target) return;
-      const statement = shorten(s, 220);
-      const distractors = shuffled(
-        uniqueStrings(ss.filter(x => x !== s).map(x => shorten(x, 220)))
-          .filter(x => x.length >= 20),
-        hash(s) + 211
-      ).slice(0, 3);
-      if (distractors.length < 3) return;
-      add({
-        id: 'local-source-' + (idx + 1),
-        question: 'Which statement is supported by the uploaded material?',
-        options: shuffled([statement, ...distractors], hash(s) + 223),
-        correctAnswer: statement,
-        topic: topicFrom(s),
-        source: 'Uploaded material'
-      });
-    });
-  }
+  // 3) Complete source statements only. Never turn orphan headings/fragments
+  // into questions.
+  ss.forEach((s,i)=>{ if(questions.length<target) add(makeTrueFalseQuestion(s,i+1)); });
 
   return {
-    subject: topics.slice(0, 2).join(' & ') || 'Uploaded Study Material',
+    subject: topics.slice(0,2).join(' & ') || 'Uploaded Study Material',
     topics,
     notes,
     repeated,
