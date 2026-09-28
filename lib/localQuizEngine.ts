@@ -57,7 +57,7 @@ function sentences(text: string) {
   const logical: string[] = [];
   let buffer = '';
   const headingLike = (s: string) =>
-    /^(?:chapter|section|unit|topic|specifications|estimation|valuation|surveying|introduction|conclusion)\\b/i.test(s) ||
+    /^(?:chapter|section|unit|topic|specifications|estimation|valuation|surveying|introduction|conclusion)\b/i.test(s) ||
     /^(?:\d+[.)]|[A-Z][.)])\\s+/.test(s) ||
     (s.length < 80 && !/[.!?:]$/.test(s) && /^[A-Za-z][A-Za-z &()/-]+$/.test(s));
 
@@ -286,7 +286,7 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   const topics = uniqueStrings(topWords.slice(0, 8).map(w => w.charAt(0).toUpperCase() + w.slice(1)));
 
   const notes = ss
-    .filter(s => isStrongSourceSentence(s) || /^(?:specifications|estimation|valuation|rate analysis|plinth area|cube rate|quantity surveying|bill of quantities|abstract of cost)\\b/i.test(s))
+    .filter(s => isStrongSourceSentence(s) || /^(?:specifications|estimation|valuation|rate analysis|plinth area|cube rate|quantity surveying|bill of quantities|abstract of cost)\b/i.test(s))
     .slice(0, 24)
     .map(s => shorten(s, 300));
 
