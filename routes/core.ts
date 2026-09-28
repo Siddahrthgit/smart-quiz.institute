@@ -7,6 +7,7 @@ import { Guest } from '../db/Guest';
 import { Attempt } from '../db/Attempt';
 import { identifyOwner, IdentifiedRequest } from '../middleware/auth';
 import { generateJson } from '../lib/gemini';
+import { analyzeLocalText, generateLocalQuestions, generateLocalNotes, findLocalRepeated } from '../lib/localQuizEngine';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -73,136 +74,39 @@ router.post('/upload-and-analyze', upload.single('file'), async (req: Identified
     const extractedText = await parsePdfBuffer(buffer);
     if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
 
-    const cleanText = extractedText.replace(/\s+/g, ' ').trim();
-    const materialText = cleanText.slice(0, 9000);
+    const cleanText = extractedText.replace(/\\s+/g, ' ').trim();
     docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-
-    await Material.create({
-      docId,
-      userId: req.ownerType === 'user' ? req.ownerId : undefined,
-      ownerKey: ownerKey(req),
-      title: originalname,
-      extractedText,
-      fileType: 'pdf',
-      wordCount: cleanText.split(/\s+/).length,
-      summary: 'Uploaded study material',
-      topics: [],
-    } as any);
+    await Material.create({ docId, userId: req.ownerType === 'user' ? req.ownerId : undefined, ownerKey: ownerKey(req), title: originalname, extractedText, fileType: 'pdf', wordCount: cleanText.split(/\\s+/).length, summary: 'Uploaded study material', topics: [] } as any);
 
     const existingBranch = await getFixedBranch(req);
-    const selectedBranch = existingBranch || requestedBranch;
-    const analysis = await generateJson<{
-      branch: string;
-      subject: string;
-      topics: string[];
-      questions: Array<{ question: string; options: string[]; correctAnswer: string; topic: string }>;
-    }>(
-      `Analyze this study material and create the first exam in ONE response.
-${selectedBranch ? `The student's selected branch is "${selectedBranch}". Return that branch.` : 'Infer the branch/category.'}
-Return a specific subject, 3-6 short topic tags, and exactly 10 high-quality MCQs.
-Every MCQ must have exactly 4 options and correctAnswer must exactly match one option.
-Use ONLY information supported by the material. Avoid duplicate questions.
-Return ONLY JSON:
-{"branch":string,"subject":string,"topics":string[],"questions":[{"question":string,"options":string[],"correctAnswer":string,"topic":string}]}
-
-MATERIAL:
-${materialText}`
-    );
-
-    const branch = selectedBranch || analysis.branch;
-    const topics = Array.isArray(analysis.topics) ? analysis.topics.filter(Boolean).slice(0, 6) : [];
-    let questions = Array.isArray(analysis.questions) ? analysis.questions : [];
-
-    const validQuestions = (items: any[]) =>
-      items.length === 10 &&
-      items.every(q =>
-        q &&
-        typeof q.question === 'string' &&
-        Array.isArray(q.options) &&
-        q.options.length === 4 &&
-        q.options.every((o: any) => typeof o === 'string' && o.trim()) &&
-        typeof q.correctAnswer === 'string' &&
-        q.options.includes(q.correctAnswer) &&
-        typeof q.topic === 'string'
-      );
-
-    if (!validQuestions(questions)) {
-      questions = await generateJson<any[]>(
-        `Repair this exam response. Return EXACTLY 10 valid MCQs using ONLY the material.
-Each item must be {"question":string,"options":string[4],"correctAnswer":string,"topic":string}.
-correctAnswer must exactly equal one option. No duplicates. Return ONLY a JSON array.
-
-MATERIAL:
-${materialText}
-
-INVALID RESPONSE:
-${JSON.stringify(questions).slice(0, 12000)}`
-      );
-    }
-
-    if (!validQuestions(questions)) {
-      throw new Error('AI returned an invalid exam format. Please try again.');
-    }
+    const branch = existingBranch || requestedBranch || 'General';
+    const analysis = analyzeLocalText(cleanText, 10);
+    const subject = analysis.subject;
+    const topics = analysis.topics.slice(0, 6);
+    const questions = analysis.questions;
 
     await setFixedBranchIfEmpty(req, branch);
-    await Material.updateOne(
-      { docId, ownerKey: ownerKey(req) },
-      { $set: { summary: topics.join(', '), topics } }
-    );
-
-    return res.json({ success: true, docId, branch, subject: analysis.subject, topics, questions });
+    await Material.updateOne({ docId, ownerKey: ownerKey(req) }, { $set: { summary: topics.join(', '), topics } });
+    return res.json({ success: true, docId, branch, subject, topics, questions, local: true });
   } catch (err: any) {
     console.error('upload-and-analyze error:', err);
-    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
-      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to analyze PDF'),
-      message: err?.code === 'AI_TEMPORARILY_BUSY'
-        ? 'AI is temporarily busy. Please try again in a moment.'
-        : (err.message || 'Failed to analyze PDF'),
-      ...(docId ? { docId } : {})
-    });
+    return res.status(500).json({ error: 'LOCAL_ANALYSIS_FAILED', message: 'Could not analyze this PDF locally. Please try another text-based PDF.', ...(docId ? { docId } : {}) });
   }
 });
 
 router.post('/material/action', async (req: IdentifiedRequest, res: Response) => {
   try {
     const { docId, action } = req.body as { docId?: string; action?: 'notes' | 'repeated' | 'generate' };
-    if (!docId || !['notes', 'repeated', 'generate'].includes(action || '')) {
-      return res.status(400).json({ error: 'docId and a valid action are required' });
-    }
+    if (!docId || !['notes', 'repeated', 'generate'].includes(action || '')) return res.status(400).json({ error: 'docId and a valid action are required' });
     const material = await Material.findOne({ docId, ownerKey: ownerKey(req) });
     if (!material) return res.status(404).json({ error: 'Study material not found' });
-    const text = String((material as any).extractedText || '').slice(0, 18000);
-
-    if (action === 'notes') {
-      const notes = await generateJson<any>(
-        `Create useful study notes from the uploaded material. Do not invent facts. Return ONLY JSON with keys title, summary, keyConcepts, definitions, formulas, keyPoints. Use arrays for keyConcepts, definitions, formulas, keyPoints.
-MATERIAL:
-${text}`
-      );
-      return res.json({ success: true, action, notes });
-    }
-
-    if (action === 'repeated') {
-      const repeated = await generateJson<any>(
-        `Analyze this uploaded material for repetition/emphasis INSIDE THE MATERIAL ONLY. Do not claim that a question appeared in past exams unless the material itself explicitly provides that evidence. Return ONLY JSON with keys scope, disclaimer, repeatedQuestions, repeatedConcepts, emphasizedTopics. repeatedQuestions must contain only questions/prompts that are actually repeated or strongly emphasized in the supplied material.
-MATERIAL:
-${text}`
-      );
-      return res.json({ success: true, action, repeated });
-    }
-
-    const questions = await generateJson<any[]>(
-      `Generate exactly 10 multiple-choice questions from ONLY this uploaded material. Return ONLY JSON array. Each item: {"question":string,"options":string[4],"correctAnswer":string,"topic":string}; correctAnswer must exactly equal one option. Avoid duplicate questions.
-MATERIAL:
-${text}`
-    );
-    return res.json({ success: true, action, questions });
+    const text = String((material as any).extractedText || '');
+    if (action === 'notes') return res.json({ success: true, action, notes: { title: material.title, keyPoints: generateLocalNotes(text), topics: analyzeLocalText(text, 0).topics } });
+    if (action === 'repeated') return res.json({ success: true, action, repeated: { scope: 'uploaded material only', disclaimer: 'These are repeated or frequent terms detected inside your uploaded material; they are not claims about past exams.', repeatedQuestions: [], repeatedConcepts: findLocalRepeated(text), emphasizedTopics: analyzeLocalText(text, 0).topics } });
+    return res.json({ success: true, action, questions: generateLocalQuestions(text, 10) });
   } catch (err: any) {
     console.error('material/action error:', err);
-    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
-      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to process study material'),
-      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to process study material')
-    });
+    return res.status(500).json({ error: 'LOCAL_ACTION_FAILED', message: 'Could not process this study material locally.' });
   }
 });
 
