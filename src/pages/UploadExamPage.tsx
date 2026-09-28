@@ -25,7 +25,12 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
 
   async function action(action:'notes'|'repeated'|'generate'){
     setError('');
-    const res=await fetch('/api/core/material/action',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,action,count:30})});
+    const activeDocId = docId || localStorage.getItem('studypdf_doc_id') || '';
+    if (!activeDocId) {
+      setError('Please upload a PDF first. The study material ID is missing.');
+      return;
+    }
+    const res=await fetch('/api/core/material/action',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId:activeDocId,action,count:20})});
     const data=await res.json();
     if(!res.ok) throw new Error(data.message||data.error||'Action failed');
     if(action==='notes') setNotes(data.notes);
@@ -57,7 +62,9 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
       if (!builtQuestions.length) {
         throw new Error('PDF text was extracted, but no usable questions could be built. Try a text-based PDF with readable study content.');
       }
-      setDocId(data.docId);setBranch(data.branch);setSubject(data.subject);setQuestions(builtQuestions);setAnswers({});setPhase('menu');
+      setDocId(data.docId);
+      localStorage.setItem('studypdf_doc_id', data.docId);
+      setBranch(data.branch);setSubject(data.subject);setQuestions(builtQuestions);setAnswers({});setPhase('menu');
     }catch(e:any){setError(e.message||'Something went wrong');setPhase('upload');}
   }
   async function submit(){
@@ -113,7 +120,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     <div className="text-center px-6">
       <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center animate-pulse"><Sparkles className="w-7 h-7 text-indigo-600"/></div>
       <h2 className="text-xl font-semibold">Building your exam…</h2>
-      <p className="text-sm text-slate-500 mt-2">Analyzing your PDF and preparing up to 30 questions.</p>
+      <p className="text-sm text-slate-500 mt-2">Analyzing your PDF and preparing up to 20 questions.</p>
       <p className="text-xs text-slate-400 mt-3">This can take a little time. Please keep this page open.</p>
     </div>
   </div>;
