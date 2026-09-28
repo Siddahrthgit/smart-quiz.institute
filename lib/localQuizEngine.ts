@@ -166,12 +166,12 @@ function isCompleteAnswer(value: string) {
 function makeDefinitionQuestion(sentence: string, answerPool: string[], i: number): LocalQuestion | null {
   // Only build a definition question when the PDF contains a complete
   // source fact. Never use orphan fragments such as "Which of the following?".
-  const m = sentence.match(/^(.{3,90}?)\\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\\s+(.{8,220})[.!?]?$/i);
+  const m = sentence.match(/^(.{3,90}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\s+(.{8,220})[.!?]?$/i);
   if (!m) return null;
   const subject = shorten(m[1], 90);
   const answer = shorten(m[2], 210);
   if (!isCompleteAnswer(answer)) return null;
-  if (/^(?:q|question|which|what|there|during|sab|page|slide)\\b/i.test(subject)) return null;
+  if (/^(?:q|question|which|what|there|during|sab|page|slide)\b/i.test(subject)) return null;
 
   const distractors = shuffled(
     uniqueStrings(answerPool.filter(x => x !== answer).map(x => shorten(x, 210)))
@@ -286,7 +286,7 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   // Extract only complete, source-faithful facts. This is the important
   // boundary between PDF text extraction and question generation.
   const factRows = ss.map((s, i) => {
-    const m = s.match(/^(.{3,90}?)\\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\\s+(.{8,220})[.!?]?$/i);
+    const m = s.match(/^(.{3,90}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\s+(.{8,220})[.!?]?$/i);
     return m ? { subject: shorten(m[1],90), answer: shorten(m[2],210), source:s, i } : null;
   }).filter(Boolean) as {subject:string;answer:string;source:string;i:number}[];
 
@@ -311,7 +311,7 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   })).slice(0,20);
 
   const answerPool = uniqueStrings(facts.map(f=>f.answer));
-  const numberPool = uniqueStrings((text.match(/\\b\\d+(?:\\.\\d+)?(?:\\s*%|\\s*(?:mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\\/m3|m3\\/s|°C|days?|years?))?\\b/gi)||[]));
+  const numberPool = uniqueStrings((text.match(/\b\.+(?:\.\.+)?(?:\s*%|\s*(?:mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\.m3|m3\.s|°C|days?|years?))?\b/gi)||[]));
 
   const questions: LocalQuestion[] = [];
   const seen = new Set<string>();
