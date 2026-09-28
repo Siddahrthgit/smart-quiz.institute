@@ -26,7 +26,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     setError('');
     const res=await fetch('/api/core/material/action',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,action})});
     const data=await res.json();
-    if(!res.ok) throw new Error(data.error||'Action failed');
+    if(!res.ok) throw new Error(data.message||data.error||'Action failed');
     if(action==='notes') setNotes(data.notes);
     if(action==='repeated') setRepeated(data.repeated);
     if(action==='generate') setGenerated(data.questions);
@@ -37,7 +37,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     try{
       const fd=new FormData(); fd.append('file',file);
       const res=await fetch('/api/core/upload-and-analyze',{method:'POST',headers:ownerHeaders(),body:fd});
-      const data=await res.json(); if(!res.ok) throw new Error(data.error||'Failed to analyze PDF');
+      const data=await res.json(); if(!res.ok) throw new Error(data.message||data.error||'Failed to analyze PDF');
       setDocId(data.docId);setBranch(data.branch);setSubject(data.subject);setQuestions(data.questions||[]);setAnswers({});setPhase('menu');
     }catch(e:any){setError(e.message||'Something went wrong');setPhase('upload');}
   }
@@ -45,17 +45,17 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     setPhase('submitting');
     try{
       const res=await fetch('/api/core/exam/submit',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,branch,subject,questions:questions.map((q,i)=>({...q,userAnswer:answers[i]||''}))})});
-      const data=await res.json();if(!res.ok)throw new Error(data.error||'Failed to submit exam');onFinished(data.attemptId);
+      const data=await res.json();if(!res.ok)throw new Error(data.message||data.error||'Failed to submit exam');onFinished(data.attemptId);
     }catch(e:any){setError(e.message||'Failed to submit exam');setPhase('exam');}
   }
   async function retryTopic(topic:string){
     setError('');setPhase('analyzing');
-    try{const res=await fetch('/api/core/exam/from-topic',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({topic})});const d=await res.json();if(!res.ok)throw new Error(d.error||'Failed');setDocId(d.docId);setBranch(d.branch||'');setSubject(d.subject||topic);setQuestions(d.questions||[]);setAnswers({});setPhase('exam');}
+    try{const res=await fetch('/api/core/exam/from-topic',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({topic})});const d=await res.json();if(!res.ok)throw new Error(d.message||d.error||'Failed');setDocId(d.docId);setBranch(d.branch||'');setSubject(d.subject||topic);setQuestions(d.questions||[]);setAnswers({});setPhase('exam');}
     catch(e:any){setError(e.message||'Failed');setPhase('menu');}
   }
   async function performance(){
     setError('');
-    try{const r=await fetch('/api/core/attempts/latest',{headers:ownerHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.error||'Failed');if(!d.hasAttempt)throw new Error('Complete an exam first to see Performance Check.');onFinished(d.attemptId);}
+    try{const r=await fetch('/api/core/attempts/latest',{headers:ownerHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.message||d.error||'Failed');if(!d.hasAttempt)throw new Error('Complete an exam first to see Performance Check.');onFinished(d.attemptId);}
     catch(e:any){setError(e.message||'Failed');}
   }
 
