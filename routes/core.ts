@@ -11,7 +11,14 @@ import { identifyOwner, IdentifiedRequest } from '../middleware/auth';
 import { analyzeLocalText, generateLocalQuestions, generateLocalNotes, findLocalRepeated } from '../lib/localQuizEngine';
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const isPdf = file.mimetype === 'application/pdf' || file.mimetype === '' || file.originalname.toLowerCase().endsWith('.pdf');
+    cb(isPdf ? null : new Error('ONLY_PDF_ALLOWED'), isPdf);
+  },
+});
 
 async function parsePdfBuffer(buffer: Buffer): Promise<string> {
   try {
@@ -66,14 +73,42 @@ function ownerKey(req: IdentifiedRequest) {
   return `${req.ownerType}:${req.ownerId}`;
 }
 
-router.post('/upload-and-analyze', upload.single('file'), async (req: IdentifiedRequest, res: Response) => {
+router.post('/upload-and-analyze', (req: IdentifiedRequest, res: Response, next) => {
+  upload.single('file')(req, res, (err: any) => {
+    if (err?.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({
+        error: 'FILE_TOO_LARGE',
+        message: 'PDF is too large. Maximum upload size is 50 MB.'
+      });
+    }
+    if (err?.message === 'ONLY_PDF_ALLOWED') {
+      return res.status(415).json({
+        error: 'ONLY_PDF_ALLOWED',
+        message: 'Please upload a PDF file.'
+      });
+    }
+    if (err) {
+      console.error('PDF upload middleware error:', err);
+      return res.status(400).json({
+        error: 'PDF_UPLOAD_FAILED',
+        message: 'The PDF could not be uploaded. Please try again with a valid PDF.'
+      });
+    }
+    next();
+  });
+}, async (req: IdentifiedRequest, res: Response) => {
   let docId = '';
   try {
     if (!req.file) return res.status(400).json({ error: 'No PDF provided' });
     const { originalname, buffer } = req.file;
     const requestedBranch = typeof req.body?.branch === 'string' ? req.body.branch.trim() : '';
     const extractedText = await parsePdfBuffer(buffer);
-    if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
+    if (!extractedText.trim()) {
+      return res.status(422).json({
+        error: 'PDF_TEXT_NOT_FOUND',
+        message: 'The PDF uploaded successfully, but no readable text was extracted. This usually means it is scanned/image-only, encrypted, or uses an unsupported PDF structure.'
+      });
+    }
 
     const cleanText = extractedText.replace(/\s+/g, ' ').trim();
     docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
