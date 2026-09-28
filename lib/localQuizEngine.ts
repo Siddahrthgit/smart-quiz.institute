@@ -54,21 +54,35 @@ function sentences(text: string) {
     .map(s => s.trim().replace(/^[-•*▪◦]\s*/, ''))
     .filter(Boolean);
 
+  const isHardHeading = (s: string) =>
+    /^(?:chapter|section|unit|contents|references|bibliography)\b/i.test(s) ||
+    /^(?:figure|fig\.?|table)\s*\d+/i.test(s) ||
+    /^(?:page|slide)\s*\d+/i.test(s);
+
+  const danglingEnd = (s: string) =>
+    /(?:[:;,]|\b(?:the|a|an|of|for|from|after|before|and|or|but|with|by|to|in|on|as|than|that|which|is|are|was|were|calculated|multiplied|rate|per|similar|area|volume))$/i.test(s.trim());
+
   const logical: string[] = [];
   let buffer = '';
-  const headingLike = (s: string) =>
-    /^(?:chapter|section|unit|topic|specifications|estimation|valuation|surveying|introduction|conclusion)\b/i.test(s) ||
-    /^(?:\d+[.)]|[A-Z][.)])\\s+/.test(s) ||
-    (s.length < 80 && !/[.!?:]$/.test(s) && /^[A-Za-z][A-Za-z &()/-]+$/.test(s));
 
   for (const line of lines) {
     if (!buffer) {
       buffer = line;
       continue;
     }
-    const joinsNaturally = !/[.!?]$/.test(buffer) && !headingLike(line);
-    if (joinsNaturally) buffer += ' ' + line;
-    else {
+
+    const shouldJoin =
+      !isHardHeading(line) &&
+      (
+        danglingEnd(buffer) ||
+        /^[a-z(]/.test(line) ||
+        buffer.length < 70 ||
+        line.length < 55
+      );
+
+    if (shouldJoin) {
+      buffer += ' ' + line;
+    } else {
       logical.push(buffer);
       buffer = line;
     }
@@ -79,18 +93,19 @@ function sentences(text: string) {
     .flatMap(s => s.split(/(?<=[.!?])\s+/))
     .map(s => s.trim())
     .filter(Boolean);
+
   const expanded: string[] = [];
   for (const item of raw) {
     if (item.length <= 700) expanded.push(item);
     else expanded.push(...(item.match(/.{1,600}(?:\s+|$)/g) || []).map(x => x.trim()));
   }
+
   return uniqueStrings(expanded.filter(s => {
     const alpha = (s.match(/[A-Za-z]/g) || []).length;
     return s.length >= 35 && s.length <= 500 && alpha >= 20 &&
       s.split(/\s+/).length >= 6 && !isPdfArtifact(s);
   }));
 }
-
 function words(text: string) {
   return (text.toLowerCase().match(/[a-z][a-z0-9-]{3,}/g) || [])
     .filter(w => !STOP.has(w));
