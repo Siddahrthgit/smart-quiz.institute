@@ -23,22 +23,37 @@ export class GeminiTemporarilyBusyError extends Error {
   }
 }
 
-// Ask Gemini for JSON only, strip stray markdown fences, and parse safely.
+// Ask Gemini for JSON only, strip stray markdown fences, retry transient failures,
+// and fail cleanly instead of returning malformed JSON.
+function isRetryableStatus(status: number) {
+  return [429, 500, 502, 503, 504].includes(status);
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function generateJson<T>(prompt: string): Promise<T> {
   const ai = getGeminiClient();
   let lastError: any;
 
   for (const model of QUESTION_MODELS) {
-    try {
-      const response = await ai.models.generateContent({ model, contents: prompt });
-      const raw = (response.text || '').trim();
-      const cleaned = raw.replace(/^\\`\\`\\`json\\s*/i, '').replace(/^\\`\\`\\`\\s*/i, '').replace(/\\`\\`\\`\\s*$/i, '').trim();
-      return JSON.parse(cleaned) as T;
-    } catch (err: any) {
-      lastError = err;
-      const status = Number(err?.status ?? err?.response?.status ?? err?.error?.status);
-      if (status === 503) continue;
-      throw err;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await ai.models.generateContent({ model, contents: prompt });
+        const raw = (response.text || '').trim();
+        const cleaned = raw
+          .replace(/^\`\`\`json\s*/i, '')
+          .replace(/^\`\`\`\s*/i, '')
+          .replace(/\`\`\`\s*$/i, '')
+          .trim();
+        return JSON.parse(cleaned) as T;
+      } catch (err: any) {
+        lastError = err;
+        const status = Number(err?.status ?? err?.response?.status ?? err?.error?.status);
+        if (!isRetryableStatus(status)) throw err;
+        if (attempt === 0) await sleep(status === 429 ? 1200 : 700);
+      }
     }
   }
 
