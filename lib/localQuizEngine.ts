@@ -163,31 +163,42 @@ function isCompleteAnswer(value: string) {
   if (/--|\.{3}|\b(?:page|slide|prepared by|thank you)\b/i.test(v)) return false;
   return true;
 }
-function makeDefinitionQuestion(sentence: string, answerPool: string[], i: number): LocalQuestion | null {
-  // Only build a definition question when the PDF contains a complete
-  // source fact. Never use orphan fragments such as "Which of the following?".
-  const m = sentence.match(/^(.{3,90}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|shall be|should be|must be)\s+(.{8,220})[.!?]?$/i);
-  if (!m) return null;
-  const subject = shorten(m[1], 90);
-  const answer = shorten(m[2], 210);
-  if (!isCompleteAnswer(answer)) return null;
-  if (/^(?:q|question|which|what|there|during|sab|page|slide)\b/i.test(subject)) return null;
+function makeDefinitionQuestion(fact: {subject:string; answer:string; source?:string; topic?:string}, answerPool: string[], i: number): LocalQuestion | null {
+  const rawSubject = shorten(fact.subject, 90);
+  const subject = rawSubject.replace(/[?]+$/, '').trim();
+  let question = '';
+
+  if (/^How are /i.test(subject)) question = subject.endsWith('?') ? subject : subject + '?';
+  else if (/^What is /i.test(subject)) question = subject.endsWith('?') ? subject : subject + '?';
+  else if (/^How many /i.test(subject)) question = subject.endsWith('?') ? subject : subject + '?';
+  else question = 'What is ' + subject + '?';
+
+  const answer = shorten(fact.answer, 210);
+  if (!answer || !validAnswerForQuestion(answer)) return null;
 
   const distractors = shuffled(
     uniqueStrings(answerPool.filter(x => x !== answer).map(x => shorten(x, 210)))
-      .filter(x => isCompleteAnswer(x) && x !== answer),
-    hash(sentence) + 17
+      .filter(x => validAnswerForQuestion(x)),
+    hash(fact.source || subject) + i
   ).slice(0, 3);
+
   if (distractors.length < 3) return null;
 
   return {
     id: 'local-def-' + i,
-    question: `What is the correct description of "${subject}"?`,
-    options: shuffled([answer, ...distractors], hash(sentence) + 19),
+    question,
+    options: shuffled([answer, ...distractors], hash(subject) + 19),
     correctAnswer: answer,
-    topic: subject,
+    topic: shorten(fact.topic || subject, 90),
     source: 'Uploaded material'
   };
+}
+
+function validAnswerForQuestion(value: string) {
+  const v = value.replace(/\s+/g, ' ').trim();
+  if (v.length < 2 || v.length > 240) return false;
+  if (/^(?:which|what|where|when|how|there|and|or|but|of|to|for|with|from)\b/i.test(v)) return false;
+  return /[A-Za-z]/.test(v);
 }
 
 function makeNumericQuestion(sentence: string, numberPool: string[], i: number): LocalQuestion | null {
@@ -295,13 +306,13 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   // they are not written as X is Y.
   const extraFacts: {subject:string; answer:string; source:string}[] = [];
   for (const s of ss) {
-    let m = s.match(/^([A-Za-z][A-Za-z0-9 &/'()\/-]{2,80})\\s*:\\s*(.{3,300})$/);
-    if (m && !/^(?:q|question|answer|note|example|eg)\\b/i.test(m[1])) {
+    let m = s.match(/^([A-Za-z][A-Za-z0-9 &/'()\/-]{2,80})\s*:\s*(.{3,300})$/);
+    if (m && !/^(?:q|question|answer|note|example|eg)\b/i.test(m[1])) {
       extraFacts.push({subject: shorten(m[1], 90), answer: shorten(m[2], 210), source:s});
     }
-    m = s.match(/^(.{3,100}?)\\s+(?:are|is)\\s+(?:designated|represented)\\s+(?:by|as)\\s+(.{3,200})[.!?]?$/i);
+    m = s.match(/^(.{3,100}?)\s+(?:are|is)\s+(?:designated|represented)\s+(?:by|as)\s+(.{3,200})[.!?]?$/i);
     if (m) extraFacts.push({subject: 'How are ' + shorten(m[1],70) + ' designated?', answer: shorten(m[2],210), source:s});
-    m = s.match(/^(.{8,180}?)\\s+is\\s+known\\s+as\\s+(.{2,100})[.!?]?$/i);
+    m = s.match(/^(.{8,180}?)\s+is\s+known\s+as\s+(.{2,100})[.!?]?$/i);
     if (m) extraFacts.push({subject: 'What is ' + shorten(m[1],80) + '?', answer: shorten(m[2],210), source:s});
   }
   const combinedRows = [
@@ -326,14 +337,14 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   const repeated = facts
     .slice()
     .sort((a, b) => {
-      const aScore = /\\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\\b/i.test(a.source) ? 2 : 1;
-      const bScore = /\\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\\b/i.test(b.source) ? 2 : 1;
+      const aScore = /\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\b/i.test(a.source) ? 2 : 1;
+      const bScore = /\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\b/i.test(b.source) ? 2 : 1;
       return bScore - aScore;
     })
     .slice(0, 20)
     .map(f => ({
       phrase: f.subject + ' — ' + f.answer,
-      count: /\\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\\b/i.test(f.source) ? 2 : 1
+      count: /\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\b/i.test(f.source) ? 2 : 1
     }));
 
   const answerPool = uniqueStrings(facts.map(f=>f.answer));
@@ -352,7 +363,7 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   };
 
   // 1) Definition/fact questions first.
-  facts.forEach((f,i)=>add(makeDefinitionQuestion(f.source, answerPool, i+1)));
+  facts.forEach((f,i)=>add(makeDefinitionQuestion(f, answerPool, i+1)));
 
   // 2) Numeric facts such as 1028 km and construction years.
   ss.forEach((s,i)=>{ if(questions.length<target) add(makeNumericQuestion(s,numberPool,i+1)); });
