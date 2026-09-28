@@ -1,4 +1,6 @@
 import express, { Response } from 'express';
+import fs from 'fs';
+import path from 'path';
 import multer from 'multer';
 import * as pdfParseModule from 'pdf-parse';
 import Material from '../db/Material';
@@ -252,6 +254,43 @@ router.post('/guest/merge', async (req: IdentifiedRequest, res: Response) => {
       error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to merge guest data'),
       message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to merge guest data')
     });
+  }
+});
+
+router.get('/question-library', async (req: IdentifiedRequest, res: Response) => {
+  try {
+    const branch = String(req.query.branch || '').trim().toLowerCase();
+    const category = String(req.query.category || '').trim().toLowerCase();
+    const filePath = path.join(process.cwd(), 'data', 'questionLibrary.json');
+    const library = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const civil = library?.civil || {};
+    const keyMap: Record<string, string> = {
+      'nec civil': 'nec',
+      'nec': 'nec',
+      'loksewa civil': 'loksewa',
+      'loksewa': 'loksewa',
+      'rcc': 'rcc',
+      'soil foundation': 'soil-foundation',
+      'soil-foundation': 'soil-foundation',
+      'soil & foundation': 'soil-foundation',
+      'hydraulics': 'hydraulics',
+      'hydraulics water resources': 'hydraulics',
+      'hydraulics & water resources': 'hydraulics',
+      'transportation surveying': 'transportation-surveying',
+      'transportation & surveying': 'transportation-surveying'
+    };
+    const key = keyMap[category] || category;
+    const questions = Array.isArray(civil[key]) ? civil[key] : [];
+    return res.json({
+      success: true,
+      branch: branch || null,
+      category: category || null,
+      questions,
+      sourceNote: 'Library practice questions are clearly labeled by source; derived questions are not official NEC/Loksewa past questions.'
+    });
+  } catch (err: any) {
+    console.error('question-library error:', err);
+    return res.status(500).json({ error: 'QUESTION_LIBRARY_FAILED', message: 'Could not load the question library.' });
   }
 });
 
