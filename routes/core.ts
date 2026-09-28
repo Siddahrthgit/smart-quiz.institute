@@ -31,10 +31,7 @@ async function parsePdfBuffer(buffer: Buffer): Promise<string> {
       try {
         const result = await parser.getText();
         const text = typeof result?.text === 'string' ? result.text : '';
-        if (text.trim()) {
-          await parser.destroy?.();
-          return text;
-        }
+        if (text.trim()) return text;
       } finally {
         await parser.destroy?.().catch?.(() => {});
       }
