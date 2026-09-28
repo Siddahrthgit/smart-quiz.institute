@@ -70,7 +70,14 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     <SuggestionsList suggestions={suggestions} onRetry={retryTopic}/>
   </div></div>;
 
-  if(phase==='analyzing') return <div className="min-h-screen bg-white flex items-center justify-center text-slate-700 animate-pulse">Reading your PDF…</div>;
+  if(phase==='analyzing') return <div className="min-h-screen bg-white flex items-center justify-center text-slate-700">
+    <div className="text-center px-6">
+      <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center animate-pulse"><Sparkles className="w-7 h-7 text-indigo-600"/></div>
+      <h2 className="text-xl font-semibold">Building your exam…</h2>
+      <p className="text-sm text-slate-500 mt-2">Analyzing your PDF and preparing 10 questions.</p>
+      <p className="text-xs text-slate-400 mt-3">This can take a little time. Please keep this page open.</p>
+    </div>
+  </div>;
 
   if(phase==='menu') return <div className="min-h-screen bg-white text-slate-900"><div className="max-w-3xl mx-auto px-4 py-10">
     <div className="mb-6"><p className="text-xs text-slate-500">UPLOADED MATERIAL</p><h2 className="text-2xl font-bold mt-1">{subject||'Your PDF'}</h2><p className="text-sm text-slate-500 mt-1">{branch}</p></div>
