@@ -229,6 +229,26 @@ export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
     add(makeGenericMcq(s, ss, idx + 1));
   });
 
+  // If the PDF has only a few usable statements, repeat the source facts
+  // with different question IDs rather than returning an empty exam.
+  // This is intentionally conservative: every answer is still taken
+  // directly from the uploaded material.
+  if (questions.length < target && ss.length) {
+    for (let round = 1; questions.length < target && round <= 3; round++) {
+      ss.forEach((s, idx) => {
+        if (questions.length >= target) return;
+        const base = makeTrueFalseQuestion(s, round * 1000 + idx + 1);
+        add({
+          ...base,
+          id: base.id + '-r' + round,
+          question: round === 1
+            ? base.question
+            : `Based on the uploaded material, which statement is correct? "${shorten(s, 260)}"`
+        });
+      });
+    }
+  }
+
   return {
     subject: topics.slice(0, 2).join(' & ') || 'Uploaded Study Material',
     topics,
