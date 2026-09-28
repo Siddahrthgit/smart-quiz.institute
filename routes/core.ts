@@ -69,6 +69,7 @@ router.post('/upload-and-analyze', upload.single('file'), async (req: Identified
   try {
     if (!req.file) return res.status(400).json({ error: 'No PDF provided' });
     const { originalname, buffer } = req.file;
+    const requestedBranch = typeof req.body?.branch === 'string' ? req.body.branch.trim() : '';
     const extractedText = await parsePdfBuffer(buffer);
     if (!extractedText.trim()) return res.status(400).json({ error: 'Could not read any text from this PDF' });
 
@@ -89,6 +90,7 @@ router.post('/upload-and-analyze', upload.single('file'), async (req: Identified
     } as any);
 
     const existingBranch = await getFixedBranch(req);
+    const selectedBranch = existingBranch || requestedBranch;
     const analysis = await generateJson<{
       branch: string;
       subject: string;
@@ -96,7 +98,7 @@ router.post('/upload-and-analyze', upload.single('file'), async (req: Identified
       questions: Array<{ question: string; options: string[]; correctAnswer: string; topic: string }>;
     }>(
       `Analyze this study material and create the first exam in ONE response.
-${existingBranch ? `The student's branch is already fixed as "${existingBranch}". Return that branch.` : 'Infer the branch/category.'}
+${selectedBranch ? `The student's selected branch is "${selectedBranch}". Return that branch.` : 'Infer the branch/category.'}
 Return a specific subject, 3-6 short topic tags, and exactly 10 high-quality MCQs.
 Every MCQ must have exactly 4 options and correctAnswer must exactly match one option.
 Use ONLY information supported by the material. Avoid duplicate questions.
@@ -107,7 +109,7 @@ MATERIAL:
 ${materialText}`
     );
 
-    const branch = existingBranch || analysis.branch;
+    const branch = selectedBranch || analysis.branch;
     const topics = Array.isArray(analysis.topics) ? analysis.topics.filter(Boolean).slice(0, 6) : [];
     let questions = Array.isArray(analysis.questions) ? analysis.questions : [];
 
