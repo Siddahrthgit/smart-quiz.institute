@@ -41,14 +41,14 @@ function isPdfArtifact(s: string) {
   if (/^(?:prepared by|author\s*[:\-]|tutor\b|course\b)/i.test(v)) return true;
   if (/\b\d+\s+of\s+\d+\b/i.test(v) && v.length < 220) return true;
   const words = v.split(/\s+/);
-  const numeric = (v.match(/\d+(?:\.\d+)?/g) || []).length;
-  const alpha = (v.match(/[A-Za-z]/g) || []).length;
-  if (numeric >= 2 && numeric > alpha / 4) return true;
+  // Technical study material can be numeric-heavy (RCC, hydraulics,
+  // surveying, specifications, etc.). Do not discard valid content merely
+  // because it contains many numbers.
   return false;
 }
 
 function sentences(text: string) {
-  const t = clean(text);
+  const t = clean(text).replace(/([A-Za-z])[-–]\s*\n\s*([A-Za-z])/g, '$1$2');
   const lines = t.replace(/\r/g, '\n')
     .split(/\n+/)
     .map(s => s.trim().replace(/^[-•*▪◦]\s*/, ''))
@@ -59,9 +59,6 @@ function sentences(text: string) {
     /^(?:figure|fig\.?|table)\s*\d+/i.test(s) ||
     /^(?:page|slide)\s*\d+/i.test(s);
 
-  const danglingEnd = (s: string) =>
-    /(?:[:;,]|\b(?:the|a|an|of|for|from|after|before|and|or|but|with|by|to|in|on|as|than|that|which|is|are|was|were|calculated|multiplied|rate|per|similar|area|volume))$/i.test(s.trim());
-
   const logical: string[] = [];
   let buffer = '';
 
@@ -71,18 +68,18 @@ function sentences(text: string) {
       continue;
     }
 
-    const shouldJoin =
-      !isHardHeading(line) &&
-      (
-        danglingEnd(buffer) ||
-        /^[a-z(]/.test(line) ||
-        buffer.length < 70 ||
-        line.length < 55
-      );
+    const previousEndsSentence = /[.!?]["')\]]?$/.test(buffer.trim());
+    const lineLooksLikeHeading =
+      isHardHeading(line) ||
+      (/^[A-Z][A-Za-z0-9 &/(),-]{1,70}$/.test(line) && line.split(/\s+/).length <= 9);
 
-    if (shouldJoin) {
-      buffer += ' ' + line;
-    } else {
+    // PDF extraction often puts one sentence/paragraph across many lines.
+    const shouldJoin =
+      !lineLooksLikeHeading &&
+      (!previousEndsSentence || buffer.length < 180 || /^[a-z(0-9]/.test(line) || line.length < 90);
+
+    if (shouldJoin) buffer += ' ' + line;
+    else {
       logical.push(buffer);
       buffer = line;
     }
@@ -102,8 +99,9 @@ function sentences(text: string) {
 
   return uniqueStrings(expanded.filter(s => {
     const alpha = (s.match(/[A-Za-z]/g) || []).length;
-    return s.length >= 35 && s.length <= 500 && alpha >= 20 &&
-      s.split(/\s+/).length >= 6 && !isPdfArtifact(s);
+    const wordCount = s.split(/\s+/).length;
+    return s.length >= 25 && s.length <= 500 && alpha >= 12 &&
+      wordCount >= 5 && !isPdfArtifact(s);
   }));
 }
 function words(text: string) {
