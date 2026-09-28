@@ -34,7 +34,19 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
   }
 
   async function handleFile(file:File){
-    setError(''); setPhase('analyzing');
+    setError('');
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      setError('Please choose a PDF file.');
+      setPhase('upload');
+      return;
+    }
+    const maxBytes = 50 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setError('This PDF is larger than 50 MB. Please choose a smaller PDF.');
+      setPhase('upload');
+      return;
+    }
+    setPhase('analyzing');
     try{
       if(!selectedBranch){setError('Please select your branch first.');setPhase('upload');return;}
       localStorage.setItem('studypdf_branch',selectedBranch);
@@ -89,7 +101,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
     <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-5"><label className="text-sm font-semibold block mb-2">What are you studying?</label><select value={selectedBranch} onChange={e=>setSelectedBranch(e.target.value)} className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm outline-none focus:border-indigo-500"><option value="">Select your branch</option><option>Civil Engineering</option><option>Electrical Engineering</option><option>Mechanical Engineering</option><option>Computer Engineering</option><option>Electronics & Communication Engineering</option><option>Architecture</option><option>Management</option><option>Science</option><option>Other</option></select></div>
     <div onClick={()=>fileRef.current?.click()} className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-12 text-center cursor-pointer transition-colors">
       <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center"><FileUp className="w-8 h-8 text-indigo-600"/></div>
-      <p className="font-semibold">Upload your PDF</p><p className="text-sm text-slate-500 mt-1">Tap to choose a PDF</p>
+      <p className="font-semibold">Upload your PDF</p><p className="text-sm text-slate-500 mt-1">Tap to choose a PDF</p><p className="text-xs text-slate-400 mt-2">Maximum file size: 50 MB</p>
     </div>
     <input ref={fileRef} type="file" accept="application/pdf" className="hidden" onChange={e=>e.target.files?.[0]&&handleFile(e.target.files[0])}/>
     {error&&<p className="text-red-600 text-sm mt-4">{error}</p>}
