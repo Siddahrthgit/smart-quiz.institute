@@ -49,9 +49,35 @@ function isPdfArtifact(s: string) {
 
 function sentences(text: string) {
   const t = clean(text);
-  const raw = t.replace(/\r/g, '\n')
-    .split(/(?<=[.!?])\s+|\n+/)
+  const lines = t.replace(/\r/g, '\n')
+    .split(/\n+/)
     .map(s => s.trim().replace(/^[-•*▪◦]\s*/, ''))
+    .filter(Boolean);
+
+  const logical: string[] = [];
+  let buffer = '';
+  const headingLike = (s: string) =>
+    /^(?:chapter|section|unit|topic|specifications|estimation|valuation|surveying|introduction|conclusion)\\b/i.test(s) ||
+    /^(?:\d+[.)]|[A-Z][.)])\\s+/.test(s) ||
+    (s.length < 80 && !/[.!?:]$/.test(s) && /^[A-Za-z][A-Za-z &()/-]+$/.test(s));
+
+  for (const line of lines) {
+    if (!buffer) {
+      buffer = line;
+      continue;
+    }
+    const joinsNaturally = !/[.!?]$/.test(buffer) && !headingLike(line);
+    if (joinsNaturally) buffer += ' ' + line;
+    else {
+      logical.push(buffer);
+      buffer = line;
+    }
+  }
+  if (buffer) logical.push(buffer);
+
+  const raw = logical
+    .flatMap(s => s.split(/(?<=[.!?])\s+/))
+    .map(s => s.trim())
     .filter(Boolean);
   const expanded: string[] = [];
   for (const item of raw) {
@@ -104,6 +130,16 @@ function hash(text: string) {
   let h = 2166136261;
   for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
   return h >>> 0;
+}
+
+function isStrongSourceSentence(sentence: string) {
+  const v = sentence.replace(/\\s+/g, ' ').trim();
+  if (isPdfArtifact(v)) return false;
+  if (/^(?:firstly|secondly|thirdly|then|next|note|data|required|prepared|author|chapter|section|figure|table|contents|introduction|conclusion)\\b/i.test(v)) return false;
+  if (/--|\\.{3}|\\b(?:therefore|prepared by|thank you)\\b/i.test(v)) return false;
+  const ws = v.split(/\\s+/);
+  const alpha = (v.match(/[A-Za-z]/g) || []).length;
+  return ws.length >= 8 && alpha >= 30;
 }
 
 function makeDefinitionQuestion(sentence: string, answerPool: string[], i: number): LocalQuestion | null {
@@ -165,7 +201,8 @@ function makeNumericQuestion(sentence: string, numberPool: string[], i: number):
   };
 }
 
-function makeTrueFalseQuestion(sentence: string, i: number): LocalQuestion {
+function makeTrueFalseQuestion(sentence: string, i: number): LocalQuestion | null {
+  if (!isStrongSourceSentence(sentence)) return null;
   const statement = shorten(sentence, 260);
   return {
     id: 'local-tf-' + i,
@@ -178,7 +215,7 @@ function makeTrueFalseQuestion(sentence: string, i: number): LocalQuestion {
 }
 
 function makeGenericMcq(sentence: string, pool: string[], i: number): LocalQuestion | null {
-  if (isPdfArtifact(sentence)) return null;
+  if (!isStrongSourceSentence(sentence)) return null;
   const correct = shorten(sentence, 220);
   const candidates = uniqueStrings(pool.filter(x => x !== sentence && x.length >= 25).map(x => shorten(x, 220)));
   const distractors = shuffled(candidates, hash(sentence) + 59).slice(0, 3);
@@ -240,7 +277,10 @@ export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
 
   const topics = uniqueStrings(topWords.slice(0, 8).map(w => w.charAt(0).toUpperCase() + w.slice(1)));
 
-  const notes = ss.slice(0, 24).map(s => shorten(s, 260));
+  const notes = ss
+    .filter(s => isStrongSourceSentence(s) || /^(?:specifications|estimation|valuation|rate analysis|plinth area|cube rate|quantity surveying|bill of quantities|abstract of cost)\\b/i.test(s))
+    .slice(0, 24)
+    .map(s => shorten(s, 300));
 
   const phraseFreq = new Map<string, number>();
   for (let i = 0; i < ss.length; i++) {
