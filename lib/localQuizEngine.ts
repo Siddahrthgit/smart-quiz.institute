@@ -133,15 +133,23 @@ function hash(text: string) {
 }
 
 function isStrongSourceSentence(sentence: string) {
-  const v = sentence.replace(/\\s+/g, ' ').trim();
+  const v = sentence.replace(/\s+/g, ' ').trim();
   if (isPdfArtifact(v)) return false;
-  if (/^(?:firstly|secondly|thirdly|then|next|note|data|required|prepared|author|chapter|section|figure|table|contents|introduction|conclusion)\\b/i.test(v)) return false;
-  if (/--|\\.{3}|\\b(?:therefore|prepared by|thank you)\\b/i.test(v)) return false;
-  const ws = v.split(/\\s+/);
+  if (/^(?:firstly|secondly|thirdly|then|next|note|data|required|prepared|author|chapter|section|figure|table|contents|introduction|conclusion)\b/i.test(v)) return false;
+  if (/--|\.{3}|\b(?:prepared by|thank you)\b/i.test(v)) return false;
+  const ws = v.split(/\s+/);
   const alpha = (v.match(/[A-Za-z]/g) || []).length;
-  return ws.length >= 8 && alpha >= 30;
+  return ws.length >= 7 && alpha >= 25;
 }
 
+function isCompleteAnswer(value: string) {
+  const v = value.replace(/\s+/g, ' ').trim();
+  if (v.length < 20 || v.length > 240) return false;
+  if (v.split(/\s+/).length < 4) return false;
+  if (/^(?:and|or|but|than|because|therefore|which|that|of|to|for|with|from|then|next)\b/i.test(v)) return false;
+  if (/--|\.{3}|\b(?:page|slide|prepared by|thank you)\b/i.test(v)) return false;
+  return true;
+}
 function makeDefinitionQuestion(sentence: string, answerPool: string[], i: number): LocalQuestion | null {
   const m = sentence.match(/^(.{3,80}?)\s+(?:is|are|means|refers to|consists of|includes|is defined as|are defined as|shall be|should be|must be)\s+(.{5,180})[.!?]?$/i);
   if (!m) return null;
@@ -150,7 +158,7 @@ function makeDefinitionQuestion(sentence: string, answerPool: string[], i: numbe
   const answer = shorten(m[2], 160);
   if (/^(?:firstly|secondly|thirdly|then|next|note|data|required|prepared|author|chapter|section|figure|table)\b/i.test(subject)) return null;
   if (/\b(?:of\s+\d+|\d+\s+of\s+\d+|prepared by|thank you|estimating, costing|license examination)\b/i.test(sentence)) return null;
-  if (answer.split(/\s+/).length < 4 || /--|\.\.\.|\btherefore\b|\b1\/\d+th\b/i.test(answer)) return null;
+  if (!isCompleteAnswer(answer) || /\b1\/\d+th\b/i.test(answer)) return null;
   const distractors = shuffled(
     uniqueStrings(answerPool.filter(x =>
       x !== answer &&
@@ -265,7 +273,7 @@ function makeCompletionQuestion(sentence: string, pool: string[], i: number): Lo
   };
 }
 
-export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
+export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   const ss = sentences(text);
   const freq = new Map<string, number>();
   for (const w of words(text)) freq.set(w, (freq.get(w) || 0) + 1);
@@ -307,7 +315,7 @@ export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
 
   const questions: LocalQuestion[] = [];
   const seen = new Set<string>();
-  const target = Math.max(0, Math.min(count, 30));
+  const target = Math.max(0, Math.min(count, 20));
 
   const add = (q: LocalQuestion | null) => {
     if (!q || questions.length >= target) return;
@@ -343,25 +351,6 @@ export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
     add(makeGenericMcq(s, ss, idx + 1));
   });
 
-  // If the PDF has only a few usable statements, repeat the source facts
-  // with different question IDs rather than returning an empty exam.
-  // This is intentionally conservative: every answer is still taken
-  // directly from the uploaded material.
-  if (questions.length < target && ss.length) {
-    for (let round = 1; questions.length < target && round <= 3; round++) {
-      ss.forEach((s, idx) => {
-        if (questions.length >= target) return;
-        const base = makeTrueFalseQuestion(s, round * 1000 + idx + 1);
-        add({
-          ...base,
-          id: base.id + '-r' + round,
-          question: round === 1
-            ? base.question
-            : `Based on the uploaded material, which statement is correct? "${shorten(s, 260)}"`
-        });
-      });
-    }
-  }
 
   return {
     subject: topics.slice(0, 2).join(' & ') || 'Uploaded Study Material',
@@ -372,7 +361,7 @@ export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
   };
 }
 
-export function generateLocalQuestions(text: string, count = 10) {
+export function generateLocalQuestions(text: string, count = 20) {
   return analyzeLocalText(text, count).questions;
 }
 
