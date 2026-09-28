@@ -21,22 +21,49 @@ const upload = multer({
 });
 
 async function parsePdfBuffer(buffer: Buffer): Promise<string> {
+  let lastError: unknown = null;
+
+  // pdf-parse v2 exposes PDFParse as a class. Keep this path first.
   try {
     const PDFParseClass = (pdfParseModule as any).PDFParse || (pdfParseModule as any).default?.PDFParse;
     if (typeof PDFParseClass === 'function') {
       const parser = new PDFParseClass({ data: buffer });
-      const result = await parser.getText();
-      return result?.text || '';
-    }
-    const parseFn = (pdfParseModule as any).default || pdfParseModule;
-    if (typeof parseFn === 'function') {
-      const result = await parseFn(buffer);
-      return result?.text || '';
+      try {
+        const result = await parser.getText();
+        const text = typeof result?.text === 'string' ? result.text : '';
+        if (text.trim()) {
+          await parser.destroy?.();
+          return text;
+        }
+      } finally {
+        await parser.destroy?.().catch?.(() => {});
+      }
     }
   } catch (err) {
-    console.error('PDF parsing error:', err);
+    lastError = err;
+    console.error('PDFParse class error:', err);
   }
-  return buffer.toString('utf-8');
+
+  // Compatibility path for older pdf-parse exports.
+  try {
+    const mod: any = pdfParseModule as any;
+    const parseFn = typeof mod === 'function' ? mod :
+      (typeof mod.default === 'function' ? mod.default : null);
+    if (parseFn) {
+      const result = await parseFn(buffer);
+      const text = typeof result?.text === 'string' ? result.text : '';
+      if (text.trim()) return text;
+    }
+  } catch (err) {
+    lastError = err;
+    console.error('legacy pdf-parse error:', err);
+  }
+
+  // Do NOT treat binary PDF bytes as extracted study text. That was allowing
+  // the binary header/body to reach the question engine and caused misleading
+  // "not enough readable study statements" errors.
+  if (lastError) console.error('No readable PDF text extracted:', lastError);
+  return '';
 }
 
 router.use(identifyOwner);
@@ -110,7 +137,19 @@ router.post('/upload-and-analyze', (req: IdentifiedRequest, res: Response, next)
       });
     }
 
-    const cleanText = extractedText.replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+    const cleanText = extractedText
+      .replace(/\r/g, '\n')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+    const readableChars = (cleanText.match(/[A-Za-z0-9]/g) || []).length;
+    if (readableChars < 40 || cleanText.split(/\s+/).length < 8) {
+      return res.status(422).json({
+        error: 'PDF_TEXT_NOT_FOUND',
+        message: 'The PDF was uploaded, but readable study text could not be extracted. If this is a scanned PDF, it needs OCR before questions can be generated.'
+      });
+    }
     docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     await Material.create({ docId, userId: req.ownerType === 'user' ? req.ownerId : undefined, ownerKey: ownerKey(req), title: originalname, extractedText, fileType: 'pdf', wordCount: cleanText.split(/\s+/).length, summary: 'Uploaded study material', topics: [] } as any);
 
