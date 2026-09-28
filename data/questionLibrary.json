@@ -1,11 +1,272 @@
 {
   "civil": {
-    "nec": [],
+    "nec": [
+      {
+        "id": "nec-p1",
+        "question": "For a simply supported beam carrying a central point load, where is the maximum bending moment located?",
+        "options": [
+          "At the supports",
+          "At midspan",
+          "At one-quarter span",
+          "Uniformly throughout"
+        ],
+        "correctAnswer": "At midspan",
+        "topic": "Structural Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p2",
+        "question": "For a principal plane, the shear stress is:",
+        "options": [
+          "Maximum",
+          "Zero",
+          "Equal to normal stress",
+          "Always negative"
+        ],
+        "correctAnswer": "Zero",
+        "topic": "Structural Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p3",
+        "question": "Degree of consolidation is commonly expressed as:",
+        "options": [
+          "Final settlement / initial settlement",
+          "Settlement at time t / final primary consolidation settlement",
+          "Pore pressure / total stress",
+          "Dry density / wet density"
+        ],
+        "correctAnswer": "Settlement at time t / final primary consolidation settlement",
+        "topic": "Soil Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p4",
+        "question": "An overconsolidated soil has previously experienced:",
+        "options": [
+          "A lower effective stress than its current value",
+          "A greater effective stress than its current value",
+          "No effective stress",
+          "Only atmospheric pressure"
+        ],
+        "correctAnswer": "A greater effective stress than its current value",
+        "topic": "Soil Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p5",
+        "question": "Compaction of soil primarily involves the removal of:",
+        "options": [
+          "Water",
+          "Air",
+          "Soil particles",
+          "Mineral matter"
+        ],
+        "correctAnswer": "Air",
+        "topic": "Soil Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p6",
+        "question": "A piston sampler is particularly associated with sampling:",
+        "options": [
+          "Very hard rock",
+          "Very soft or sensitive cohesive soils",
+          "Dry gravel only",
+          "Steel specimens"
+        ],
+        "correctAnswer": "Very soft or sensitive cohesive soils",
+        "topic": "Soil Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p7",
+        "question": "Hydrostatic pressure at depth h in water is given by:",
+        "options": [
+          "p = ρgh",
+          "p = ρg/h",
+          "p = gh/ρ",
+          "p = ρh/g"
+        ],
+        "correctAnswer": "p = ρgh",
+        "topic": "Hydraulics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p8",
+        "question": "Reynolds number in pipe flow depends on:",
+        "options": [
+          "Diameter, velocity and viscosity",
+          "Only pipe length",
+          "Only pressure",
+          "Only roughness"
+        ],
+        "correctAnswer": "Diameter, velocity and viscosity",
+        "topic": "Hydraulics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p9",
+        "question": "The Manning equation is commonly used to estimate:",
+        "options": [
+          "Open-channel velocity or discharge",
+          "Concrete strength",
+          "Soil consolidation time",
+          "Bearing capacity only"
+        ],
+        "correctAnswer": "Open-channel velocity or discharge",
+        "topic": "Hydraulics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p10",
+        "question": "The main purpose of a surge tank is to:",
+        "options": [
+          "Increase cement strength",
+          "Mitigate pressure transients in a pressure conduit",
+          "Measure soil density",
+          "Remove hardness from water"
+        ],
+        "correctAnswer": "Mitigate pressure transients in a pressure conduit",
+        "topic": "Hydropower",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p11",
+        "question": "A flow-duration curve is useful for assessing:",
+        "options": [
+          "Flow availability and hydropower potential",
+          "Concrete cover",
+          "Brick absorption only",
+          "Survey bearing only"
+        ],
+        "correctAnswer": "Flow availability and hydropower potential",
+        "topic": "Hydropower",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p12",
+        "question": "CBR is primarily used in evaluating:",
+        "options": [
+          "Pavement subgrade strength",
+          "Cement setting time",
+          "Water hardness",
+          "Beam deflection"
+        ],
+        "correctAnswer": "Pavement subgrade strength",
+        "topic": "Transportation",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p13",
+        "question": "The bitumen penetration test is used to determine:",
+        "options": [
+          "Consistency of bitumen",
+          "Concrete compressive strength",
+          "Soil permeability",
+          "Steel yield stress"
+        ],
+        "correctAnswer": "Consistency of bitumen",
+        "topic": "Transportation",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p14",
+        "question": "BOD and COD are commonly associated with:",
+        "options": [
+          "Water and wastewater quality",
+          "Beam stability",
+          "Surveying bearings",
+          "Bitumen penetration"
+        ],
+        "correctAnswer": "Water and wastewater quality",
+        "topic": "Water & Sanitation",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p15",
+        "question": "In PERT, the expected activity time is based on:",
+        "options": [
+          "Optimistic, most likely and pessimistic times",
+          "Only optimistic time",
+          "Only pessimistic time",
+          "Only average project cost"
+        ],
+        "correctAnswer": "Optimistic, most likely and pessimistic times",
+        "topic": "Project Management",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p16",
+        "question": "Optimum moisture content on a compaction curve corresponds to approximately:",
+        "options": [
+          "Maximum dry density",
+          "Minimum dry density",
+          "Zero air content always",
+          "Maximum water content"
+        ],
+        "correctAnswer": "Maximum dry density",
+        "topic": "Soil Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p17",
+        "question": "In a simply supported beam with a central point load, the bending moment diagram is:",
+        "options": [
+          "Triangular",
+          "Parabolic",
+          "Circular",
+          "Constant"
+        ],
+        "correctAnswer": "Triangular",
+        "topic": "Structural Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p18",
+        "question": "The Chezy equation is associated with:",
+        "options": [
+          "Open-channel flow",
+          "Soil compaction",
+          "Concrete mix design",
+          "PERT scheduling"
+        ],
+        "correctAnswer": "Open-channel flow",
+        "topic": "Hydraulics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p19",
+        "question": "A canal crossing arrangement is classified using terms such as:",
+        "options": [
+          "Aqueduct and superpassage",
+          "Mohr circle and SFD",
+          "CBR and OMC",
+          "CPM and PERT"
+        ],
+        "correctAnswer": "Aqueduct and superpassage",
+        "topic": "Irrigation",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      },
+      {
+        "id": "nec-p20",
+        "question": "Mohr-circle relations are used to determine:",
+        "options": [
+          "Principal stresses and maximum shear stress",
+          "Only cement setting time",
+          "Only pipe discharge",
+          "Only project duration"
+        ],
+        "correctAnswer": "Principal stresses and maximum shear stress",
+        "topic": "Structural Mechanics",
+        "source": "Derived from the uploaded 2021–2025 repeatability analysis; not an official NEC question."
+      }
+    ],
     "loksewa": [],
     "rcc": [],
     "soil-foundation": [],
     "hydraulics": [],
     "transportation-surveying": []
   },
-  "message": "Question-bank slots are ready. Add verified questions before publishing them as NEC/Loksewa questions."
+  "message": "Question-bank slots contain clearly labeled derived practice where supplied. Do not represent these as official NEC/Loksewa past questions."
 }
