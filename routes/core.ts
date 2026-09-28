@@ -288,7 +288,7 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
     const newCount = 10 - wrongFromLast.length;
     const avoid = wrongFromLast.length ? ` Do not repeat these: ${wrongFromLast.map((q: any) => q.question).join(' | ')}` : '';
     const fresh = await generateJson<any[]>(
-      `Create ${newCount} MCQs on "${topic}" in ${branch || 'the student's field'}.${avoid} Return ONLY JSON array with question, options[4], correctAnswer and topic.`
+      `Create ${newCount} MCQs on "${topic}" in ${branch || 'the student field'}.${avoid} Return ONLY JSON array with question, options[4], correctAnswer and topic.`
     );
     return res.json({ success: true, docId, branch: branch || null, subject: topic, questions: [...wrongFromLast, ...fresh] });
   } catch (err: any) {
