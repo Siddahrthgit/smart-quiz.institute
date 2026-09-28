@@ -1,0 +1,11 @@
+{
+  "civil": {
+    "nec": [],
+    "loksewa": [],
+    "rcc": [],
+    "soil-foundation": [],
+    "hydraulics": [],
+    "transportation-surveying": []
+  },
+  "message": "Question-bank slots are ready. Add verified questions before publishing them as NEC/Loksewa questions."
+}
