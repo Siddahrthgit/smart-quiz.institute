@@ -246,8 +246,14 @@ export function analyzeLocalText(text: string, count = 10): LocalAnalysis {
     if (questions.length < target) add(makeNumericQuestion(s, numberPool, idx + 1));
   });
 
-  // Then use factual True/False questions. This guarantees useful questions
-  // even when a PDF has no definition-style sentences.
+  // Completion questions work well with textbooks and technical PDFs
+  // even when the extracted text has no "X is Y" definitions.
+  ss.forEach((s, idx) => {
+    if (questions.length >= target) return;
+    add(makeCompletionQuestion(s, ss, idx + 1));
+  });
+
+  // Then use factual True/False questions.
   ss.forEach((s, idx) => {
     if (questions.length >= target) return;
     add(makeTrueFalseQuestion(s, idx + 1));
