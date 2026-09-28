@@ -290,9 +290,27 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
     return m ? { subject: shorten(m[1],90), answer: shorten(m[2],210), source:s, i } : null;
   }).filter(Boolean) as {subject:string;answer:string;source:string;i:number}[];
 
-  const facts = uniqueStrings(factRows.map(f => f.subject + '|||' + f.answer)).map(k => {
+  // Also recognize common lecture-note formats such as "Roadways: Roads, Highway..." and
+  // "National Highway are designated by H...". These are study facts even when
+  // they are not written as X is Y.
+  const extraFacts: {subject:string; answer:string; source:string}[] = [];
+  for (const s of ss) {
+    let m = s.match(/^([A-Za-z][A-Za-z0-9 &/'()\/-]{2,80})\\s*:\\s*(.{3,300})$/);
+    if (m && !/^(?:q|question|answer|note|example|eg)\\b/i.test(m[1])) {
+      extraFacts.push({subject: shorten(m[1], 90), answer: shorten(m[2], 210), source:s});
+    }
+    m = s.match(/^(.{3,100}?)\\s+(?:are|is)\\s+(?:designated|represented)\\s+(?:by|as)\\s+(.{3,200})[.!?]?$/i);
+    if (m) extraFacts.push({subject: 'How are ' + shorten(m[1],70) + ' designated?', answer: shorten(m[2],210), source:s});
+    m = s.match(/^(.{8,180}?)\\s+is\\s+known\\s+as\\s+(.{2,100})[.!?]?$/i);
+    if (m) extraFacts.push({subject: 'What is ' + shorten(m[1],80) + '?', answer: shorten(m[2],210), source:s});
+  }
+  const combinedRows = [
+    ...factRows.map(f => ({ subject:f.subject, answer:f.answer, source:f.source, i:f.i })),
+    ...extraFacts.map((f,i) => ({ subject:f.subject, answer:f.answer, source:f.source, i:10000+i }))
+  ];
+  const facts = uniqueStrings(combinedRows.map(f => f.subject + '|||' + f.answer)).map(k => {
     const p=k.split('|||');
-    return factRows.find(f=>f.subject===p[0] && f.answer===p[1])!;
+    return combinedRows.find(f=>f.subject===p[0] && f.answer===p[1])!;
   });
 
   const freq = new Map<string, number>();
@@ -305,10 +323,18 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
 
   // "Most Repeated Questions" means the most important exam-relevant
   // questions/facts from the uploaded material. It is NOT a raw word-frequency list.
-  const repeated = facts.map((f, idx) => ({
-    phrase: `${f.subject} — ${f.answer}`,
-    count: 1000 - idx
-  })).slice(0,20);
+  const repeated = facts
+    .slice()
+    .sort((a, b) => {
+      const aScore = /\\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\\b/i.test(a.source) ? 2 : 1;
+      const bScore = /\\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\\b/i.test(b.source) ? 2 : 1;
+      return bScore - aScore;
+    })
+    .slice(0, 20)
+    .map(f => ({
+      phrase: f.subject + ' — ' + f.answer,
+      count: /\\b(?:known as|defined as|designated|represented|fastest|cheapest|door-to-door|types?|mode|highway|road)\\b/i.test(f.source) ? 2 : 1
+    }));
 
   const answerPool = uniqueStrings(facts.map(f=>f.answer));
   const numberPool = uniqueStrings((text.match(/\b\.+(?:\.\.+)?(?:\s*%|\s*(?:mm|cm|m|km|N|kN|Pa|kPa|MPa|GPa|kg|kg\.m3|m3\.s|°C|days?|years?))?\b/gi)||[]));
