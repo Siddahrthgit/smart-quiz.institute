@@ -57,8 +57,26 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
   }
   async function retryTopic(topic:string){
     setError('');setPhase('analyzing');
-    try{const res=await fetch('/api/core/exam/from-topic',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({topic})});const d=await res.json();if(!res.ok)throw new Error(d.message||d.error||'Failed');setDocId(d.docId);setBranch(d.branch||'');setSubject(d.subject||topic);setQuestions(d.questions||[]);setAnswers({});setPhase('exam');}
-    catch(e:any){setError(e.message||'Failed');setPhase('menu');}
+    try{
+      const libraryTopic = /^(NEC Civil|Loksewa Civil|RCC|Soil & Foundation|Hydraulics|Hydraulics & Water Resources|Transportation & Surveying)$/i.test(topic);
+      const res = libraryTopic
+        ? await fetch(`/api/core/question-library?branch=${encodeURIComponent(branch||selectedBranch)}&category=${encodeURIComponent(topic)}`,{headers:ownerHeaders()})
+        : await fetch('/api/core/exam/from-topic',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({topic})});
+      const d=await res.json();
+      if(!res.ok)throw new Error(d.message||d.error||'Failed');
+      const qs=Array.isArray(d.questions)?d.questions:[];
+      if(!qs.length){
+        throw new Error(libraryTopic
+          ? `The ${topic} library is currently empty. Add verified questions before publishing this category.`
+          : `There is not enough readable material to create practice questions for "${topic}".`);
+      }
+      setDocId(d.docId||(`library_${Date.now()}`));
+      setBranch(d.branch||branch||selectedBranch||'');
+      setSubject(d.subject||topic);
+      setQuestions(qs);
+      setAnswers({});
+      setPhase('exam');
+    }catch(e:any){setError(e.message||'Failed');setPhase('menu');}
   }
   async function performance(){
     setError('');
