@@ -23,6 +23,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           Turn your study material into quizzes, and turn weak topics into strengths.
         </h1>
 
+        <p className="text-indigo-600 text-sm md:text-base font-semibold tracking-wide">
+          Have perfect knowledge with studypdf.duckdns.org
+        </p>
+
         <p className="text-slate-600 text-sm md:text-base max-w-xl mx-auto">
           Upload your notes or PDFs, get instant AI-generated quizzes, and practice the questions
           you actually get wrong — until they're not weak spots anymore.
