@@ -139,65 +139,50 @@ function normalizeFactPart(value: string) {
 function extractFacts(ss: string[]) {
   const rows: { subject: string; answer: string; source: string }[] = [];
 
+  const add = (subject: string, answer: string, source: string) => {
+    const sub = normalizeFactPart(subject).replace(/^(?:q\\d+[.)]\\s*)/i, '');
+    const ans = normalizeFactPart(answer);
+    if (sub.length >= 3 && ans.length >= 5 && sub.length <= 140 && ans.length <= 240) {
+      rows.push({ subject: sub, answer: ans, source });
+    }
+  };
+
   for (const source of ss) {
-    const s = source.replace(/\s+/g, ' ').trim();
-    let m = s.match(/^(?:Q\d+[.)]\s*)?What is\s+(.+?)\s*:\s*(.+?)[?]?$/i);
+    const s = source.replace(/\\s+/g, ' ').trim();
+    if (!s || isPdfArtifact(s)) continue;
 
-    if (m) {
-      const subject = normalizeFactPart(m[1]);
-      const answer = normalizeFactPart(m[2]);
-      if (subject.length >= 2 && answer.length >= 3) {
-        rows.push({ subject, answer, source: s });
-        continue;
-      }
+    let m = s.match(/^(?:Q\\d+[.)]\\s*)?What is\\s+(.+?)\\s*[:\\-]\\s*(.+)$/i);
+    if (m) { add(m[1], m[2], s); continue; }
+
+    m = s.match(/^(.{3,120}?)\\s*[:\\-]\\s*(.{5,240})$/);
+    if (m && !/^(?:note|answer|question|example|figure|fig|table|chapter|section|page)\\b/i.test(m[1])) {
+      add(m[1], m[2], s); continue;
     }
 
-    m = s.match(/^(.{2,100}?)\s*:\s*(.{3,320})$/);
-    if (m && !/^(?:note|notes|answer|question|example|eg|figure|fig|table|chapter|section|page)\b/i.test(m[1].trim())) {
-      const subject = normalizeFactPart(m[1]);
-      const answer = normalizeFactPart(m[2]);
-      if (subject.length >= 2 && answer.length >= 3) {
-        rows.push({ subject, answer, source: s });
-        continue;
-      }
-    }
+    m = s.match(/^(.{3,120}?)\\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as)\\s+(.{5,240})[.!?]?$/i);
+    if (m) { add(m[1], m[2], s); continue; }
 
-    m = s.match(/^(.{2,100}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as)\s+(.{3,260})[.!?]?$/i);
-    if (m) {
-      const subject = normalizeFactPart(m[1]);
-      const answer = normalizeFactPart(m[2]);
-      if (subject.length >= 2 && answer.length >= 3) {
-        rows.push({ subject, answer, source: s });
-        continue;
-      }
-    }
+    m = s.match(/^(.{3,120}?)\\s+(?:is|are)\\s+(?:designated|represented)\\s+(?:by|as)\\s+(.{3,220})[.!?]?$/i);
+    if (m) { add('How are ' + m[1] + ' designated', m[2], s); continue; }
 
-    m = s.match(/^(.{2,100}?)\s+(?:are|is)\s+(?:designated|represented)\s+(?:by|as)\s+(.{2,220})[.!?]?$/i);
-    if (m) {
-      const subject = normalizeFactPart(m[1]);
-      const answer = normalizeFactPart(m[2]);
-      if (subject.length >= 2 && answer.length >= 2) {
-        rows.push({ subject: 'How are ' + subject + ' designated?', answer, source: s });
-      }
-    }
+    // General study statement fallback. Convert a complete sentence into a
+    // question only when it has a clear subject + predicate boundary.
+    m = s.match(/^(.{3,100}?)\\s+(?:has|have|contains|contain|uses|use|provides|provide|prevents|prevents|controls|control|requires|require|measures|measure|determines|determine|indicates|indicate|depends on|consists of)\\s+(.{5,220})[.!?]?$/i);
+    if (m) { add(m[1], m[2], s); continue; }
 
-    m = s.match(/^(.{3,120}?)\s+is\s+known\s+as\s+(.{2,180})[.!?]?$/i);
-    if (m) {
-      rows.push({
-        subject: 'What is ' + normalizeFactPart(m[1]),
-        answer: normalizeFactPart(m[2]),
-        source: s
-      });
-    }
+    // "X: Y" or "X — Y" often arrives from PDFs without punctuation.
+    m = s.match(/^(.{3,100}?)\\s+[–—]\\s+(.{5,220})$/);
+    if (m) { add(m[1], m[2], s); }
   }
 
   return rows.filter(f => {
-    const a = f.answer;
-    if (a.length < 3 || a.length > 240) return false;
-    if (/^(?:essential|applicable|measured|calculated|found|prepared|equal to|called|a|an|the)\b/i.test(a)) return false;
-    if (/^(?:and|or|but|which|that|of|to|for|with|from|then|next)\b/i.test(a)) return false;
-    if (/--|\.{3}|\b(?:page|slide|prepared by|thank you)\b/i.test(a)) return false;
-    return /[A-Za-z]{2,}/.test(a);
+    const a = f.answer.replace(/\\s+/g, ' ').trim();
+    const subject = f.subject.replace(/\\s+/g, ' ').trim();
+    if (a.length < 5 || a.length > 240 || subject.length < 3) return false;
+    if (/^(?:and|or|but|which|that|of|to|for|with|from|then|next|essential|applicable|measured|calculated|found|prepared|equal to|called|a|an|the)\\b/i.test(a)) return false;
+    if (/^(?:note|notes|answer|question|example|figure|fig|table|chapter|section|page)\\b/i.test(subject)) return false;
+    if (/--|\\.{3}|\\b(?:page|slide|prepared by|thank you)\\b/i.test(a)) return false;
+    return /[A-Za-z]{2,}/.test(a) && /[A-Za-z]{2,}/.test(subject);
   });
 }
 
