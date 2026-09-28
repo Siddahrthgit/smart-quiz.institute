@@ -6,7 +6,6 @@ import { User } from '../db/User';
 import { Guest } from '../db/Guest';
 import { Attempt } from '../db/Attempt';
 import { identifyOwner, IdentifiedRequest } from '../middleware/auth';
-import { generateJson } from '../lib/gemini';
 import { analyzeLocalText, generateLocalQuestions, generateLocalNotes, findLocalRepeated } from '../lib/localQuizEngine';
 
 const router = express.Router();
@@ -159,15 +158,12 @@ router.get('/attempts/:id', async (req: IdentifiedRequest, res: Response) => {
       return res.status(404).json({ error: 'Attempt not found' });
     }
     const wrong = attempt.questions.filter((q: any) => !q.isCorrect);
+    // Keep performance review available even when Gemini is out of quota.
+    // Explanations are derived from the original question/correct answer.
     const missing = wrong.filter((q: any) => !q.note);
     if (missing.length) {
-      const notes = await generateJson<{ question: string; note: string }[]>(
-        `For each wrong answer, write a short study-note explanation. Return ONLY JSON array of {"question":string,"note":string}.
-${missing.map((q: any) => `Q: ${q.question}\nCorrect: ${q.correctAnswer}\nStudent: ${q.userAnswer || '(none)'}`).join('\n\n')}`
-      );
-      for (const n of notes) {
-        const q = attempt.questions.find((x: any) => x.question === n.question);
-        if (q) (q as any).note = n.note;
+      for (const q of missing) {
+        (q as any).note = `Review the material for this question. The correct answer is: ${q.correctAnswer}.`;
       }
       await attempt.save();
     }
@@ -256,23 +252,51 @@ router.post('/exam/from-topic', async (req: IdentifiedRequest, res: Response) =>
   try {
     const { topic } = req.body as { topic?: string };
     if (!topic) return res.status(400).json({ error: 'No topic provided' });
+
     const branch = await getFixedBranch(req);
+    const material = await (Material as any).findOne({ ownerKey: ownerKey(req) }).sort({ createdAt: -1 });
+    if (!material) {
+      return res.status(404).json({
+        error: 'NO_STUDY_MATERIAL',
+        message: 'Upload a PDF first so StudyPDF can build practice questions from your material.'
+      });
+    }
+
+    const text = String(material.extractedText || '');
+    const topicWords = topic.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const sourceSentences = text
+      .replace(/\s+/g, ' ')
+      .split(/(?<=[.!?])\s+/)
+      .filter((s: string) => s.length >= 30);
+
+    const relevant = topicWords.length
+      ? sourceSentences.filter((s: string) => topicWords.some((w: string) => s.toLowerCase().includes(w)))
+      : sourceSentences;
+
+    const pool = relevant.length >= 3 ? relevant.join(' ') : text;
+    const questions = generateLocalQuestions(pool, 10);
+
+    if (!questions.length) {
+      return res.status(422).json({
+        error: 'NOT_ENOUGH_SOURCE_CONTENT',
+        message: `There is not enough readable material to create practice questions for "${topic}".`
+      });
+    }
+
     const docId = 'topic_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    const prevAttempt = await (Attempt as any).findOne({
-      ownerId: req.ownerId, ownerType: req.ownerType, subject: topic, docId: { $regex: '^topic_' },
-    }).sort({ createdAt: -1 });
-    const wrongFromLast = (prevAttempt?.questions || []).filter((q: any) => !q.isCorrect).slice(0, 5)
-      .map((q: any) => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, topic: q.topic }));
-    const newCount = 10 - wrongFromLast.length;
-    const avoid = wrongFromLast.length ? ` Do not repeat these: ${wrongFromLast.map((q: any) => q.question).join(' | ')}` : '';
-    const fresh = await generateJson<any[]>(
-      `Create ${newCount} MCQs on "${topic}" in ${branch || 'the student field'}.${avoid} Return ONLY JSON array with question, options[4], correctAnswer and topic.`
-    );
-    return res.json({ success: true, docId, branch: branch || null, subject: topic, questions: [...wrongFromLast, ...fresh] });
+    return res.json({
+      success: true,
+      docId,
+      branch: branch || null,
+      subject: topic,
+      questions,
+      local: true
+    });
   } catch (err: any) {
-    return res.status(err?.code === 'AI_TEMPORARILY_BUSY' ? 503 : 500).json({
-      error: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI_TEMPORARILY_BUSY' : (err.message || 'Failed to generate practice set'),
-      message: err?.code === 'AI_TEMPORARILY_BUSY' ? 'AI is temporarily busy. Please try again in a moment.' : (err.message || 'Failed to generate practice set')
+    console.error('exam/from-topic error:', err);
+    return res.status(500).json({
+      error: 'LOCAL_TOPIC_FAILED',
+      message: 'Could not create topic practice from the uploaded material.'
     });
   }
 });
