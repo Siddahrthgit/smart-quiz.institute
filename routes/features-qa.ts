@@ -31,14 +31,32 @@ router.post('/', async (req, res) => {
 App features:
 ${APP_FEATURES_CONTEXT}
 
-Visitor question: "${message}"`;
+Visitor question: "${message.trim().slice(0, 4000)}"`;
 
-    const aiResponse = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
-      contents: prompt,
-    });
-
-    res.json({ success: true, reply: aiResponse.text || "I'm not sure — feel free to sign up and explore!" });
+    const models = ['gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+    let lastError: any;
+    for (const model of models) {
+      try {
+        const aiResponse = await ai.models.generateContent({ model, contents: prompt });
+        const reply = aiResponse.text?.trim();
+        if (!reply) throw new Error(`Gemini model ${model} returned an empty response.`);
+        return res.json({ success: true, reply, model, provider: 'google-gemini' });
+      } catch (err: any) {
+        lastError = err;
+        const status = Number(err?.status ?? err?.response?.status ?? err?.error?.status);
+        console.error('Features Q&A Gemini attempt failed', {
+          model,
+          status: Number.isFinite(status) ? status : 'unknown',
+          message: String(err?.message || 'Unknown provider error').slice(0, 300),
+        });
+        // Retry other models only for quota, transient provider, or network failures.
+        if (status && ![429, 500, 502, 503, 504].includes(status)) break;
+      }
+    }
+    const status = Number(lastError?.status ?? lastError?.response?.status ?? lastError?.error?.status);
+    if (status === 429) return res.status(429).json({ error: 'AI is temporarily busy because the Gemini quota is currently limited. Please try again later.' });
+    if (status === 401 || status === 403) return res.status(502).json({ error: 'Gemini authentication failed. Check the server API key and permissions.' });
+    return res.status(503).json({ error: 'AI is temporarily busy. Please try again in a moment.' });
   } catch (err: any) {
     console.error('Features Q&A error:', err);
     res.status(500).json({ error: 'Failed to answer right now' });
