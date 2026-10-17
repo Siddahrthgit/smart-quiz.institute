@@ -38,3 +38,21 @@ Run the local quiz engine tests with:
 npx tsx --test lib/localQuizEngine.test.ts
 npm run build
 ```
+
+
+## Ask IIA assistant
+
+A floating **Ask IIA** launcher is available on every main app page. It answers general questions, can search the web and display grounded source links, can use study material loaded in the current session, and supports multi-step requests. Login/sign-up is available from the same bottom-right panel. The existing quiz, upload, exam and performance flows remain in place.
+
+The `POST /api/assistant/ask` endpoint uses the existing Gemini server key. The local fact extractor remains a deterministic offline fallback for MCQs only; it is not a general-purpose language model.
+
+### Connect the assistant to the central IIA engine (optional)
+
+To use the exact same central answering pipeline as the IIA website, configure these server-side environment variables on the Smart Quiz Institute backend:
+
+```env
+IIA_ASSISTANT_URL=https://integratedia.duckdns.org/api/assistant/ask
+IIA_SHARED_ASSISTANT_KEY=<the-same-random-secret-configured-on-the-IIA-server>
+```
+
+Configure `IIA_SHARED_ASSISTANT_KEY` in the IIA server environment too, using a unique random value of at least 32 bytes (for example, generate it with `openssl rand -base64 48`). Never expose this key in frontend variables or commit the real value. If the proxy variables are not configured, the Study Quiz Institute backend uses its own `GEMINI_API_KEY` for answers instead. The proxy is server-to-server and has bounded rate limits.
