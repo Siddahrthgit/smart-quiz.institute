@@ -140,7 +140,7 @@ function extractFacts(ss: string[]) {
   const rows: { subject: string; answer: string; source: string }[] = [];
 
   const add = (subject: string, answer: string, source: string) => {
-    const sub = normalizeFactPart(subject).replace(/^(?:q\\d+[.)]\\s*)/i, '');
+    const sub = normalizeFactPart(subject).replace(/^(?:q\d+[.)]\s*)/i, '');
     const ans = normalizeFactPart(answer);
     if (sub.length >= 3 && ans.length >= 5 && sub.length <= 140 && ans.length <= 240) {
       rows.push({ subject: sub, answer: ans, source });
@@ -148,40 +148,37 @@ function extractFacts(ss: string[]) {
   };
 
   for (const source of ss) {
-    const s = source.replace(/\\s+/g, ' ').trim();
+    const s = source.replace(/\s+/g, ' ').trim();
     if (!s || isPdfArtifact(s)) continue;
 
-    let m = s.match(/^(?:Q\\d+[.)]\\s*)?What is\\s+(.+?)\\s*[:\\-]\\s*(.+)$/i);
+    let m = s.match(/^(?:Q\d+[.)]\s*)?What is\s+(.+?)\s*[:\-]\s*(.+)$/i);
     if (m) { add(m[1], m[2], s); continue; }
 
-    m = s.match(/^(.{3,120}?)\\s*[:\\-]\\s*(.{5,240})$/);
-    if (m && !/^(?:note|answer|question|example|figure|fig|table|chapter|section|page)\\b/i.test(m[1])) {
+    m = s.match(/^(.{3,120}?)\s*[:\-]\s*(.{5,240})$/);
+    if (m && !/^(?:note|answer|question|example|figure|fig|table|chapter|section|page)\b/i.test(m[1])) {
       add(m[1], m[2], s); continue;
     }
 
-    m = s.match(/^(.{3,120}?)\\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as)\\s+(.{5,240})[.!?]?$/i);
+    m = s.match(/^(.{3,120}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as)\s+(.{5,240})[.!?]?$/i);
     if (m) { add(m[1], m[2], s); continue; }
 
-    m = s.match(/^(.{3,120}?)\\s+(?:is|are)\\s+(?:designated|represented)\\s+(?:by|as)\\s+(.{3,220})[.!?]?$/i);
+    m = s.match(/^(.{3,120}?)\s+(?:is|are)\s+(?:designated|represented)\s+(?:by|as)\s+(.{3,220})[.!?]?$/i);
     if (m) { add('How are ' + m[1] + ' designated', m[2], s); continue; }
 
-    // General study statement fallback. Convert a complete sentence into a
-    // question only when it has a clear subject + predicate boundary.
-    m = s.match(/^(.{3,100}?)\\s+(?:has|have|contains|contain|uses|use|provides|provide|prevents|prevents|controls|control|requires|require|measures|measure|determines|determine|indicates|indicate|depends on|consists of)\\s+(.{5,220})[.!?]?$/i);
+    m = s.match(/^(.{3,100}?)\s+(?:has|have|contains|contain|uses|use|provides|provide|prevents|control(?:s)?|requires?|measures?|determines?|indicates?|depends on|consists of)\s+(.{5,220})[.!?]?$/i);
     if (m) { add(m[1], m[2], s); continue; }
 
-    // "X: Y" or "X — Y" often arrives from PDFs without punctuation.
-    m = s.match(/^(.{3,100}?)\\s+[–—]\\s+(.{5,220})$/);
-    if (m) { add(m[1], m[2], s); }
+    m = s.match(/^(.{3,100}?)\s+[–—]\s+(.{5,220})$/);
+    if (m) add(m[1], m[2], s);
   }
 
   return rows.filter(f => {
-    const a = f.answer.replace(/\\s+/g, ' ').trim();
-    const subject = f.subject.replace(/\\s+/g, ' ').trim();
+    const a = f.answer.replace(/\s+/g, ' ').trim();
+    const subject = f.subject.replace(/\s+/g, ' ').trim();
     if (a.length < 5 || a.length > 240 || subject.length < 3) return false;
-    if (/^(?:and|or|but|which|that|of|to|for|with|from|then|next|essential|applicable|measured|calculated|found|prepared|equal to|called|a|an|the)\\b/i.test(a)) return false;
-    if (/^(?:note|notes|answer|question|example|figure|fig|table|chapter|section|page)\\b/i.test(subject)) return false;
-    if (/--|\\.{3}|\\b(?:page|slide|prepared by|thank you)\\b/i.test(a)) return false;
+    if (/^(?:and|or|but|which|that|of|to|for|with|from|then|next|essential|applicable|measured|calculated|found|prepared|equal to|called|a|an|the)\b/i.test(a)) return false;
+    if (/^(?:note|notes|answer|question|example|figure|fig|table|chapter|section|page)\b/i.test(subject)) return false;
+    if (/--|\.{3}|\b(?:page|slide|prepared by|thank you)\b/i.test(a)) return false;
     return /[A-Za-z]{2,}/.test(a) && /[A-Za-z]{2,}/.test(subject);
   });
 }
@@ -264,7 +261,7 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   const answerPool = uniqueStrings(facts.map(f => f.answer));
   const questions: LocalQuestion[] = [];
   const seenQuestions = new Set<string>();
-  const target = Math.max(0, Math.min(Number(count) || 20, 20));
+  const target = Math.max(0, Math.min(Number(count) || 20, 100));
 
   facts.forEach((f, i) => {
     if (questions.length >= target) return;
