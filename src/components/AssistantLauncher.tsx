@@ -32,9 +32,14 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
     setAnswer(null);
     try {
       const documentId = window.localStorage.getItem('studypdf_doc_id') || undefined;
+      const token = window.localStorage.getItem('smart_quiz_token');
+      const guestId = window.localStorage.getItem('smart_quiz_guest_id');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      if (guestId) headers['x-guest-id'] = guestId;
       const response = await fetch('/api/assistant/ask', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ message: question, webSearch, taskMode, ...(documentId ? { documentId } : {}) }),
       });
       const data = await response.json().catch(() => ({}));
