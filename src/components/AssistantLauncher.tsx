@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 type AuthMode = 'login' | 'signup';
 type AssistantResult = {
   answer: string;
+  sourceWarning?: string;
   webSearch?: { performed?: boolean; sources?: { title: string; url: string }[] };
   taskMode?: { performed?: boolean; steps?: { title: string; completed: boolean }[] };
 };
@@ -38,6 +39,7 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'The AI assistant could not answer this request.');
+      if (data.sourceWarning) window.localStorage.removeItem('studypdf_doc_id');
       setAnswer(data as AssistantResult);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : 'The AI assistant could not answer this request.');
@@ -141,6 +143,7 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
               {answer && (
                 <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 16, paddingTop: 14 }}>
                   <strong>Answer</strong>
+                  {answer.sourceWarning ? <p style={{ color: '#92400e', fontSize: 12 }}>{answer.sourceWarning}</p> : null}
                   {answer.taskMode?.steps?.length ? <ol style={{ paddingLeft: 20, fontSize: 13 }}>{answer.taskMode.steps.map((step, i) => <li key={i}>{step.title}</li>)}</ol> : null}
                   <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.55, fontSize: 14 }}>{answer.answer}</p>
                   {answer.webSearch?.sources?.length ? <div style={{ fontSize: 13 }}><strong>Sources</strong><ul style={{ paddingLeft: 20 }}>{answer.webSearch.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer" style={{ color: '#4338ca', overflowWrap: 'anywhere' }}>{source.title}</a></li>)}</ul></div> : null}
