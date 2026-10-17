@@ -103,13 +103,13 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
         <section style={panelStyle} role="dialog" aria-modal="false" aria-label="AI assistant and account">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
             <div>
-              <strong style={{ fontSize: 17 }}>Ask AI</strong>
+              <strong style={{ fontSize: 17 }}>Ask IIA</strong>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 3 }}>General answers, web research, study help and multi-step tasks</div>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close assistant" style={{ border: 0, background: 'transparent', fontSize: 23, cursor: 'pointer', color: '#475569' }}>×</button>
           </div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-            <button type="button" style={tabStyle(tab === 'ask')} onClick={() => { setTab('ask'); setError(''); }}>Ask AI</button>
+            <button type="button" style={tabStyle(tab === 'ask')} onClick={() => { setTab('ask'); setError(''); }}>Ask IIA</button>
             <button type="button" style={tabStyle(tab === 'auth')} onClick={() => { setTab('auth'); setError(''); }}>{isAuthenticated ? 'Account' : 'Login / Sign up'}</button>
           </div>
 
@@ -124,7 +124,7 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
                 <input type="checkbox" checked={taskMode} onChange={(event) => setTaskMode(event.target.checked)} /> Use multi-step task mode
               </label>
               <button type="submit" disabled={busy || !message.trim()} style={{ ...launcherStyle, position: 'static', marginTop: 12, boxShadow: 'none', opacity: busy || !message.trim() ? .65 : 1 }}>
-                {busy ? 'Working…' : 'Send to AI'}
+                {busy ? 'Working…' : 'Send to IIA'}
               </button>
               {busy && <p role="status" style={{ fontSize: 13, color: '#64748b' }}>Researching and preparing your answer…</p>}
               {answer && (
@@ -160,7 +160,7 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
         </section>
       )}
       <button type="button" onClick={() => setOpen(!open)} style={launcherStyle} aria-expanded={open}>
-        {open ? 'Close' : isAuthenticated ? 'Ask AI' : 'Ask AI · Login / Sign up'}
+        {open ? 'Close' : isAuthenticated ? 'Ask AI' : 'Ask IIA · Login / Sign up'}
       </button>
     </>
   );
