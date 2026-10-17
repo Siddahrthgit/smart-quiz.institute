@@ -32,6 +32,7 @@ import { User } from './db/User';
 import { Resend } from 'resend';
 import authRoutes from './routes/auth';
 import { authLimiter, paymentLimiter } from './middleware/rateLimit';
+import { identifyOwner } from './middleware/auth';
 import paymentRoutes from './routes/payment';
 import featuresQaRoutes from './routes/features-qa';
 import materialsRoutes from './routes/materials';
@@ -209,9 +210,22 @@ interface StoredDoc {
   content: string;
   summary?: string;
   wordCount: number;
+  ownerKey: string;
 }
 
 const documentStore: Map<string, StoredDoc> = new Map();
+
+const resourceLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many resource-intensive requests. Please wait and try again.' },
+});
+
+function requestOwnerKey(req: any): string {
+  return `${req.ownerType}:${req.ownerId}`;
+}
 
 const assistantLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -380,6 +394,7 @@ async function persistDocument(doc: StoredDoc, userId?: string) {
       {
         docId: doc.id,
         userId: userId || undefined,
+        ownerKey: doc.ownerKey,
         title: doc.name,
         extractedText: doc.content,
         fileType: doc.type,
@@ -413,6 +428,7 @@ async function hydrateDocumentStore() {
         content: m.extractedText,
         summary: m.summary,
         wordCount: m.wordCount || 0,
+        ownerKey: m.ownerKey || '',
       });
     }
     console.log(`Hydrated ${materials.length} document(s) from MongoDB`);
@@ -438,7 +454,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 // File Upload endpoint (PDF / TXT / Markdown)
-app.post('/api/upload', upload.single('file'), async (req, res) => {
+app.post('/api/upload', identifyOwner, resourceLimiter, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file provided' });
@@ -490,6 +506,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       content: extractedText,
       summary: docSummary,
       wordCount,
+      ownerKey: requestOwnerKey(req),
     };
 
     documentStore.set(docId, newDoc);
@@ -505,7 +522,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   }
   });
 
-app.post('/api/drive/import-link', async (req, res) => {
+app.post('/api/drive/import-link', identifyOwner, resourceLimiter, async (req, res) => {
   try {
     const { url, title: providedTitle } = req.body;
     if (!url || typeof url !== 'string') {
@@ -570,6 +587,7 @@ app.post('/api/drive/import-link', async (req, res) => {
       content: extractedText,
       summary: '',
       wordCount,
+      ownerKey: requestOwnerKey(req),
     };
 
     documentStore.set(docId, newDoc);
@@ -583,7 +601,7 @@ app.post('/api/drive/import-link', async (req, res) => {
 });
 
 // Import text content directly (e.g., Google Drive or pasted text)
-app.post('/api/documents/import-text', (req, res) => {
+app.post('/api/documents/import-text', identifyOwner, resourceLimiter, (req, res) => {
   try {
     const { title, content, sourceType } = req.body;
     if (!content || !content.trim()) {
@@ -602,6 +620,7 @@ app.post('/api/documents/import-text', (req, res) => {
       sizeFormatted: formatBytes(Buffer.byteLength(content, 'utf8')),
       content,
       wordCount,
+      ownerKey: requestOwnerKey(req),
     };
 
     documentStore.set(docId, newDoc);
@@ -613,24 +632,28 @@ app.post('/api/documents/import-text', (req, res) => {
 });
 
 // List documents
-app.get('/api/documents', (_req, res) => {
-  const docs = Array.from(documentStore.values());
+app.get('/api/documents', identifyOwner, (req, res) => {
+  const ownerKey = requestOwnerKey(req);
+  const docs = Array.from(documentStore.values())
+    .filter((doc) => doc.ownerKey === ownerKey)
+    .map(({ content: _privateContent, ownerKey: _owner, ...metadata }) => metadata);
   res.json({ documents: docs });
 });
 
 // Get document by ID
-app.get('/api/documents/:id', (req, res) => {
+app.get('/api/documents/:id', identifyOwner, (req, res) => {
   const doc = documentStore.get(req.params.id);
-  if (!doc) {
+  if (!doc || doc.ownerKey !== requestOwnerKey(req)) {
     return res.status(404).json({ error: 'Document not found' });
   }
   res.json({ document: doc });
 });
 
 // Delete document by ID
-app.delete('/api/documents/:id', (req, res) => {
+app.delete('/api/documents/:id', identifyOwner, (req, res) => {
   const docId = req.params.id;
-  if (documentStore.has(docId)) {
+  const existing = documentStore.get(docId);
+  if (existing && existing.ownerKey === requestOwnerKey(req)) {
     documentStore.delete(docId);
     Material.deleteOne({ docId }).catch((err) => console.error("Failed to delete document from MongoDB:", err));
     return res.json({ success: true, message: 'Document deleted successfully', id: docId });
@@ -639,7 +662,7 @@ app.delete('/api/documents/:id', (req, res) => {
 });
 
 // Generate Smart Quiz via Gemini AI
-app.post('/api/generate-quiz', async (req, res) => {
+app.post('/api/generate-quiz', resourceLimiter, async (req, res) => {
   try {
     const { documentId, topic, numQuestions = 5, difficulty = 'medium', questionTypes = ['mcq'], isExamMode = false } = req.body;
 
@@ -790,7 +813,7 @@ Return ONLY a valid JSON object with the following schema:
 });
 
 // Generate AI Targeted Mistake Practice Quiz
-app.post('/api/generate-mistake-quiz', async (req, res) => {
+app.post('/api/generate-mistake-quiz', resourceLimiter, async (req, res) => {
   try {
     const { wrongQuestions = [], numQuestions = 5 } = req.body;
 
@@ -854,7 +877,7 @@ Return ONLY a valid JSON object matching this schema:
 });
 
 // Generate Flashcards & Notes directly from Wrong Questions / Quiz Misses
-app.post('/api/generate-mistake-notes-flashcards', async (req, res) => {
+app.post('/api/generate-mistake-notes-flashcards', resourceLimiter, async (req, res) => {
   try {
     const { wrongQuestions = [], quizTitle = 'Exam Mistakes Review' } = req.body;
 
@@ -936,7 +959,7 @@ app.get('/api/friends', (req, res) => {
 });
 
 // Generate AI Study Notes & Summary
-app.post('/api/generate-notes', async (req, res) => {
+app.post('/api/generate-notes', resourceLimiter, async (req, res) => {
   try {
     const { documentId, topic, contentText } = req.body;
 
@@ -991,7 +1014,7 @@ Return a JSON object matching this schema:
 });
 
 // Generate AI Flashcards
-app.post('/api/generate-flashcards', async (req, res) => {
+app.post('/api/generate-flashcards', resourceLimiter, async (req, res) => {
   try {
     const { documentId, topic, count = 6 } = req.body;
 
@@ -1037,7 +1060,7 @@ Return JSON format:
 });
 
 // Document Chatbot (Q&A / Material Assistant)
-app.post('/api/doc-chat', async (req, res) => {
+app.post('/api/doc-chat', resourceLimiter, async (req, res) => {
   try {
     const { documentId, message, history = [] } = req.body;
 
@@ -1073,7 +1096,7 @@ Answer accurately, clearly, and concisely using simple language. If relevant inf
 });
 
 // Evaluate Short/Long Answer using AI
-app.post('/api/evaluate-answer', async (req, res) => {
+app.post('/api/evaluate-answer', resourceLimiter, async (req, res) => {
   try {
     const { question, correctAnswer, userAnswer } = req.body;
 
