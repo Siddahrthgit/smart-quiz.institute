@@ -261,7 +261,8 @@ export function analyzeLocalText(text: string, count = 20): LocalAnalysis {
   const answerPool = uniqueStrings(facts.map(f => f.answer));
   const questions: LocalQuestion[] = [];
   const seenQuestions = new Set<string>();
-  const target = Math.max(0, Math.min(Number(count) || 20, 100));
+  const requestedCount = Number(count);
+  const target = Number.isFinite(requestedCount) ? Math.max(0, Math.min(requestedCount, 100)) : 20;
 
   facts.forEach((f, i) => {
     if (questions.length >= target) return;
