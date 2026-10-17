@@ -2,7 +2,7 @@ name: Local quiz generator checks
 
 on:
   push:
-    branches: [fix/local-quiz-generator]
+    branches: [fix/local-quiz-generator, feat/shared-answer-assistant]
   pull_request:
     branches: [main]
 

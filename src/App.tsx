@@ -8,6 +8,7 @@ import { LoginPage } from './pages/LoginPage';
 import { UploadExamPage } from './pages/UploadExamPage';
 import { PerformancePage } from './pages/PerformancePage';
 import { getOrCreateGuestId } from './lib/ownerAuth';
+import { AssistantLauncher } from './components/AssistantLauncher';
 
 type ReattemptState = {
   docId: string;
@@ -27,6 +28,13 @@ export default function App() {
   const [reattempt, setReattempt] = useState<ReattemptState>(null);
 
   function handleAuthed(newToken: string) {
+    localStorage.setItem('smart_quiz_token', newToken);
+    setToken(newToken);
+    setIsGuest(false);
+    setPage('exam');
+  }
+
+  function handleAssistantAuthed(newToken: string) {
     localStorage.setItem('smart_quiz_token', newToken);
     setToken(newToken);
     setIsGuest(false);
@@ -57,14 +65,27 @@ export default function App() {
   }
 
   if (page === 'login') {
-    return <LoginPage onAuthed={handleAuthed} onContinueAsGuest={handleContinueAsGuest} />;
+    return (
+      <>
+        <LoginPage onAuthed={handleAuthed} onContinueAsGuest={handleContinueAsGuest} />
+        <AssistantLauncher onAuthed={handleAssistantAuthed} isAuthenticated={!!token} />
+      </>
+    );
   }
 
   if (page === 'exam') {
-    return <UploadExamPage key={reattempt ? reattempt.parentAttemptId : 'fresh'} onFinished={handleExamFinished} reattempt={reattempt} />;
+    return (
+      <>
+        <UploadExamPage key={reattempt ? reattempt.parentAttemptId : 'fresh'} onFinished={handleExamFinished} reattempt={reattempt} />
+        <AssistantLauncher onAuthed={handleAssistantAuthed} isAuthenticated={!!token || isGuest} />
+      </>
+    );
   }
 
   return (
-    <PerformancePage attemptId={attemptId!} onReattempt={handleReattempt} onUploadNew={handleUploadNew} />
+    <>
+      <PerformancePage attemptId={attemptId!} onReattempt={handleReattempt} onUploadNew={handleUploadNew} />
+      <AssistantLauncher onAuthed={handleAssistantAuthed} isAuthenticated={!!token || isGuest} />
+    </>
   );
 }
