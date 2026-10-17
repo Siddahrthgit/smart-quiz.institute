@@ -68,7 +68,7 @@ export default function App() {
     return (
       <>
         <LoginPage onAuthed={handleAuthed} onContinueAsGuest={handleContinueAsGuest} />
-        <AssistantLauncher onAuthed={handleAssistantAuthed} isAuthenticated={!!token || isGuest} />
+        <AssistantLauncher onAuthed={handleAssistantAuthed} isAuthenticated={!!token} />
       </>
     );
   }
