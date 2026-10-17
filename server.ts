@@ -35,6 +35,7 @@ import paymentRoutes from './routes/payment';
 import featuresQaRoutes from './routes/features-qa';
 import materialsRoutes from './routes/materials';
 import questionsRoute from './questionsRoute';
+import { generateLocalQuestions } from './lib/localQuizEngine';
 import coreRoutes from './routes/core';
 
 const app = express();
@@ -214,6 +215,7 @@ const documentStore: Map<string, StoredDoc> = new Map();
 // Persist a document to MongoDB so it survives server restarts.
 // userId is optional since the app supports guest (no-login) usage.
 async function persistDocument(doc: StoredDoc, userId?: string) {
+  if (!process.env.MONGO_URI) return;
   try {
     await Material.findOneAndUpdate(
       { docId: doc.id },
@@ -237,6 +239,10 @@ async function persistDocument(doc: StoredDoc, userId?: string) {
 // Load all previously saved documents from MongoDB back into the
 // in-memory documentStore cache on server startup.
 async function hydrateDocumentStore() {
+  if (!process.env.MONGO_URI) {
+    console.log('MONGO_URI is not set; using the in-memory document store for local mode');
+    return;
+  }
   try {
     const materials = await Material.find({});
     for (const m of materials) {
@@ -492,7 +498,45 @@ app.post('/api/generate-quiz', async (req, res) => {
       return res.status(400).json({ error: 'Please select a document or provide a study topic.' });
     }
 
+
     const truncatedContext = studyContext.slice(0, 40000);
+    const requestedCount = Math.min(Math.max(Number(numQuestions) || 5, 1), 100);
+    const requestedTypes = Array.isArray(questionTypes) ? questionTypes : ['mcq'];
+    const localMode = process.env.LOCAL_QUIZ_MODE === 'true' || !process.env.GEMINI_API_KEY;
+
+    const createLocalResponse = () => {
+      if (!requestedTypes.includes('mcq')) {
+        return { error: 'Local mode currently supports multiple-choice questions only. Set GEMINI_API_KEY for other question types.' };
+      }
+      const localQuestions = generateLocalQuestions(truncatedContext, requestedCount);
+      if (!localQuestions.length) {
+        return { error: 'The local generator could not extract enough clear facts to build questions. Upload readable study notes/PDF text containing several definitions or factual statements, then try again.' };
+      }
+      return {
+        success: true,
+        quizTitle: docName + ' Quiz (Local)',
+        documentName: docName,
+        generationMode: 'local',
+        questions: localQuestions.map((q, index) => ({
+          id: q.id || 'local-' + Date.now() + '-' + index,
+          type: 'mcq',
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          explanation: 'Answer extracted from your study material: ' + q.correctAnswer,
+          difficulty,
+          topic: q.topic || docName,
+          sourceSnippet: q.source || '',
+        })),
+      };
+    };
+
+    if (localMode) {
+      const localResult = createLocalResponse();
+      if ('error' in localResult) return res.status(422).json(localResult);
+      return res.json(localResult);
+    }
+
 
     const prompt = `You are Smart Exam Preparation, an expert educational assessment generator.
 Generate a high-quality quiz based on the following material:
@@ -556,7 +600,34 @@ Return ONLY a valid JSON object with the following schema:
     });
   } catch (err: any) {
     console.error('Quiz generation error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to generate quiz with AI' });
+
+    // If the remote provider fails, use the same local engine when source material is available.
+    const { documentId, topic, numQuestions = 5, difficulty = 'medium', questionTypes = ['mcq'] } = req.body || {};
+    const storedDoc = documentId ? documentStore.get(documentId) : undefined;
+    const fallbackContext = (storedDoc?.content || (typeof topic === 'string' ? topic : '')).slice(0, 40000);
+    if (fallbackContext && Array.isArray(questionTypes) && questionTypes.includes('mcq')) {
+      const localQuestions = generateLocalQuestions(fallbackContext, Math.min(Math.max(Number(numQuestions) || 5, 1), 100));
+      if (localQuestions.length) {
+        return res.json({
+          success: true,
+          quizTitle: (storedDoc?.name || topic || 'Study Material') + ' Quiz (Local Fallback)',
+          documentName: storedDoc?.name || topic || 'Study Material',
+          generationMode: 'local-fallback',
+          questions: localQuestions.map((q, index) => ({
+            id: q.id || 'local-fallback-' + Date.now() + '-' + index,
+            type: 'mcq',
+            question: q.question,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: 'Answer extracted from your study material: ' + q.correctAnswer,
+            difficulty,
+            topic: q.topic || storedDoc?.name || topic || 'Study Material',
+            sourceSnippet: q.source || '',
+          })),
+        });
+      }
+    }
+    return res.status(500).json({ error: err.message || 'Failed to generate quiz with AI. Local fallback also needs readable study material.' });
   }
 });
 

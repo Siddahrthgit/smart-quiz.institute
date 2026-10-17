@@ -1,0 +1,20 @@
+name: Local quiz generator checks
+
+on:
+  push:
+    branches: [fix/local-quiz-generator]
+  pull_request:
+    branches: [main]
+
+jobs:
+  local-quiz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm install
+      - run: npx tsx --test lib/localQuizEngine.test.ts
+      - run: npm run build
