@@ -215,6 +215,7 @@ const documentStore: Map<string, StoredDoc> = new Map();
 // Persist a document to MongoDB so it survives server restarts.
 // userId is optional since the app supports guest (no-login) usage.
 async function persistDocument(doc: StoredDoc, userId?: string) {
+  if (!process.env.MONGO_URI) return;
   try {
     await Material.findOneAndUpdate(
       { docId: doc.id },
@@ -238,6 +239,10 @@ async function persistDocument(doc: StoredDoc, userId?: string) {
 // Load all previously saved documents from MongoDB back into the
 // in-memory documentStore cache on server startup.
 async function hydrateDocumentStore() {
+  if (!process.env.MONGO_URI) {
+    console.log('MONGO_URI is not set; using the in-memory document store for local mode');
+    return;
+  }
   try {
     const materials = await Material.find({});
     for (const m of materials) {
