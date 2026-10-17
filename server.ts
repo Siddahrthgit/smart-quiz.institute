@@ -339,6 +339,8 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
     let steps: { title: string; completed: boolean }[] = [];
 
     if (taskMode) {
+      // Keep the plan call, but execute all planned steps in one grounded response.
+      // The previous loop used up to five Gemini calls for a single user task.
       const planResponse = await ai.models.generateContent({
         model,
         contents: baseInstruction + '\nCreate a short plan of 2 or 3 concrete analysis steps for this request. Return ONLY JSON: {"steps":["...","..."]}.\nRequest: ' + message + contextBlock,
@@ -351,27 +353,16 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
       if (planSteps.length < 2) {
         planSteps.push('Analyze the key requirements and facts', 'Synthesize the findings into a complete answer');
       }
-      const findings: { title: string; result: string }[] = [];
-      for (const step of planSteps) {
-        const response = await ai.models.generateContent({
-          model,
-          contents: baseInstruction + '\nComplete only this step, give concise findings, and flag uncertainty. User request: ' + message +
-            '\nStep: ' + step + contextBlock,
-          config: { temperature: 0.2, ...(useWebSearch ? { tools: [{ googleSearch: {} }] } : {}) },
-        });
-        findings.push({ title: step, result: response.text || 'No result returned for this step.' });
-        sources.push(...groundedSources(response));
-      }
-      const synthesis = await ai.models.generateContent({
+      const execution = await ai.models.generateContent({
         model,
-        contents: baseInstruction + '\nSynthesize these findings into one clear, useful answer. Do not invent facts or actions.\nOriginal request: ' + message +
-          '\nFindings:\n' + findings.map((item, index) => (index + 1) + '. ' + item.title + '\n' + item.result).join('\n\n') +
-          '\nSources:\n' + uniqueAssistantSources(sources).map((source) => source.title + ' — ' + source.url).join('\n') + contextBlock,
-        config: { temperature: 0.2 },
+        contents: baseInstruction + '\nComplete the entire request by working through each planned step in order, then provide one cohesive final answer. Address every step explicitly, combine findings, resolve contradictions, mention uncertainty, and do not claim actions you did not perform.\nOriginal request: ' + message +
+          '\nRequired steps:\n' + planSteps.map((step, index) => (index + 1) + '. ' + step).join('\n') + contextBlock,
+        config: { temperature: 0.2, ...(useWebSearch ? { tools: [{ googleSearch: {} }] } : {}) },
       });
-      answer = synthesis.text || '';
-      steps = findings.map((item) => ({ title: item.title, completed: true }));
-      sources.push(...groundedSources(synthesis));
+      answer = execution.text || '';
+      steps = planSteps.map((step) => ({ title: step, completed: true }));
+      sources.push(...groundedSources(execution));
+
     } else {
       const response = await ai.models.generateContent({
         model,
