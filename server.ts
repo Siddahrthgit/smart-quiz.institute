@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import multer from 'multer';
@@ -227,6 +228,22 @@ function requestOwnerKey(req: any): string {
   return `${req.ownerType}:${req.ownerId}`;
 }
 
+function optionalOwnerKey(req: any): string {
+  const header = req.headers.authorization;
+  if (typeof header === 'string' && header.startsWith('Bearer ')) {
+    try {
+      const secret = process.env.JWT_SECRET;
+      if (!secret) return '';
+      const payload = jwt.verify(header.slice('Bearer '.length), secret) as { userId?: string };
+      return payload.userId ? `user:${payload.userId}` : '';
+    } catch {
+      return '';
+    }
+  }
+  const guestId = req.headers['x-guest-id'];
+  return typeof guestId === 'string' && guestId.trim().length >= 8 ? `guest:${guestId.trim()}` : '';
+}
+
 const assistantLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,
@@ -271,9 +288,11 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
     const doc = documentStore.get(documentId);
     if (!doc) {
       sourceWarning = 'The previously selected study material is no longer in this server session, so this answer was prepared without it.';
-    } else {
+    } else if (doc.ownerKey && doc.ownerKey === optionalOwnerKey(req)) {
       context = doc.content.slice(0, 18000);
       sourceName = doc.name;
+    } else {
+      sourceWarning = 'The selected study material could not be verified for this account or guest session, so this answer was prepared without it.';
     }
   }
 
@@ -646,7 +665,8 @@ app.get('/api/documents/:id', identifyOwner, (req, res) => {
   if (!doc || doc.ownerKey !== requestOwnerKey(req)) {
     return res.status(404).json({ error: 'Document not found' });
   }
-  res.json({ document: doc });
+  const { ownerKey: _ownerKey, ...safeDocument } = doc;
+  res.json({ document: safeDocument });
 });
 
 // Delete document by ID
