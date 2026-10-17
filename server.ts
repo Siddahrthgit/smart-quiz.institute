@@ -252,11 +252,15 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
 
   let context = '';
   let sourceName = '';
+  let sourceWarning = '';
   if (documentId) {
     const doc = documentStore.get(documentId);
-    if (!doc) return res.status(404).json({ error: 'Study material not found in this session. Upload/import it again and retry.' });
-    context = doc.content.slice(0, 18000);
-    sourceName = doc.name;
+    if (!doc) {
+      sourceWarning = 'The previously selected study material is no longer in this server session, so this answer was prepared without it.';
+    } else {
+      context = doc.content.slice(0, 18000);
+      sourceName = doc.name;
+    }
   }
 
   try {
@@ -349,6 +353,7 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
       webSearch: { performed: useWebSearch, sources: uniqueAssistantSources(sources) },
       taskMode: { performed: taskMode, steps },
       sourceMaterial: sourceName ? { name: sourceName } : null,
+      sourceWarning: sourceWarning || undefined,
     });
   } catch (err: any) {
     console.error('Shared assistant request failed:', err?.message || err);
