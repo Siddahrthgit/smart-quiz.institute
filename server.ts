@@ -260,6 +260,26 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
   }
 
   try {
+    // When configured, send questions to the central IIA engine so both sites
+    // share the same answer/search/task pipeline. The key remains server-side.
+    const iiaAssistantUrl = process.env.IIA_ASSISTANT_URL;
+    const iiaSharedKey = process.env.IIA_SHARED_ASSISTANT_KEY;
+    if (iiaAssistantUrl && iiaSharedKey) {
+      const upstream = await fetch(iiaAssistantUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-iia-shared-key': iiaSharedKey },
+        body: JSON.stringify({ message, context, webSearch: useWebSearch, taskMode }),
+        signal: AbortSignal.timeout(65_000),
+      });
+      const upstreamPayload = await upstream.json().catch(() => ({})) as Record<string, any>;
+      if (!upstream.ok) {
+        return res.status(upstream.status).json({
+          error: upstreamPayload.message || 'The central IIA assistant could not complete this request.',
+        });
+      }
+      return res.json({ ...upstreamPayload, sharedEngine: true, provider: 'iia' });
+    }
+
     const ai = getGeminiClient();
     const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
     const baseInstruction = [
