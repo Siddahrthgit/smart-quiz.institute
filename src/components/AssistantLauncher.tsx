@@ -62,6 +62,17 @@ export function AssistantLauncher({ onAuthed, isAuthenticated }: { onAuthed: (to
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || typeof data.token !== 'string') throw new Error(data.error || 'Could not authenticate.');
+      const guestId = window.localStorage.getItem('smart_quiz_guest_id');
+      if (guestId) {
+        try {
+          await fetch('/api/core/guest/merge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.token}` },
+            body: JSON.stringify({ guestId }),
+          });
+        } catch {}
+        window.localStorage.removeItem('smart_quiz_guest_id');
+      }
       setPassword('');
       onAuthed(data.token);
       setTab('ask');
