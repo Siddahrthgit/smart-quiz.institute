@@ -14,31 +14,55 @@ export function getGeminiClient(): GoogleGenAI {
 }
 
 export const QUESTION_MODEL = 'gemini-3.8-flash';
+export const QUESTION_MODELS = [QUESTION_MODEL, 'gemini-3.7-flash'] as const;
 
-// Ask Gemini for JSON only, strip stray markdown fences, and parse safely.
-// Retries on transient 503 (model overloaded) with exponential backoff -
-// this is exactly the error that killed generate-from-material earlier.
+export class GeminiTemporarilyBusyError extends Error {
+  code = 'AI_TEMPORARILY_BUSY';
+  constructor() {
+    super('AI is temporarily busy. Please try again in a moment.');
+    this.name = 'GeminiTemporarilyBusyError';
+  }
+}
+
+function isRetryableStatus(status: number) {
+  return [429, 500, 502, 503, 504].includes(status);
+}
+
+// Parse JSON responses safely and retry transient failures. If the primary
+// Gemini model remains overloaded, try the fallback model before failing.
 export async function generateJson<T>(prompt: string, retries = 2): Promise<T> {
   const ai = getGeminiClient();
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: QUESTION_MODEL,
-        contents: prompt,
-      });
-      const raw = (response.text || '').trim();
-      const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-      return JSON.parse(cleaned) as T;
-    } catch (err: any) {
-      const isOverloaded = err?.status === 503;
-      if (isOverloaded && attempt < retries) {
-        const delay = 1000 * Math.pow(2, attempt);
-        console.warn(`generateJson: Gemini overloaded, retrying in ${delay}ms (attempt ${attempt + 1}/${retries})`);
-        await new Promise((r) => setTimeout(r, delay));
-        continue;
+  let lastError: any;
+
+  for (const model of QUESTION_MODELS) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+        });
+        const raw = (response.text || '').trim();
+        const cleaned = raw
+          .replace(/^```json\s*/i, '')
+          .replace(/^```\s*/i, '')
+          .replace(/```\s*$/i, '')
+          .trim();
+        return JSON.parse(cleaned) as T;
+      } catch (err: any) {
+        lastError = err;
+        const status = Number(err?.status ?? err?.response?.status ?? err?.error?.status);
+        if (!isRetryableStatus(status)) throw err;
+        if (attempt < retries) {
+          const delay = status === 429 ? 1200 : 1000 * Math.pow(2, attempt);
+          console.warn(`generateJson: ${model} temporarily unavailable; retrying in ${delay}ms`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
-      throw err;
     }
+  }
+
+  if (lastError) {
+    throw new GeminiTemporarilyBusyError();
   }
   throw new Error('generateJson: exhausted retries');
 }
