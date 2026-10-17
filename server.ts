@@ -285,7 +285,12 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
     }
 
     const ai = getGeminiClient();
-    const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+    // Gemini 3.x Search grounding is not available on the Gemini API free tier.
+    // Use Gemini 2.5 Flash-Lite for web-search requests unless explicitly
+    // configured otherwise; retain the configured model for ordinary answers.
+    const model = useWebSearch
+      ? (process.env.GEMINI_WEB_SEARCH_MODEL || 'gemini-2.5-flash-lite')
+      : (process.env.GEMINI_MODEL || 'gemini-3.6-flash');
     const baseInstruction = [
       'You are the shared AI assistant for Smart Quiz Institute and Integrated Intelligence Agent (IIA).',
       'Answer the user’s actual question, not only quiz-related questions. You can explain, calculate, compare, summarize, write, debug, plan, and help with general knowledge.',
