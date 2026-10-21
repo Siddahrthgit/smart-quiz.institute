@@ -83,7 +83,7 @@ jobs:
           curl --silent --show-error --fail http://127.0.0.1:3187/ -o /tmp/studypdf-home.html
           grep -q 'StudyPDF' /tmp/studypdf-home.html
           printf 'Concrete strength: compressive strength after curing. Soil compaction: increases dry density and reduces voids. Bearing capacity: soil resistance against foundation loads. Reinforced concrete: concrete combined with steel reinforcement.' > "$RUNNER_TEMP/sample-study.txt"
-          curl --silent --show-error --fail -F "file=@$RUNNER_TEMP/sample-study.txt;type=text/plain" http://127.0.0.1:3187/api/upload -o /tmp/studypdf-upload.json
+          curl --silent --show-error --fail -H "x-guest-id: ci-smoke-guest-session" -F "file=@$RUNNER_TEMP/sample-study.txt;type=text/plain" http://127.0.0.1:3187/api/upload -o /tmp/studypdf-upload.json
           DOC_ID=$(node -e "const x=require('/tmp/studypdf-upload.json'); if(!x.success || !x.document?.id) process.exit(1); process.stdout.write(x.document.id)")
           curl --silent --show-error -X POST http://127.0.0.1:3187/api/generate-quiz -H 'content-type: application/json' --data "$(DOC_ID="$DOC_ID" node -e "process.stdout.write(JSON.stringify({documentId:process.env.DOC_ID,numQuestions:4,questionTypes:['mcq']}))" )" -o /tmp/studypdf-quiz.json
           if [ -z "$DOC_ID" ]; then echo "Upload did not return a document ID"; exit 1; fi
