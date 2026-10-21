@@ -1,0 +1,70 @@
+name: StudyPDF reliability CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studypdf-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: TypeScript check
+        run: npm run lint
+      - name: Test local quiz engine
+        run: npx tsx --test lib/localQuizEngine.test.ts
+      - name: Build production app
+        run: npm run build
+      - name: Smoke-test production server, health, upload and local exam generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NODE_ENV=production
+          export PORT=3187
+          export LOCAL_QUIZ_MODE=true
+          export JWT_SECRET='ci-smoke-test-secret-at-least-32-bytes-long'
+          export DATA_FILE="$RUNNER_TEMP/studypdf-ci-store.json"
+          export UPLOADS_DIR="$RUNNER_TEMP/studypdf-ci-uploads"
+          node dist/server.cjs >"$RUNNER_TEMP/studypdf-server.log" 2>&1 &
+          SERVER_PID=$!
+          cleanup() {
+            kill "$SERVER_PID" 2>/dev/null || true
+            wait "$SERVER_PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:3187/api/health >/tmp/studypdf-health.json; then break; fi
+            sleep 1
+          done
+          grep -q '"status":"ok"' /tmp/studypdf-health.json
+          curl --silent --show-error --fail http://127.0.0.1:3187/ -o /tmp/studypdf-home.html
+          grep -q 'StudyPDF' /tmp/studypdf-home.html
+          printf 'Concrete strength: compressive strength after curing. Soil compaction: increases dry density and reduces voids. Bearing capacity: soil resistance against foundation loads. Reinforced concrete: concrete combined with steel reinforcement.' > "$RUNNER_TEMP/sample-study.txt"
+          curl --silent --show-error --fail -F "file=@$RUNNER_TEMP/sample-study.txt;type=text/plain" http://127.0.0.1:3187/api/upload -o /tmp/studypdf-upload.json
+          DOC_ID=$(node -e "const x=require('/tmp/studypdf-upload.json'); if(!x.success || !x.document?.id) process.exit(1); process.stdout.write(x.document.id)")
+          curl --silent --show-error -X POST http://127.0.0.1:3187/api/generate-quiz -H 'content-type: application/json' --data "$(DOC_ID="$DOC_ID" node -e "process.stdout.write(JSON.stringify({documentId:process.env.DOC_ID,numQuestions:4,questionTypes:['mcq']}))" )" -o /tmp/studypdf-quiz.json
+          if [ -z "$DOC_ID" ]; then echo "Upload did not return a document ID"; exit 1; fi
+          DOC_ID="$DOC_ID" node -e "const fs=require('fs'); const p='/tmp/studypdf-quiz.json'; const x=JSON.parse(fs.readFileSync(p,'utf8')); if(!x.success || !Array.isArray(x.questions) || x.questions.length<1) { console.error(x); process.exit(1); } console.log('Local quiz generation passed with',x.questions.length,'questions.');"
+          curl --silent --show-error -X POST http://127.0.0.1:3187/api/assistant/ask -H 'content-type: application/json' --data '{"message":"Explain bearing capacity in simple terms","webSearch":false}' -o /tmp/studypdf-assistant.json -w '%{http_code}' > /tmp/studypdf-assistant-status
+          test "$(cat /tmp/studypdf-assistant-status)" = "503"
+          grep -q 'GEMINI_API_KEY' /tmp/studypdf-assistant.json
+          echo "StudyPDF production smoke tests passed."
