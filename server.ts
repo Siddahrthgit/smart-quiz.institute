@@ -297,24 +297,41 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
   }
 
   try {
-    // When configured, send questions to the central IIA engine so both sites
-    // share the same answer/search/task pipeline. The key remains server-side.
+    // Prefer the central IIA engine when configured, but fail over to this
+    // site's Gemini key if the central endpoint is missing or temporarily down.
+    // This keeps StudyPDF usable during an IIA deployment/configuration issue.
     const iiaAssistantUrl = process.env.IIA_ASSISTANT_URL;
     const iiaSharedKey = process.env.IIA_SHARED_ASSISTANT_KEY;
+    let sharedEngineFallback = false;
     if (iiaAssistantUrl && iiaSharedKey) {
-      const upstream = await fetch(iiaAssistantUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-iia-shared-key': iiaSharedKey },
-        body: JSON.stringify({ message, context, webSearch: useWebSearch, taskMode }),
-        signal: AbortSignal.timeout(65_000),
-      });
-      const upstreamPayload = await upstream.json().catch(() => ({})) as Record<string, any>;
-      if (!upstream.ok) {
-        return res.status(upstream.status).json({
-          error: upstreamPayload.message || 'The central IIA assistant could not complete this request.',
+      let upstream: Response | undefined;
+      try {
+        upstream = await fetch(iiaAssistantUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-iia-shared-key': iiaSharedKey },
+          body: JSON.stringify({ message, context, webSearch: useWebSearch, taskMode }),
+          signal: AbortSignal.timeout(65_000),
         });
+      } catch (upstreamError: any) {
+        sharedEngineFallback = true;
+        console.warn('Central IIA assistant request failed; trying local Gemini:', String(upstreamError?.message || upstreamError).slice(0, 180));
       }
-      return res.json({ ...upstreamPayload, sharedEngine: true, provider: 'iia' });
+
+      if (upstream) {
+        const upstreamPayload = await upstream.json().catch(() => ({})) as Record<string, any>;
+        if (upstream.ok) {
+          return res.json({ ...upstreamPayload, sharedEngine: true, provider: 'iia' });
+        }
+        // A bad request is user input validation, not an availability problem.
+        // Preserve it. Auth, missing-route, quota, and server errors fall back.
+        if (upstream.status === 400 || upstream.status === 413 || upstream.status === 422) {
+          return res.status(upstream.status).json({
+            error: upstreamPayload.message || upstreamPayload.error || 'The central IIA assistant rejected this request.',
+          });
+        }
+        sharedEngineFallback = true;
+        console.warn('Central IIA assistant returned HTTP', upstream.status, '; trying local Gemini instead.');
+      }
     }
 
     const ai = getGeminiClient();
@@ -391,6 +408,7 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
       taskMode: { performed: taskMode, steps },
       sourceMaterial: sourceName ? { name: sourceName } : null,
       sourceWarning: sourceWarning || undefined,
+      sharedEngineFallback: sharedEngineFallback || undefined,
     });
   } catch (err: any) {
     console.error('Shared assistant request failed:', err?.message || err);
