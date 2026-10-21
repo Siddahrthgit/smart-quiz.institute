@@ -38,6 +38,7 @@ jobs:
           }
           check_url "https://integratedia.duckdns.org/" "200"
           check_url "https://integratedia.duckdns.org/api/health" "200"
+          check_url "https://integratedia.duckdns.org/business" "200"
           check_url "https://studypdf.duckdns.org/" "200"
           check_url "https://studypdf.duckdns.org/api/health" "200"
           check_url "https://smart-quiz-institute.onrender.com/" "200"
@@ -62,5 +63,6 @@ jobs:
           }
           check_status "https://integratedia.duckdns.org/api/chat" '{}' '401'
           check_status "https://integratedia.duckdns.org/api/assistant/ask" '{}' '401|503'
+          check_status "https://integratedia.duckdns.org/api/business/checkout" '{"productKey":"not-a-plan"}' '400'
           check_status "https://studypdf.duckdns.org/api/assistant/ask" '{}' '400'
           check_status "https://smart-quiz-institute.onrender.com/api/assistant/ask" '{}' '400'
