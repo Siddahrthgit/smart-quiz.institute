@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: studypdf-ci-${{ github.ref }}
@@ -21,11 +21,31 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Regenerate lockfile if package metadata has drifted
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit lockfile repair to this same-repository PR branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add package-lock.json
+            git commit -m 'chore: synchronize npm lockfile'
+            git push origin "HEAD:${GITHUB_HEAD_REF}"
+          fi
+      - name: Ensure main branch lockfile is already synchronized
+        if: github.event_name != 'pull_request'
+        run: git diff --exit-code -- package-lock.json
       - name: Install locked dependencies
         run: npm ci
       - name: TypeScript check
@@ -44,11 +64,15 @@ jobs:
           export JWT_SECRET='ci-smoke-test-secret-at-least-32-bytes-long'
           export DATA_FILE="$RUNNER_TEMP/studypdf-ci-store.json"
           export UPLOADS_DIR="$RUNNER_TEMP/studypdf-ci-uploads"
+          export IIA_ASSISTANT_URL="http://127.0.0.1:3188/api/assistant/ask"
+          export IIA_SHARED_ASSISTANT_KEY="ci-shared-assistant-key-at-least-32-bytes"
+          node -e "require('http').createServer((req,res)=>{res.statusCode=404;res.setHeader('content-type','application/json');res.end(JSON.stringify({message:'route missing'}));}).listen(3188,'127.0.0.1')" >"$RUNNER_TEMP/iia-mock.log" 2>&1 &
+          MOCK_PID=$!
           node dist/server.cjs >"$RUNNER_TEMP/studypdf-server.log" 2>&1 &
           SERVER_PID=$!
           cleanup() {
-            kill "$SERVER_PID" 2>/dev/null || true
-            wait "$SERVER_PID" 2>/dev/null || true
+            kill "$SERVER_PID" "$MOCK_PID" 2>/dev/null || true
+            wait "$SERVER_PID" "$MOCK_PID" 2>/dev/null || true
           }
           trap cleanup EXIT
           for attempt in $(seq 1 30); do
@@ -59,7 +83,7 @@ jobs:
           curl --silent --show-error --fail http://127.0.0.1:3187/ -o /tmp/studypdf-home.html
           grep -q 'StudyPDF' /tmp/studypdf-home.html
           printf 'Concrete strength: compressive strength after curing. Soil compaction: increases dry density and reduces voids. Bearing capacity: soil resistance against foundation loads. Reinforced concrete: concrete combined with steel reinforcement.' > "$RUNNER_TEMP/sample-study.txt"
-          curl --silent --show-error --fail -F "file=@$RUNNER_TEMP/sample-study.txt;type=text/plain" http://127.0.0.1:3187/api/upload -o /tmp/studypdf-upload.json
+          curl --silent --show-error --fail -H "x-guest-id: ci-smoke-guest-session" -F "file=@$RUNNER_TEMP/sample-study.txt;type=text/plain" http://127.0.0.1:3187/api/upload -o /tmp/studypdf-upload.json
           DOC_ID=$(node -e "const x=require('/tmp/studypdf-upload.json'); if(!x.success || !x.document?.id) process.exit(1); process.stdout.write(x.document.id)")
           curl --silent --show-error -X POST http://127.0.0.1:3187/api/generate-quiz -H 'content-type: application/json' --data "$(DOC_ID="$DOC_ID" node -e "process.stdout.write(JSON.stringify({documentId:process.env.DOC_ID,numQuestions:4,questionTypes:['mcq']}))" )" -o /tmp/studypdf-quiz.json
           if [ -z "$DOC_ID" ]; then echo "Upload did not return a document ID"; exit 1; fi
