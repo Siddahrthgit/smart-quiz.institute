@@ -18,7 +18,8 @@ jobs:
       - name: Check IIA and StudyPDF public endpoints
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          FAILURES=0
           check_url() {
             local url="$1"
             local expected="$2"
@@ -27,11 +28,13 @@ jobs:
             local code
             code=$(curl --location --silent --show-error --retry 3 --retry-all-errors --retry-delay 3 --connect-timeout 10 --max-time 90 -o "$body" -w '%{http_code}' "$url") || {
               echo "::error::Network/DNS/TLS failure while requesting $url"
+              FAILURES=$((FAILURES + 1))
               return 1
             }
             if [ "$code" != "$expected" ]; then
               echo "::error::Expected HTTP $expected from $url, received HTTP $code"
               head -c 500 "$body" || true
+              FAILURES=$((FAILURES + 1))
               return 1
             fi
             echo "PASS $url -> HTTP $code"
@@ -57,6 +60,7 @@ jobs:
             if ! [[ "$code" =~ $expected_regex ]]; then
               echo "::error::Unexpected HTTP $code from $url; expected $expected_regex"
               head -c 500 "$body" || true
+              FAILURES=$((FAILURES + 1))
               return 1
             fi
             echo "PASS $url -> HTTP $code (expected validation/auth response)"
@@ -66,3 +70,9 @@ jobs:
           check_status "https://integratedia.duckdns.org/api/business/checkout" '{"productKey":"not-a-plan"}' '400'
           check_status "https://studypdf.duckdns.org/api/assistant/ask" '{}' '400'
           check_status "https://smart-quiz-institute.onrender.com/api/assistant/ask" '{}' '400'
+
+          if [ "$FAILURES" -gt 0 ]; then
+            echo "::error::$FAILURES live endpoint check(s) failed."
+            exit 1
+          fi
+          echo "All live endpoint checks passed."
