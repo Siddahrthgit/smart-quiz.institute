@@ -20,6 +20,7 @@ jobs:
       - name: Check IIA and StudyPDF public endpoints
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           FAILURES=0
           check_url() {
