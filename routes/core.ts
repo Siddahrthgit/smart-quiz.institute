@@ -157,13 +157,8 @@ router.post('/upload-and-analyze', (req: IdentifiedRequest, res: Response, next)
     const topics = analysis.topics.slice(0, 6);
     const questions = analysis.questions;
 
-    if (!questions.length) {
-      return res.status(422).json({
-        error: 'NO_USABLE_QUESTIONS',
-        message: 'PDF text was extracted, but it did not contain enough readable study statements to build questions. Try a clearer text-based PDF.'
-      });
-    }
-
+    // Keep a successfully extracted PDF available for grounded Q&A even when
+    // the deterministic MCQ engine cannot form a reliable quiz from its text.
     await setFixedBranchIfEmpty(req, branch);
     await Material.updateOne({ docId, ownerKey: ownerKey(req) }, { $set: { summary: topics.join(', '), topics } });
     return res.json({ success: true, docId, branch, subject, topics, questions, local: true });
