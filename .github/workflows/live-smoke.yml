@@ -1,0 +1,44 @@
+name: Live website smoke tests
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  live-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check IIA and StudyPDF public endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_url() {
+            local url="$1"
+            local expected="$2"
+            local body="$RUNNER_TEMP/response-$(echo "$url" | tr '/:' '__').txt"
+            echo "Checking $url"
+            local code
+            code=$(curl --location --silent --show-error --retry 3 --retry-all-errors --retry-delay 3 --connect-timeout 10 --max-time 90 -o "$body" -w '%{http_code}' "$url") || {
+              echo "::error::Network/DNS/TLS failure while requesting $url"
+              return 1
+            }
+            if [ "$code" != "$expected" ]; then
+              echo "::error::Expected HTTP $expected from $url, received HTTP $code"
+              head -c 500 "$body" || true
+              return 1
+            fi
+            echo "PASS $url -> HTTP $code"
+          }
+          check_url "https://integratedia.duckdns.org/" "200"
+          check_url "https://integratedia.duckdns.org/api/health" "200"
+          check_url "https://studypdf.duckdns.org/" "200"
+          check_url "https://studypdf.duckdns.org/api/health" "200"
+          check_url "https://smart-quiz-institute.onrender.com/" "200"
+          check_url "https://smart-quiz-institute.onrender.com/api/health" "200"
