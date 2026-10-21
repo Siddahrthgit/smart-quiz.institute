@@ -303,7 +303,7 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
     const iiaAssistantUrl = process.env.IIA_ASSISTANT_URL;
     const iiaSharedKey = process.env.IIA_SHARED_ASSISTANT_KEY;
     let sharedEngineFallback = false;
-    if (iiaAssistantUrl && iiaSharedKey) {
+    if (iiaAssistantUrl && iiaSharedKey && !iiaSharedKey.includes('replace_with')) {
       let upstream: Response | undefined;
       try {
         upstream = await fetch(iiaAssistantUrl, {
