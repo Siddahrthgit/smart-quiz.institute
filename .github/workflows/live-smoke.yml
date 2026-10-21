@@ -42,3 +42,25 @@ jobs:
           check_url "https://studypdf.duckdns.org/api/health" "200"
           check_url "https://smart-quiz-institute.onrender.com/" "200"
           check_url "https://smart-quiz-institute.onrender.com/api/health" "200"
+
+          # Invalid, side-effect-free requests verify the API routes are present
+          # and fail with validation/auth errors instead of 404 or server crashes.
+          check_status() {
+            local url="$1"
+            local payload="$2"
+            local expected_regex="$3"
+            local body="$RUNNER_TEMP/post-response.txt"
+            local code
+            code=$(curl --location --silent --show-error --retry 2 --retry-all-errors --connect-timeout 10 --max-time 90 \
+              -H 'content-type: application/json' -X POST --data "$payload" -o "$body" -w '%{http_code}' "$url")
+            if ! [[ "$code" =~ $expected_regex ]]; then
+              echo "::error::Unexpected HTTP $code from $url; expected $expected_regex"
+              head -c 500 "$body" || true
+              return 1
+            fi
+            echo "PASS $url -> HTTP $code (expected validation/auth response)"
+          }
+          check_status "https://integratedia.duckdns.org/api/chat" '{}' '401'
+          check_status "https://integratedia.duckdns.org/api/assistant/ask" '{}' '401|503'
+          check_status "https://studypdf.duckdns.org/api/assistant/ask" '{}' '400'
+          check_status "https://smart-quiz-institute.onrender.com/api/assistant/ask" '{}' '400'
