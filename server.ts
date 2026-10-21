@@ -285,12 +285,26 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
   let sourceName = '';
   let sourceWarning = '';
   if (documentId) {
+    const ownerKey = optionalOwnerKey(req);
     const doc = documentStore.get(documentId);
-    if (!doc) {
-      sourceWarning = 'The previously selected study material is no longer in this server session, so this answer was prepared without it.';
-    } else if (doc.ownerKey && doc.ownerKey === optionalOwnerKey(req)) {
+    if (doc && doc.ownerKey && doc.ownerKey === ownerKey) {
       context = doc.content.slice(0, 18000);
       sourceName = doc.name;
+    } else if (ownerKey) {
+      // The rebuilt upload-and-analyze flow stores PDFs in MongoDB Material,
+      // not the legacy in-memory documentStore. Retrieve only this owner's file.
+      try {
+        const material = await Material.findOne({ docId: documentId, ownerKey }).lean();
+        if (material && typeof material.extractedText === 'string' && material.extractedText.trim()) {
+          context = material.extractedText.slice(0, 18000);
+          sourceName = material.title || 'Uploaded study material';
+        } else {
+          sourceWarning = 'The selected study material could not be found for this account or guest session. Upload it again and retry.';
+        }
+      } catch (lookupError) {
+        console.error('Assistant could not retrieve uploaded study material:', lookupError instanceof Error ? lookupError.message : 'unknown error');
+        sourceWarning = 'IIA could not load this study material right now. Please retry.';
+      }
     } else {
       sourceWarning = 'The selected study material could not be verified for this account or guest session, so this answer was prepared without it.';
     }
