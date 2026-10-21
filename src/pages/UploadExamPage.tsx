@@ -9,6 +9,10 @@ type Phase='upload'|'analyzing'|'menu'|'exam'|'submitting';
 export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:string)=>void;reattempt?:{docId:string;branch:string;subject:string;parentAttemptId:string;questions:CoreQuestion[]}|null}) {
   const [phase,setPhase]=useState<Phase>(reattempt?'exam':'upload');
   const [error,setError]=useState('');
+  const [qaQuestion,setQaQuestion]=useState('');
+  const [qaAnswer,setQaAnswer]=useState('');
+  const [qaError,setQaError]=useState('');
+  const [qaBusy,setQaBusy]=useState(false);
   const [docId,setDocId]=useState(reattempt?.docId||'');
   const [branch,setBranch]=useState(reattempt?.branch||'');
   const [subject,setSubject]=useState(reattempt?.subject||'');
@@ -66,6 +70,24 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
       localStorage.setItem('studypdf_doc_id', data.docId);
       setBranch(data.branch);setSubject(data.subject);setQuestions(builtQuestions);setAnswers({});setPhase('menu');
     }catch(e:any){setError(e.message||'Something went wrong');setPhase('upload');}
+  }
+  async function askAboutPdf(){
+    const question=qaQuestion.trim();
+    if(!question||qaBusy)return;
+    const activeDocId=docId||localStorage.getItem('studypdf_doc_id')||'';
+    if(!activeDocId){setQaError('Upload a PDF first.');return;}
+    setQaBusy(true);setQaError('');setQaAnswer('');
+    try{
+      const res=await fetch('/api/assistant/ask',{
+        method:'POST',
+        headers:{...ownerHeaders(),'Content-Type':'application/json'},
+        body:JSON.stringify({message:question,documentId:activeDocId})
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(data.error||data.message||'Could not answer from this PDF.');
+      setQaAnswer(typeof data.answer==='string'?data.answer:'No answer was returned.');
+    }catch(e:any){setQaError(e.message||'Could not answer from this PDF.');}
+    finally{setQaBusy(false);}
   }
   async function submit(){
     setPhase('submitting');
@@ -127,6 +149,16 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
 
   if(phase==='menu') return <div className="min-h-screen bg-white text-slate-900"><div className="max-w-3xl mx-auto px-4 py-10">
     <div className="mb-6"><p className="text-xs text-slate-500">UPLOADED MATERIAL</p><h2 className="text-2xl font-bold mt-1">{subject||'Your PDF'}</h2><p className="text-sm text-slate-500 mt-1">{branch}</p></div>
+    <section className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
+      <h3 className="font-semibold text-lg">Ask questions about this PDF</h3>
+      <p className="text-sm text-slate-600 mt-1 mb-3">Answers are grounded in your uploaded study material.</p>
+      <form onSubmit={e=>{e.preventDefault();void askAboutPdf();}} className="space-y-3">
+        <textarea value={qaQuestion} onChange={e=>setQaQuestion(e.target.value)} rows={3} maxLength={6000} required placeholder="Ask a question from your PDF…" className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm"/>
+        <button disabled={qaBusy||!qaQuestion.trim()} className="rounded-lg bg-indigo-600 px-4 py-2 text-white disabled:opacity-50">{qaBusy?'Finding answer…':'Ask about this PDF'}</button>
+      </form>
+      {qaError&&<p role="alert" className="mt-3 text-sm text-red-600">{qaError}</p>}
+      {qaAnswer&&<div aria-live="polite" className="mt-4 rounded-xl border border-slate-200 bg-white p-4"><h4 className="font-semibold mb-2">Answer</h4><p className="whitespace-pre-wrap text-sm leading-6">{qaAnswer}</p></div>}
+    </section>
     <div className="grid sm:grid-cols-2 gap-3">
       <Action icon={<BookOpen/>} title="Take Exam" onClick={()=>setPhase('exam')} primary/>
       <Action icon={<FileText/>} title="Study Notes" onClick={()=>action('notes').catch(e=>setError(e.message))}/>
