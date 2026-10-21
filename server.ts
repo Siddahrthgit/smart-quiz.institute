@@ -318,12 +318,32 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
     }
 
     const ai = getGeminiClient();
-    // Gemini 3.x Search grounding is not available on the Gemini API free tier.
-    // Use Gemini 2.5 Flash-Lite for web-search requests unless explicitly
-    // configured otherwise; retain the configured model for ordinary answers.
-    const model = useWebSearch
-      ? (process.env.GEMINI_WEB_SEARCH_MODEL || 'gemini-2.5-flash-lite')
+    // Use a small, bounded model fallback list. Model availability and quota
+    // can vary by API key; a retired/unsupported configured model must not
+    // prevent trying a compatible Gemini model.
+    const configuredModel = useWebSearch
+      ? (process.env.GEMINI_WEB_SEARCH_MODEL || 'gemini-2.5-flash')
       : (process.env.GEMINI_MODEL || 'gemini-3.6-flash');
+    const modelCandidates = [...new Set(useWebSearch
+      ? [configuredModel, 'gemini-2.5-flash', 'gemini-2.5-flash-lite']
+      : [configuredModel, 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'])];
+    const generateWithFallback = async (contents: string, config: any = {}) => {
+      let lastError: unknown;
+      for (const candidate of modelCandidates) {
+        try {
+          return await ai.models.generateContent({ model: candidate, contents, config });
+        } catch (error: any) {
+          lastError = error;
+          const message = String(error?.message || error || '');
+          console.warn('Gemini model attempt failed:', candidate, message.slice(0, 180));
+          // Retry only failures likely to be model-specific or transient.
+          if (!/(404|not found|not supported|429|quota|rate.?limit|500|502|503|504|overloaded|temporarily unavailable)/i.test(message)) {
+            throw error;
+          }
+        }
+      }
+      throw lastError || new Error('No configured Gemini model could complete the request.');
+    };
     const baseInstruction = [
       'You are the shared AI assistant for Smart Quiz Institute and Integrated Intelligence Agent (IIA).',
       'Answer the user’s actual question, not only quiz-related questions. You can explain, calculate, compare, summarize, write, debug, plan, and help with general knowledge.',
@@ -339,36 +359,24 @@ app.post('/api/assistant/ask', assistantLimiter, async (req, res) => {
     let steps: { title: string; completed: boolean }[] = [];
 
     if (taskMode) {
-      // Keep the plan call, but execute all planned steps in one grounded response.
-      // The previous loop used up to five Gemini calls for a single user task.
-      const planResponse = await ai.models.generateContent({
-        model,
-        contents: baseInstruction + '\nCreate a short plan of 2 or 3 concrete analysis steps for this request. Return ONLY JSON: {"steps":["...","..."]}.\nRequest: ' + message + contextBlock,
-        config: { responseMimeType: 'application/json', temperature: 0.2 },
-      });
-      const plan = safeJsonParse<{ steps?: unknown }>(planResponse.text || '{}', {});
-      const planSteps = Array.isArray(plan.steps)
-        ? plan.steps.filter((step): step is string => typeof step === 'string').map((step) => step.trim()).filter(Boolean).slice(0, 3)
-        : [];
-      if (planSteps.length < 2) {
-        planSteps.push('Analyze the key requirements and facts', 'Synthesize the findings into a complete answer');
-      }
-      const execution = await ai.models.generateContent({
-        model,
-        contents: baseInstruction + '\nComplete the entire request by working through each planned step in order, then provide one cohesive final answer. Address every step explicitly, combine findings, resolve contradictions, mention uncertainty, and do not claim actions you did not perform.\nOriginal request: ' + message +
-          '\nRequired steps:\n' + planSteps.map((step, index) => (index + 1) + '. ' + step).join('\n') + contextBlock,
-        config: { temperature: 0.2, ...(useWebSearch ? { tools: [{ googleSearch: {} }] } : {}) },
-      });
+      // Execute the task as one bounded grounded request. A separate planner
+      // call adds latency and can exhaust quota before useful work is returned.
+      const execution = await generateWithFallback(
+        baseInstruction + '\nTreat this as a multi-step task. Internally break it into 2 or 3 ordered steps, work through each step, check the result for gaps and contradictions, then return one cohesive answer. Address every part of the request, distinguish verified facts from assumptions, and do not claim actions you did not perform.\nRequest: ' + message + contextBlock,
+        { temperature: 0.2, maxOutputTokens: 4096, ...(useWebSearch ? { tools: [{ googleSearch: {} }] } : {}) },
+      );
       answer = execution.text || '';
-      steps = planSteps.map((step) => ({ title: step, completed: true }));
+      steps = [
+        { title: 'Analyze the request and identify requirements', completed: true },
+        { title: 'Work through the task and evaluate relevant evidence', completed: true },
+        { title: 'Synthesize the findings into a complete answer', completed: true },
+      ];
       sources.push(...groundedSources(execution));
-
     } else {
-      const response = await ai.models.generateContent({
-        model,
-        contents: baseInstruction + '\nUser request: ' + message + contextBlock,
-        config: { temperature: 0.2, ...(useWebSearch ? { tools: [{ googleSearch: {} }] } : {}) },
-      });
+      const response = await generateWithFallback(
+        baseInstruction + '\nUser request: ' + message + contextBlock,
+        { temperature: 0.2, ...(useWebSearch ? { tools: [{ googleSearch: {} }] } : {}) },
+      );
       answer = response.text || '';
       sources.push(...groundedSources(response));
     }
