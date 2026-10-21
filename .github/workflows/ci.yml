@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: studypdf-ci-${{ github.ref }}
@@ -26,6 +26,23 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Regenerate lockfile if package metadata has drifted
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit lockfile repair to this same-repository PR branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add package-lock.json
+            git commit -m 'chore: synchronize npm lockfile'
+            git push origin "HEAD:${GITHUB_HEAD_REF}"
+          fi
+      - name: Ensure main branch lockfile is already synchronized
+        if: github.event_name != 'pull_request'
+        run: git diff --exit-code -- package-lock.json
       - name: Install locked dependencies
         run: npm ci
       - name: TypeScript check
