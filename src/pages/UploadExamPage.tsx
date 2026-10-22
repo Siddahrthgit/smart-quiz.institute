@@ -92,7 +92,7 @@ export function UploadExamPage({onFinished,reattempt}:{onFinished:(attemptId:str
   async function submit(){
     setPhase('submitting');
     try{
-      const res=await fetch('/api/core/exam/submit',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,branch,subject,questions:questions.map((q,i)=>({...q,userAnswer:answers[i]||''}))})});
+      const res=await fetch('/api/core/exam/submit',{method:'POST',headers:{...ownerHeaders(),'Content-Type':'application/json'},body:JSON.stringify({docId,branch,subject,questions:questions.map((q,i)=>({...q,userAnswer:answers[i]||''})),source:reattempt?'reattempt':'exam',...(reattempt?.parentAttemptId?{parentAttemptId:reattempt.parentAttemptId}:{})})});
       const data=await res.json();if(!res.ok)throw new Error(data.message||data.error||'Failed to submit exam');onFinished(data.attemptId);
     }catch(e:any){setError(e.message||'Failed to submit exam');setPhase('exam');}
   }
