@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 interface LoginPageProps {
   onAuthed: (token: string) => void;
   onContinueAsGuest: () => void;
+  onBackToHome?: () => void;
 }
 
 export function LoginPage({ onAuthed, onContinueAsGuest }: LoginPageProps) {
@@ -54,7 +55,7 @@ export function LoginPage({ onAuthed, onContinueAsGuest }: LoginPageProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-1">Smart Quiz AI</h1>
+        <h1 className="text-2xl font-bold text-center mb-1 text-slate-900">StudyPDF</h1>
         <p className="text-slate-600 text-center mb-6 text-sm">
           {mode === 'login' ? 'Log in to continue' : 'Create your account'}
         </p>
@@ -94,7 +95,7 @@ export function LoginPage({ onAuthed, onContinueAsGuest }: LoginPageProps) {
             required
           />
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button
             type="submit"
@@ -124,6 +125,7 @@ export function LoginPage({ onAuthed, onContinueAsGuest }: LoginPageProps) {
         >
           Continue as Guest
         </button>
+        {onBackToHome && <button type="button" onClick={onBackToHome} className="mt-4 w-full text-center text-sm font-medium text-indigo-700 hover:underline">Back to StudyPDF home</button>}
         <p className="text-slate-500 text-xs text-center mt-2">
           Your guest data stays private to you and can be merged in later if you sign up.
         </p>
