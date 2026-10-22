@@ -137,13 +137,13 @@ function normalizeFactPart(value: string) {
 }
 
 function extractFacts(ss: string[]) {
-  const rows: { subject: string; answer: string; source: string }[] = [];
+  const rows: { subject: string; answer: string; source: string; question?: string }[] = [];
 
-  const add = (subject: string, answer: string, source: string) => {
+  const add = (subject: string, answer: string, source: string, question?: string) => {
     const sub = normalizeFactPart(subject).replace(/^(?:q\d+[.)]\s*)/i, '');
     const ans = normalizeFactPart(answer);
     if (sub.length >= 3 && ans.length >= 5 && sub.length <= 140 && ans.length <= 240) {
-      rows.push({ subject: sub, answer: ans, source });
+      rows.push({ subject: sub, answer: ans, source, question });
     }
   };
 
@@ -159,8 +159,17 @@ function extractFacts(ss: string[]) {
       add(m[1], m[2], s); continue;
     }
 
-    m = s.match(/^(.{3,120}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as)\s+(.{5,240})[.!?]?$/i);
+    m = s.match(/^the purpose of\s+(.{3,100}?)\s+is to\s+(.{5,220})[.!?]?$/i);
+    if (m) { add('purpose of ' + m[1], m[2], s, 'What is the purpose of ' + m[1] + '?'); continue; }
+
+    m = s.match(/^(.{3,100}?)\s+(?:is|are)\s+used to\s+([a-z]+)\s+(.{5,200})[.!?]?$/i);
+    if (m) { add(m[1], m[2] + ' ' + m[3], s, 'What is ' + m[1].charAt(0).toLowerCase() + m[1].slice(1) + ' used for?'); continue; }
+
+    m = s.match(/^(.{3,120}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|is made from|are made from|is made of|are made of|is composed of|are composed of)\s+(.{5,240})[.!?]?$/i);
     if (m) { add(m[1], m[2], s); continue; }
+
+    m = s.match(/^(.{3,100}?)\s+(affects|increases|reduces|improves|maintains|transfers|combines|helps|resists|supports|prevents|controls|measures|determines|indicates|requires|provides|contains|contain|uses|use|has|have|lists|increases|decreases)\s+(.{5,220})[.!?]?$/i);
+    if (m) { add(m[1], m[2] + ' ' + m[3], s, 'What does ' + m[1].charAt(0).toLowerCase() + m[1].slice(1) + ' do?'); continue; }
 
     m = s.match(/^(.{3,120}?)\s+(?:is|are)\s+(?:designated|represented)\s+(?:by|as)\s+(.{3,220})[.!?]?$/i);
     if (m) { add('How are ' + m[1] + ' designated', m[2], s); continue; }
@@ -183,11 +192,11 @@ function extractFacts(ss: string[]) {
   });
 }
 
-function makeFactQuestion(fact: {subject:string; answer:string; source:string; topic?:string}, answerPool: string[], i: number): LocalQuestion | null {
+function makeFactQuestion(fact: {subject:string; answer:string; source:string; topic?:string; question?:string}, answerPool: string[], i: number): LocalQuestion | null {
   const subject = normalizeFactPart(fact.subject);
-  const question = /^(?:How are|How many|What is)\b/i.test(subject)
+  const question = fact.question || (/^(?:How are|How many|What is|What does)\b/i.test(subject)
     ? (subject.endsWith('?') ? subject : subject + '?')
-    : 'What is ' + subject + '?';
+    : 'What is ' + subject + '?');
 
   const answer = shorten(fact.answer, 210);
   if (!validAnswerForQuestion(answer)) return null;

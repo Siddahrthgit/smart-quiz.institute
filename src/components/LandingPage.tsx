@@ -10,12 +10,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-16 text-center space-y-6">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-medium">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-medium">
           <Sparkles className="w-3.5 h-3.5" />
           <span>AI-powered exam preparation</span>
         </div>
 
-        <p className="text-emerald-400 text-sm md:text-base font-semibold uppercase tracking-wide">
+        <p className="text-emerald-700 text-sm md:text-base font-semibold uppercase tracking-wide">
           Make Your Own Mock Test
         </p>
 
@@ -23,7 +23,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           Turn your study material into quizzes, and turn weak topics into strengths.
         </h1>
 
-        <p className="text-indigo-600 text-sm md:text-base font-semibold tracking-wide">
+        <p className="text-indigo-700 text-sm md:text-base font-semibold tracking-wide">
           Have perfect knowledge with studypdf.duckdns.org
         </p>
 
@@ -85,7 +85,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
   description,
 }) => (
   <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-    <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center">
       {icon}
     </div>
     <h3 className="text-sm font-bold text-slate-900">{title}</h3>
