@@ -783,15 +783,16 @@ Return ONLY a valid JSON object with the following schema:
     const responseText = aiResponse.text || '{}';
     const parsedJson = safeJsonParse<Record<string, any>>(responseText, {});
 
-    if (!parsedJson.questions || !Array.isArray(parsedJson.questions) || parsedJson.questions.length === 0) {
+    if (!Array.isArray(parsedJson.questions) || parsedJson.questions.length === 0) {
       console.warn('AI quiz response missing questions array. Raw response:', responseText.slice(0, 200));
+      throw new Error('Gemini returned no valid exam questions. Please retry or check AI quota.');
     }
 
     return res.json({
       success: true,
       quizTitle: parsedJson.title || `${docName} Quiz`,
       documentName: docName,
-      questions: parsedJson.questions || [],
+      questions: parsedJson.questions,
     });
   } catch (err: any) {
     console.error('Quiz generation error:', err);
