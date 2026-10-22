@@ -6,7 +6,7 @@ interface LoginPageProps {
   onBackToHome?: () => void;
 }
 
-export function LoginPage({ onAuthed, onContinueAsGuest }: LoginPageProps) {
+export function LoginPage({ onAuthed, onContinueAsGuest, onBackToHome }: LoginPageProps) {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
