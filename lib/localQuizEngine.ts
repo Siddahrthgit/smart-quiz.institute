@@ -163,13 +163,13 @@ function extractFacts(ss: string[]) {
     if (m) { add('purpose of ' + m[1], m[2], s, 'What is the purpose of ' + m[1] + '?'); continue; }
 
     m = s.match(/^(.{3,100}?)\s+(?:is|are)\s+used to\s+([a-z]+)\s+(.{5,200})[.!?]?$/i);
-    if (m) { add(m[1], m[2] + ' ' + m[3], s, 'What is ' + m[1] + ' used for?'); continue; }
+    if (m) { add(m[1], m[2] + ' ' + m[3], s, 'What is ' + m[1].charAt(0).toLowerCase() + m[1].slice(1) + ' used for?'); continue; }
 
     m = s.match(/^(.{3,120}?)\s+(?:is|are|means|refers to|consists of|includes|comprises|is defined as|are defined as|is known as|are known as|is made from|are made from|is made of|are made of|is composed of|are composed of)\s+(.{5,240})[.!?]?$/i);
     if (m) { add(m[1], m[2], s); continue; }
 
     m = s.match(/^(.{3,100}?)\s+(affects|increases|reduces|improves|maintains|transfers|combines|helps|resists|supports|prevents|controls|measures|determines|indicates|requires|provides|contains|contain|uses|use|has|have|lists|increases|decreases)\s+(.{5,220})[.!?]?$/i);
-    if (m) { add(m[1], m[2] + ' ' + m[3], s, 'What does ' + m[1] + ' do?'); continue; }
+    if (m) { add(m[1], m[2] + ' ' + m[3], s, 'What does ' + m[1].charAt(0).toLowerCase() + m[1].slice(1) + ' do?'); continue; }
 
     m = s.match(/^(.{3,120}?)\s+(?:is|are)\s+(?:designated|represented)\s+(?:by|as)\s+(.{3,220})[.!?]?$/i);
     if (m) { add('How are ' + m[1] + ' designated', m[2], s); continue; }
