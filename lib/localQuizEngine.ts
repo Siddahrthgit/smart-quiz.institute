@@ -192,7 +192,7 @@ function extractFacts(ss: string[]) {
   });
 }
 
-function makeFactQuestion(fact: {subject:string; answer:string; source:string; topic?:string}, answerPool: string[], i: number): LocalQuestion | null {
+function makeFactQuestion(fact: {subject:string; answer:string; source:string; topic?:string; question?:string}, answerPool: string[], i: number): LocalQuestion | null {
   const subject = normalizeFactPart(fact.subject);
   const question = fact.question || (/^(?:How are|How many|What is|What does)\b/i.test(subject)
     ? (subject.endsWith('?') ? subject : subject + '?')
