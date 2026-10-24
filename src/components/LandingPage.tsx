@@ -1,94 +1,76 @@
 import React from 'react';
 import { FeatureChatWidget } from './FeatureChatWidget';
-import { Sparkles, FileText, Target, Users, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Sparkles, FileText, Target, ShieldCheck, ArrowRight, UploadCloud, BrainCircuit, ListChecks, TrendingUp, Calculator, FlaskConical, BookOpen, Landmark, Code2, MoreHorizontal } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
 }
 
+const subjects = [
+  { icon: Calculator, name: 'Mathematics', note: 'Practice problems & concepts', color: 'blue' },
+  { icon: FlaskConical, name: 'Science', note: 'Explore and learn', color: 'green' },
+  { icon: BookOpen, name: 'English', note: 'Reading & comprehension', color: 'violet' },
+  { icon: Landmark, name: 'History', note: 'Key events & facts', color: 'orange' },
+  { icon: Code2, name: 'Computer Science', note: 'Programming & tech', color: 'cyan' },
+  { icon: MoreHorizontal, name: 'And More', note: 'Many subjects available', color: 'pink' },
+];
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <div className="max-w-3xl mx-auto px-6 pt-20 pb-16 text-center space-y-6">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-medium">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>AI-powered exam preparation</span>
+    <div className="studypdf-landing">
+      <section className="sp-hero">
+        <div className="sp-hero-copy">
+          <div className="sp-eyebrow"><Sparkles size={15} /> AI-powered learning</div>
+          <h1>Have perfect knowledge with <span>studypdf.duckdns.org</span></h1>
+          <p className="sp-lead">Upload your study material, get AI-generated questions, practice with instant feedback and build your confidence.</p>
+          <div className="sp-actions">
+            <button onClick={onGetStarted} className="sp-button-primary">Start Learning <ArrowRight size={17} /></button>
+            <button onClick={onGetStarted} className="sp-button-secondary">Explore how it works</button>
+          </div>
+          <p className="sp-free-note"><ShieldCheck size={16} /> Free to start · No credit card required</p>
         </div>
-
-        <p className="text-emerald-700 text-sm md:text-base font-semibold uppercase tracking-wide">
-          Make Your Own Mock Test
-        </p>
-
-        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
-          Turn your study material into quizzes, and turn weak topics into strengths.
-        </h1>
-
-        <p className="text-indigo-700 text-sm md:text-base font-semibold tracking-wide">
-          Have perfect knowledge with studypdf.duckdns.org
-        </p>
-
-        <p className="text-slate-600 text-sm md:text-base max-w-xl mx-auto">
-          Upload your notes or PDFs, get instant AI-generated quizzes, and practice the questions
-          you actually get wrong — until they're not weak spots anymore.
-        </p>
-
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <button
-            onClick={onGetStarted}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl transition-colors shadow"
-          >
-            Get Started Free
-            <ArrowRight className="w-4 h-4" />
-          </button>
+        <div className="sp-hero-art" aria-label="StudyPDF PDF learning workflow">
+          <div className="sp-paper sp-paper-back"><FileText size={30} /></div>
+          <div className="sp-pdf-card"><span className="sp-pdf-label">PDF</span><FileText size={72} strokeWidth={1.35} /></div>
+          <div className="sp-workflow">
+            <div><BrainCircuit size={19} /><span>Generate questions</span></div>
+            <div><ListChecks size={19} /><span>Take quiz</span></div>
+            <div><TrendingUp size={19} /><span>Track progress</span></div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-4xl mx-auto px-6 pb-16 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FeatureCard
-          icon={<FileText className="w-5 h-5" />}
-          title="Upload, then quiz instantly"
-          description="Drop in a PDF or notes and get an AI-generated quiz built from your own material — not generic questions."
-        />
-        <FeatureCard
-          icon={<Target className="w-5 h-5" />}
-          title="Focus on your weak areas"
-          description="Wrong answers get tracked and retested automatically, so you spend time where it actually matters."
-        />
-        <FeatureCard
-          icon={<Users className="w-5 h-5" />}
-          title="Study with friends"
-          description="Compare progress with people you choose to share with — private by default, no public leaderboards."
-        />
-        <FeatureCard
-          icon={<ShieldCheck className="w-5 h-5" />}
-          title="Built on real question banks"
-          description="Grounded in real exam question sets, not just AI-invented questions with no source material."
-        />
-      </div>
+      <section className="sp-benefits" aria-label="StudyPDF benefits">
+        <div><span className="sp-benefit-icon"><Sparkles /></span><div><strong>AI-generated questions</strong><p>From your PDFs, instantly</p></div></div>
+        <div><span className="sp-benefit-icon"><Target /></span><div><strong>Practice & improve</strong><p>Get helpful explanations</p></div></div>
+        <div><span className="sp-benefit-icon"><TrendingUp /></span><div><strong>Track your progress</strong><p>See your performance</p></div></div>
+        <div><span className="sp-benefit-icon"><ShieldCheck /></span><div><strong>Free to get started</strong><p>No credit card required</p></div></div>
+      </section>
 
-      <div className="border-t border-slate-200 bg-slate-50/50">
-        <div className="max-w-3xl mx-auto px-6 py-10 text-center space-y-2">
-          <p className="text-sm text-slate-600">
-            Every quiz is generated from material you upload or from curated question banks —
-            no filler, no random trivia.
-          </p>
+      <section className="sp-how">
+        <div className="sp-section-heading"><h2>How It Works</h2><p>Get started in 3 simple steps and take your learning to the next level.</p></div>
+        <div className="sp-steps">
+          <article><span className="sp-step-icon blue"><UploadCloud /></span><b><i>1</i> Upload PDF</b><p>Add your study material in PDF format.</p></article>
+          <span className="sp-step-arrow">→</span>
+          <article><span className="sp-step-icon violet"><BrainCircuit /></span><b><i>2</i> Get Questions</b><p>StudyPDF analyses your content and creates relevant questions.</p></article>
+          <span className="sp-step-arrow">→</span>
+          <article><span className="sp-step-icon green"><ListChecks /></span><b><i>3</i> Take Quiz & Review</b><p>Answer questions, get feedback and review your results.</p></article>
         </div>
+      </section>
+
+      <section className="sp-subjects">
+        <div className="sp-section-heading"><h2>Popular Subjects</h2><p>Study materials for a wide range of subjects and exams.</p></div>
+        <div className="sp-subject-grid">
+          {subjects.map(({ icon: Icon, name, note, color }) => <article className="sp-subject-card" key={name}><span className={`sp-subject-icon ${color}`}><Icon /></span><strong>{name}</strong><p>{note}</p></article>)}
+        </div>
+      </section>
+
+      <section className="sp-cta">
+        <div className="sp-cta-mark"><BookOpen size={34} /></div>
+        <div><h2>Ready to improve your knowledge?</h2><p>Learn smarter with your own study material and practice tests.</p></div>
+        <button onClick={onGetStarted} className="sp-button-primary">Get Started Free <ArrowRight size={17} /></button>
+      </section>
       <FeatureChatWidget />
-      </div>
     </div>
   );
 };
-
-const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({
-  icon,
-  title,
-  description,
-}) => (
-  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center">
-      {icon}
-    </div>
-    <h3 className="text-sm font-bold text-slate-900">{title}</h3>
-    <p className="text-xs text-slate-600 leading-relaxed">{description}</p>
-  </div>
-);
