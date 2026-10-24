@@ -64,15 +64,11 @@ jobs:
           export JWT_SECRET='ci-smoke-test-secret-at-least-32-bytes-long'
           export DATA_FILE="$RUNNER_TEMP/studypdf-ci-store.json"
           export UPLOADS_DIR="$RUNNER_TEMP/studypdf-ci-uploads"
-          export IIA_ASSISTANT_URL="http://127.0.0.1:3188/api/assistant/ask"
-          export IIA_SHARED_ASSISTANT_KEY="ci-shared-assistant-key-at-least-32-bytes"
-          node -e "require('http').createServer((req,res)=>{res.statusCode=404;res.setHeader('content-type','application/json');res.end(JSON.stringify({message:'route missing'}));}).listen(3188,'127.0.0.1')" >"$RUNNER_TEMP/iia-mock.log" 2>&1 &
-          MOCK_PID=$!
           node dist/server.cjs >"$RUNNER_TEMP/studypdf-server.log" 2>&1 &
           SERVER_PID=$!
           cleanup() {
-            kill "$SERVER_PID" "$MOCK_PID" 2>/dev/null || true
-            wait "$SERVER_PID" "$MOCK_PID" 2>/dev/null || true
+            kill "$SERVER_PID" 2>/dev/null || true
+            wait "$SERVER_PID" 2>/dev/null || true
           }
           trap cleanup EXIT
           for attempt in $(seq 1 30); do
