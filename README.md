@@ -46,13 +46,6 @@ A floating **Ask IIA** launcher is available on every main app page. It answers 
 
 The `POST /api/assistant/ask` endpoint uses the existing Gemini server key. The local fact extractor remains a deterministic offline fallback for MCQs only; it is not a general-purpose language model.
 
-### Connect the assistant to the central IIA engine (optional)
+### Separate service and data boundaries
 
-To use the exact same central answering pipeline as the IIA website, configure these server-side environment variables on the Smart Quiz Institute backend:
-
-```env
-IIA_ASSISTANT_URL=https://integratedia.duckdns.org/api/assistant/ask
-IIA_SHARED_ASSISTANT_KEY=<the-same-random-secret-configured-on-the-IIA-server>
-```
-
-Configure `IIA_SHARED_ASSISTANT_KEY` in the IIA server environment too, using a unique random value of at least 32 bytes (for example, generate it with `openssl rand -base64 48`). Never expose this key in frontend variables or commit the real value. If the proxy variables are not configured, the Study Quiz Institute backend uses its own `GEMINI_API_KEY` for answers instead. The proxy is server-to-server and has bounded rate limits.
+StudyPDF is intentionally independent from IIA. Its assistant uses StudyPDF's own server-side `GEMINI_API_KEY`, document store, authentication/guest ownership, and rate limits. It does not proxy assistant prompts or uploaded material to `integratedia.duckdns.org`. Keep the two deployments, credentials, and user data separate. The local quiz generator can still create source-based MCQs when `LOCAL_QUIZ_MODE=true`; it is not a general-purpose AI fallback.
