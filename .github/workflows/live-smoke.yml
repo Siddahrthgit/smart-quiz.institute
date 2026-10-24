@@ -25,7 +25,7 @@ jobs:
             local body="$RUNNER_TEMP/response-$(echo "$url" | tr '/:' '__').txt"
             echo "Checking $url"
             local code
-            code=$(curl --location --silent --show-error --retry 3 --retry-all-errors --retry-delay 3 --connect-timeout 10 --max-time 90 -o "$body" -w '%{http_code}' "$url") || {
+            code=$(curl --location --silent --show-error --retry 1 --retry-all-errors --retry-delay 2 --connect-timeout 8 --max-time 25 -o "$body" -w '%{http_code}' "$url") || {
               echo "::error::Network/DNS/TLS failure while requesting $url"
               FAILURES=$((FAILURES + 1))
               return 1
@@ -54,7 +54,7 @@ jobs:
             local expected_regex="$3"
             local body="$RUNNER_TEMP/post-response.txt"
             local code
-            code=$(curl --location --silent --show-error --retry 2 --retry-all-errors --connect-timeout 10 --max-time 90 \
+            code=$(curl --location --silent --show-error --retry 1 --retry-all-errors --connect-timeout 8 --max-time 25 \
               -H 'content-type: application/json' -X POST --data "$payload" -o "$body" -w '%{http_code}' "$url")
             if ! [[ "$code" =~ $expected_regex ]]; then
               echo "::error::Unexpected HTTP $code from $url; expected $expected_regex"
