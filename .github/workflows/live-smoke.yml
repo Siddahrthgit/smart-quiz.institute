@@ -1,8 +1,6 @@
 name: Live website smoke tests
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '17 */6 * * *'
@@ -68,7 +66,11 @@ jobs:
           }
           # Check StudyPDF first so an IIA deployment failure does not mask its status.
           check_status "https://studypdf.duckdns.org/api/assistant/ask" '{}' '400'
+          check_status "https://studypdf.duckdns.org/api/generate-quiz" '{}' '400'
+          check_status "https://studypdf.duckdns.org/api/upload" '{}' '401'
           check_status "https://smart-quiz-institute.onrender.com/api/assistant/ask" '{}' '400'
+          check_status "https://smart-quiz-institute.onrender.com/api/generate-quiz" '{}' '400'
+          check_status "https://smart-quiz-institute.onrender.com/api/upload" '{}' '401'
           check_status "https://integratedia.duckdns.org/api/chat" '{}' '401'
           check_status "https://integratedia.duckdns.org/api/assistant/ask" '{}' '401|503'
           check_status "https://integratedia.duckdns.org/api/business/checkout" '{"productKey":"not-a-plan"}' '400'
