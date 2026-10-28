@@ -71,3 +71,262 @@ button { cursor: pointer; }
 @media (max-width: 480px) {
  .sp-hero h1 { font-size: 2.2rem; }.sp-hero-art { gap: 8px; min-height: 205px; }.sp-pdf-card { width: 112px; height: 145px; }.sp-paper { width: 98px; height: 130px; }.sp-workflow div { min-width: 132px; padding: 10px 9px; gap: 7px; }.sp-workflow span { font-size: 10px; }.sp-benefits { padding-left: 16px; padding-right: 16px; gap: 16px 10px; }.sp-benefit-icon { flex-basis: 36px; width: 36px; height: 36px; }.sp-benefits strong { font-size: 11px; }.sp-benefits p { font-size: 10px; }.sp-steps { grid-template-columns: 1fr; gap: 14px; }.sp-step-arrow { display: none; }.sp-steps article { max-width: 300px; margin: 0 auto; }.sp-subject-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }.sp-cta { flex-wrap: wrap; padding: 16px; }.sp-cta-mark { display: none; }.sp-cta .sp-button-primary { width: 100%; }
 }
+
+
+/* StudyPDF Design A: luxury-minimal learning experience */
+:root {
+  --sp-ink: #1d2b28;
+  --sp-muted: #697772;
+  --sp-paper: #fbfaf6;
+  --sp-line: #e8e6dc;
+  --sp-forest: #315b4c;
+  --sp-forest-deep: #203f35;
+  --sp-brass: #b49a64;
+}
+html, body, #root {
+  background: var(--sp-paper);
+}
+#root > header {
+  background: rgba(251, 250, 246, .92) !important;
+  border-color: var(--sp-line) !important;
+  box-shadow: 0 8px 28px rgba(29, 43, 40, .035);
+}
+#root > header > div > button {
+  color: var(--sp-ink);
+}
+#root > header > div > button > span:first-child {
+  background: var(--sp-forest) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 7px 18px rgba(49, 91, 76, .16);
+}
+#root > header nav button:last-child {
+  background: var(--sp-forest) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 7px 18px rgba(49, 91, 76, .16);
+}
+#root > header nav button:last-child:hover {
+  background: var(--sp-forest-deep) !important;
+}
+.studypdf-landing {
+  color: var(--sp-ink);
+  background:
+    radial-gradient(ellipse at 78% 6%, rgba(180, 154, 100, .11), transparent 28rem),
+    var(--sp-paper);
+}
+.sp-hero {
+  max-width: 1280px;
+  min-height: 510px;
+  padding-top: 78px;
+  padding-bottom: 68px;
+  gap: clamp(34px, 5vw, 78px);
+}
+.sp-eyebrow {
+  background: #eeefe7;
+  color: var(--sp-forest);
+  border: 1px solid #e2e5d9;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.sp-hero h1 {
+  color: var(--sp-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(2.65rem, 5vw, 4.55rem);
+  line-height: 1.04;
+  letter-spacing: -.055em;
+}
+.sp-hero h1 span {
+  color: var(--sp-forest);
+  font-style: italic;
+}
+.sp-lead {
+  max-width: 500px;
+  color: #697772;
+  font-size: 16px;
+  line-height: 1.85;
+}
+.sp-button-primary, .sp-button-secondary {
+  min-height: 48px;
+  border-radius: 999px;
+  padding: 0 23px;
+  transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+}
+.sp-button-primary {
+  background: var(--sp-forest);
+  border-color: var(--sp-forest);
+  box-shadow: 0 10px 24px rgba(49, 91, 76, .16);
+}
+.sp-button-primary:hover {
+  background: var(--sp-forest-deep);
+  box-shadow: 0 14px 30px rgba(49, 91, 76, .23);
+  transform: translateY(-2px);
+}
+.sp-button-secondary {
+  background: rgba(255, 255, 255, .65);
+  color: var(--sp-ink);
+  border-color: #d9ddd4;
+}
+.sp-button-secondary:hover {
+  border-color: #b9c5b7;
+  box-shadow: 0 8px 20px rgba(29, 43, 40, .06);
+}
+.sp-free-note {
+  color: #78847d;
+}
+.sp-free-note svg {
+  color: var(--sp-forest);
+}
+.sp-hero-art {
+  min-height: 330px;
+  border: 1px solid rgba(213, 211, 197, .8);
+  border-radius: 30px;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(222, 227, 209, .7), transparent 54%),
+    linear-gradient(145deg, #f5f4ed, #eeeee5 58%, #f8f7f0);
+  box-shadow: 0 24px 70px rgba(38, 53, 45, .07);
+}
+.sp-pdf-card {
+  border-color: #e7e5d9;
+  color: var(--sp-forest);
+  border-radius: 18px;
+  box-shadow: 0 24px 50px rgba(38, 53, 45, .13);
+}
+.sp-pdf-label {
+  background: var(--sp-forest);
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+.sp-paper {
+  border-color: #e4e2d6;
+  box-shadow: 0 12px 28px rgba(38, 53, 45, .06);
+}
+.sp-workflow div {
+  border-color: #e1e3d8;
+  background: rgba(255, 255, 251, .9);
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(38, 53, 45, .055);
+  color: var(--sp-forest);
+  transition: transform .22s ease, border-color .22s ease;
+}
+.sp-workflow div:hover {
+  transform: translateX(4px);
+  border-color: #c5d1c3;
+}
+.sp-workflow span {
+  color: #42534b;
+}
+.sp-benefits {
+  padding-top: 20px;
+  padding-bottom: 56px;
+  gap: 26px;
+}
+.sp-benefit-icon {
+  background: #eff0e8;
+  color: var(--sp-forest);
+}
+.sp-benefits strong {
+  color: var(--sp-ink);
+  font-size: 12px;
+}
+.sp-benefits p {
+  color: #78847d;
+}
+.sp-how {
+  border: 1px solid #e7e6db;
+  background: linear-gradient(130deg, #f1f2e9, #f8f7f1 72%);
+  border-radius: 24px;
+  padding: 42px 30px;
+}
+.sp-section-heading h2 {
+  color: var(--sp-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: -.035em;
+}
+.sp-section-heading p {
+  color: var(--sp-muted);
+  line-height: 1.7;
+}
+.sp-step-icon {
+  border-radius: 17px;
+  box-shadow: 0 10px 24px rgba(49, 91, 76, .12);
+}
+.sp-step-icon.blue { background: linear-gradient(135deg, #527e70, #315b4c); }
+.sp-step-icon.violet { background: linear-gradient(135deg, #9a8c6d, #79694c); }
+.sp-step-icon.green { background: linear-gradient(135deg, #527e70, #315b4c); }
+.sp-steps b { color: var(--sp-ink); }
+.sp-steps b i {
+  background: var(--sp-forest);
+}
+.sp-steps article:nth-of-type(2) b i,
+.sp-steps article:nth-of-type(3) b i {
+  background: #9a8c6d;
+}
+.sp-step-arrow {
+  color: #b6bba9;
+}
+.sp-subjects {
+  padding-top: 28px;
+  padding-bottom: 50px;
+}
+.sp-subject-card {
+  border-color: #e7e6db;
+  border-radius: 16px;
+  background: rgba(255, 255, 251, .72);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.sp-subject-card:hover {
+  transform: translateY(-3px);
+  border-color: #d3d8cb;
+  box-shadow: 0 14px 30px rgba(38, 53, 45, .06);
+}
+.sp-subject-icon {
+  background: var(--sp-forest) !important;
+}
+.sp-subject-card strong {
+  color: var(--sp-ink);
+  font-size: 12px;
+}
+.sp-subject-card p {
+  color: #78847d;
+  font-size: 11px;
+}
+.sp-cta {
+  border: 1px solid #e4e4d7;
+  border-radius: 22px;
+  background: linear-gradient(110deg, #eff0e7, #f7f6ef);
+  padding: 26px 30px;
+  margin-bottom: 24px;
+}
+.sp-cta-mark {
+  color: var(--sp-forest);
+}
+.sp-cta h2 {
+  color: var(--sp-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+.sp-cta p {
+  color: var(--sp-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+#root > footer {
+  background: #f2f1e9 !important;
+  border-color: #e3e1d5 !important;
+  color: #697772 !important;
+}
+@media (max-width: 800px) {
+  .sp-hero { min-height: 0; padding-top: 42px; padding-bottom: 38px; }
+  .sp-hero-art { min-height: 250px; }
+  .sp-benefits { padding-bottom: 36px; }
+  .sp-how { padding: 28px 18px; }
+  .sp-cta { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-button-primary, .sp-button-secondary, .sp-workflow div, .sp-subject-card { transition: none; }
+}
