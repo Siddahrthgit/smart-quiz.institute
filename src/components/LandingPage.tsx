@@ -47,8 +47,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               <article className="sp-preview-course"><div className="sp-preview-course-art sp-preview-art-gold"><BrainCircuit size={24} /></div><small>PRACTICE TEST</small><b>Knowledge check</b><div className="sp-preview-progress"><i style={{width:'45%'}} /></div><span>45% completed</span></article>
             </div>
             <div className="sp-preview-bottom">
-              <div className="sp-preview-progress-card"><div><b>Your progress</b><small>Keep building your knowledge</small></div><div className="sp-preview-ring"><span>72<small>%</small></span></div></div>
-              <div className="sp-preview-task-card"><b>Next steps</b><span><i /> Review saved questions</span><span><i /> Try a new practice test</span><span><i /> Check explanations</span></div>
+              <div className="sp-preview-task-card">
+                <div className="sp-preview-assignment-heading"><b>Assignments</b><span>View all →</span></div>
+                <span className="sp-preview-assignment"><i className="sp-task-document" /><span><b>Review saved questions</b><small>Study notes · Suggested next step</small></span><em>Open →</em></span>
+                <span className="sp-preview-assignment"><i className="sp-task-quiz" /><span><b>Complete a practice test</b><small>Practice test · Test your understanding</small></span><em>Start →</em></span>
+                <span className="sp-preview-assignment"><i className="sp-task-review" /><span><b>Read answer explanations</b><small>Review · Strengthen key concepts</small></span><em>Review →</em></span>
+              </div>
             </div>
           </div>
         </div>
