@@ -29,13 +29,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </div>
           <p className="sp-free-note"><ShieldCheck size={16} /> Free to start · No credit card required</p>
         </div>
-        <div className="sp-hero-art" aria-label="StudyPDF PDF learning workflow">
-          <div className="sp-paper sp-paper-back"><FileText size={30} /></div>
-          <div className="sp-pdf-card"><span className="sp-pdf-label">PDF</span><FileText size={72} strokeWidth={1.35} /></div>
-          <div className="sp-workflow">
-            <div><BrainCircuit size={19} /><span>Generate questions</span></div>
-            <div><ListChecks size={19} /><span>Take quiz</span></div>
-            <div><TrendingUp size={19} /><span>Track progress</span></div>
+        <div className="sp-hero-art sp-dashboard-preview" aria-label="Preview of the StudyPDF learning workspace">
+          <aside className="sp-preview-sidebar">
+            <div className="sp-preview-brand"><span className="sp-preview-brand-mark">S</span><b>StudyPDF<span>.</span></b></div>
+            <div className="sp-preview-nav sp-preview-active"><BookOpen size={14} /> My study</div>
+            <div className="sp-preview-nav"><FileText size={14} /> PDF library</div>
+            <div className="sp-preview-nav"><ListChecks size={14} /> Practice tests</div>
+            <div className="sp-preview-nav"><TrendingUp size={14} /> My progress</div>
+            <div className="sp-preview-sidebar-note"><Sparkles size={16} /><b>Study smarter</b><small>Turn your notes into practice.</small></div>
+          </aside>
+          <div className="sp-preview-main">
+            <div className="sp-preview-topline"><div><small>YOUR LEARNING SPACE</small><b>Welcome back</b></div><span className="sp-preview-avatar">S</span></div>
+            <div className="sp-preview-search"><span>⌕</span> Find a document or practice test</div>
+            <div className="sp-preview-section-title"><b>Continue studying</b><span>View all →</span></div>
+            <div className="sp-preview-courses">
+              <article className="sp-preview-course"><div className="sp-preview-course-art sp-preview-art-green"><FileText size={24} /></div><small>PDF STUDY SET</small><b>Chapter notes</b><div className="sp-preview-progress"><i style={{width:'72%'}} /></div><span>72% reviewed</span></article>
+              <article className="sp-preview-course"><div className="sp-preview-course-art sp-preview-art-gold"><BrainCircuit size={24} /></div><small>PRACTICE TEST</small><b>Knowledge check</b><div className="sp-preview-progress"><i style={{width:'45%'}} /></div><span>45% completed</span></article>
+            </div>
+            <div className="sp-preview-bottom">
+              <div className="sp-preview-task-card">
+                <div className="sp-preview-assignment-heading"><b>Assignments</b><span>View all →</span></div>
+                <span className="sp-preview-assignment"><i className="sp-task-document" /><span><b>Review saved questions</b><small>Study notes · Suggested next step</small></span><em>Open →</em></span>
+                <span className="sp-preview-assignment"><i className="sp-task-quiz" /><span><b>Complete a practice test</b><small>Practice test · Test your understanding</small></span><em>Start →</em></span>
+                <span className="sp-preview-assignment"><i className="sp-task-review" /><span><b>Read answer explanations</b><small>Review · Strengthen key concepts</small></span><em>Review →</em></span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
