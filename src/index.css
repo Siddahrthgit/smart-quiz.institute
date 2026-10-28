@@ -330,3 +330,28 @@ html, body, #root {
 @media (prefers-reduced-motion: reduce) {
   .sp-button-primary, .sp-button-secondary, .sp-workflow div, .sp-subject-card { transition: none; }
 }
+
+
+/* Carry the same restrained palette through upload, quiz, and review screens */
+#root .bg-indigo-600 { background-color: var(--sp-forest) !important; }
+#root .hover\\:bg-indigo-500:hover { background-color: var(--sp-forest-deep) !important; }
+#root .text-indigo-600 { color: var(--sp-forest) !important; }
+#root .border-indigo-600,
+#root .border-indigo-500 { border-color: var(--sp-forest) !important; }
+#root .bg-indigo-50,
+#root .bg-indigo-50\\/50 { background-color: #eff0e8 !important; }
+#root .border-indigo-100 { border-color: #e0e4d8 !important; }
+#root .focus\\:border-indigo-500:focus { border-color: var(--sp-forest) !important; }
+#root .bg-slate-50 { background-color: #f5f4ed !important; }
+#root .border-slate-200 { border-color: #e6e4d9; }
+#root .text-slate-900 { color: var(--sp-ink); }
+#root .text-slate-600 { color: #66756e; }
+#root .text-emerald-600 { background-color: var(--sp-forest) !important; }
+#root .hover\\:border-indigo-300:hover,
+#root .hover\\:border-indigo-400:hover { border-color: #b9c8bb !important; }
+#root input:focus-visible,
+#root textarea:focus-visible,
+#root select:focus-visible,
+#root button:focus-visible {
+  outline-color: #759686;
+}
