@@ -588,3 +588,101 @@ html, body, #root {
   .sp-preview-bottom { grid-template-columns: 1fr; }
   .sp-preview-task-card { display: none; }
 }
+
+
+/* Assignment-first dashboard: remove progress visualization and give tasks the full panel */
+.sp-preview-bottom {
+  grid-template-columns: minmax(0, 1fr);
+}
+.sp-preview-task-card {
+  width: 100%;
+  gap: 0;
+  padding: 12px 14px;
+}
+.sp-preview-assignment-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+.sp-preview-assignment-heading b {
+  color: #304238;
+  font-size: 11px;
+}
+.sp-preview-assignment-heading > span {
+  color: #6d8877;
+  font-size: 8px;
+}
+.sp-preview-task-card > .sp-preview-assignment {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid #efefe8;
+}
+.sp-preview-task-card > .sp-preview-assignment > i {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #f0f1e9;
+}
+.sp-preview-task-card > .sp-preview-assignment > i::after {
+  content: "";
+  width: 8px;
+  height: 10px;
+  border: 1.5px solid #557561;
+  border-radius: 2px;
+}
+.sp-preview-task-card > .sp-preview-assignment > i.sp-task-quiz {
+  background: #f4ecd9;
+}
+.sp-preview-task-card > .sp-preview-assignment > i.sp-task-quiz::after {
+  border-color: #a18a57;
+  border-radius: 50%;
+}
+.sp-preview-task-card > .sp-preview-assignment > i.sp-task-review {
+  background: #e9efeb;
+}
+.sp-preview-task-card > .sp-preview-assignment > i.sp-task-review::after {
+  width: 10px;
+  height: 6px;
+  border-top: 1.5px solid #557561;
+  border-right: 1.5px solid #557561;
+  border-bottom: 1.5px solid #557561;
+  border-left: 0;
+}
+.sp-preview-task-card > .sp-preview-assignment > span {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  color: #304238;
+  font-size: 9px;
+}
+.sp-preview-task-card > .sp-preview-assignment > span b {
+  color: #304238;
+  font-size: 9px;
+  font-weight: 650;
+}
+.sp-preview-task-card > .sp-preview-assignment > span small {
+  color: #899189;
+  font-size: 7px;
+  line-height: 1.4;
+}
+.sp-preview-task-card > .sp-preview-assignment > em {
+  color: #6d8877;
+  font-size: 8px;
+  font-style: normal;
+  white-space: nowrap;
+}
+@media (max-width: 520px) {
+  .sp-preview-bottom { grid-template-columns: minmax(0, 1fr); }
+  .sp-preview-task-card { display: flex; padding: 8px; }
+  .sp-preview-task-card > .sp-preview-assignment { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 7px; padding: 8px 0; }
+  .sp-preview-task-card > .sp-preview-assignment > i { width: 22px; height: 22px; }
+}
