@@ -73,6 +73,7 @@ export default function App() {
           </button>
           <nav className="flex items-center gap-2">
             <button type="button" onClick={() => setPage('home')} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900">Home</button>
+            <a href="https://dia4ai.com" target="_blank" rel="noreferrer" className="rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-sm font-extrabold text-violet-800 shadow-[0_0_16px_rgba(139,92,246,0.28)] transition hover:bg-violet-100 hover:shadow-[0_0_22px_rgba(139,92,246,0.45)]">Dia4AI ↗</a>
             <button type="button" onClick={handleStartStudying} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">Start studying</button>
           </nav>
         </div>
@@ -85,7 +86,8 @@ export default function App() {
         {page === 'review' && attemptId && <PerformancePage attemptId={attemptId} onReattempt={handleReattempt} onUploadNew={handleUploadNew} />}
       </main>
       <footer className="border-t border-slate-200 bg-white px-4 py-5 text-center text-xs text-slate-500">
-        StudyPDF · Turn your own study material into practice exams
+        <div>StudyPDF · Turn your own study material into practice exams</div>
+        <a href="https://dia4ai.com" target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-full border border-violet-300 bg-violet-50 px-3 py-1.5 font-bold text-violet-800 shadow-[0_0_14px_rgba(139,92,246,0.22)] hover:bg-violet-100">Explore Dia4AI ↗</a>
       </footer>
     </div>
   );
