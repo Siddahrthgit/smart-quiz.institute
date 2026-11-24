@@ -655,7 +655,11 @@ app.get('/api/documents', identifyOwner, (req, res) => {
 
 // Get document by ID
 app.get('/api/documents/:id', identifyOwner, (req, res) => {
-  const doc = documentStore.get(req.params.id);
+  const docId = req.params.id;
+  if (typeof docId !== 'string') {
+    return res.status(400).json({ error: 'Invalid document ID' });
+  }
+  const doc = documentStore.get(docId);
   if (!doc || doc.ownerKey !== requestOwnerKey(req)) {
     return res.status(404).json({ error: 'Document not found' });
   }
@@ -666,6 +670,9 @@ app.get('/api/documents/:id', identifyOwner, (req, res) => {
 // Delete document by ID
 app.delete('/api/documents/:id', identifyOwner, (req, res) => {
   const docId = req.params.id;
+  if (typeof docId !== 'string') {
+    return res.status(400).json({ error: 'Invalid document ID' });
+  }
   const existing = documentStore.get(docId);
   if (existing && existing.ownerKey === requestOwnerKey(req)) {
     documentStore.delete(docId);
